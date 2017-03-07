@@ -697,7 +697,7 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
 
         // create binder event attached to devid name
         evtHandle->afbevt = afb_daemon_make_event (binderIface->daemon, devid);
-        if (!evtHandle->afbevt.closure) {
+        if (!afb_event_is_valid (evtHandle->afbevt)) {
             afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", devid);
             snd_ctl_close(ctlHandle);
             goto ExitOnError; 
@@ -710,7 +710,7 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
     // subscribe to binder event    
     err = afb_req_subscribe(request, evtHandle->afbevt);
     if (err != 0) {
-        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s need WS", devid, err);
+        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", devid, err);
         goto ExitOnError;
     }
 

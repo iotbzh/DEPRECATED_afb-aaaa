@@ -111,3 +111,4 @@ SET(link_libraries
 # Bindings to compile
 # --------------------
 add_subdirectory(Alsa)
+add_subdirectory(BusinessLogic)
