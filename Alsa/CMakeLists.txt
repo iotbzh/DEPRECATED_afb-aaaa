@@ -22,5 +22,10 @@ PKG_CHECK_MODULES(alsa REQUIRED alsa)
 # Max Sound Card Number eligible to ctlevent subscription
 defstr(MAX_SND_CARD  16)
 
+SET(link_libraries
+	${alsa_LIBRARIES}
+        ${link_libraries}
+	)
+
 ADD_SUBDIRECTORY(core-binding)
 

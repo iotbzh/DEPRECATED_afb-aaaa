@@ -710,10 +710,11 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
     // subscribe to binder event    
     err = afb_req_subscribe(request, evtHandle->afbevt);
     if (err != 0) {
-        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s err=%d", devid, err);
+        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s need WS", devid, err);
         goto ExitOnError;
     }
 
+    // increase usage count and return success
     sndHandles[idx].ucount ++;
     afb_req_success(request, NULL, NULL);
     return;

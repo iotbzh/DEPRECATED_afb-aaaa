@@ -88,7 +88,7 @@ PKG_CHECK_MODULES(json-c REQUIRED json-c)
 PKG_CHECK_MODULES(afb-daemon REQUIRED afb-daemon)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-  # CHECK_LIBRARY_EXISTS(efence malloc "" HAVE_LIBEFENCE)
+  CHECK_LIBRARY_EXISTS(efence malloc "" HAVE_LIBEFENCE)
   IF(HAVE_LIBEFENCE)
     MESSAGE(STATUS "Linking with ElectricFence for debugging purposes...")
     SET(libefence_LIBRARIES "-lefence")
@@ -106,7 +106,6 @@ SET(include_dirs
 SET(link_libraries
 	${libefence_LIBRARIES}
 	${json-c_LIBRARIES}
-	${alsa_LIBRARIES}
 	)
 
 # Bindings to compile

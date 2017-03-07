@@ -48,7 +48,7 @@ make install
 ls
 
 # Start the binder
-afb-daemon --token=x --ldpaths=$INSTALL_DIR/lib --port=5555 --rootdir=$INSTALL_DIR --verbose
+afb-daemon --token=x --ldpaths=$INSTALL_DIR/lib --port=1234 --roothttp=$INSTALL_DIR/htdocs/audio-bindings --verbose
 ```
 
 
