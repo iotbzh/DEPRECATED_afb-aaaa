@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
-   Simple HTML test
+   Basic HTML & WS test
 ------------------------------------------------------------------------
   
   # Load bindings directly from development tree for debug

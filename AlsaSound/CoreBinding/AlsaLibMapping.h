@@ -34,15 +34,17 @@ typedef int BOOL;
 
 #include <json-c/json.h>
 #include <afb/afb-binding.h>
-
+#include <afb/afb-service-itf.h>
 
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
 
 // import from AlsaAfbMapping
+PUBLIC int  alsaLibInit (struct afb_service service);
 PUBLIC void alsaGetInfo (struct afb_req request);
 PUBLIC void alsaGetCtl(struct afb_req request);
-PUBLIC void alsaSubCtl (struct afb_req request);
+PUBLIC void alsaSubcribe (struct afb_req request);
+PUBLIC void alsaGetCardId (struct afb_req request);
 
 
 #endif /* ALSALIBMAPPING_H */

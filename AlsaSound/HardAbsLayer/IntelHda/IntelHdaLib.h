@@ -36,29 +36,14 @@ typedef int BOOL;
 #include <afb/afb-binding.h>
 #include <afb/afb-service-itf.h>
 
-
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
 
-
-// This structure hold private data for a given client of binding
-typedef struct {
- 
-  int  cardid;
-  const char  *devid;
-  const char  *shortname;
-  const char  *longname;
-  json_object *queryurl;
-} AudioLogicCtxT;
-
 // import from AlsaAfbMapping
-PUBLIC void audioLogicSetVol (struct afb_req request);
-PUBLIC void audioLogicGetVol(struct afb_req request);
-PUBLIC void audioLogicMonitor(struct afb_req request);
-PUBLIC void audioLogicOpen(struct afb_req request);
-PUBLIC void audioLogicClose(struct afb_req request);
-PUBLIC void audioLogicSubscribe(struct afb_req request);
-PUBLIC int  audioLogicInit (struct afb_service service);
+PUBLIC void intelHdaSetVol (struct afb_req request);
+PUBLIC void intelHdaGetVol(struct afb_req request);
+PUBLIC void intelHdaSubscribe(struct afb_req request);
+PUBLIC int  intelHdaInit (struct afb_service service, const char *cardname);
 
 #endif /* AUDIOLIBMAPPING_H */
 

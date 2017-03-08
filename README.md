@@ -63,5 +63,9 @@ ls
 # Start the binder
 afb-daemon --token=x --ldpaths=$INSTALL_DIR/lib/audio --port=1234 --roothttp=$INSTALL_DIR/htdocs/audio-bindings --verbose
 ```
+Start a browser on http://localhost:1234?devid=hw:0
 
-
+Start AlsaMixer and change volume you should see event in your browser
+```
+alsamixer -D hw:0
+```

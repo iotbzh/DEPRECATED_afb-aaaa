@@ -26,13 +26,11 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#define _GNU_SOURCE  // needed for vasprintf
-#include "AlsaLibMapping.h"
-#include <afb/afb-service-itf.h>
+#include "IntelHdaLib.h"
 
 PUBLIC const struct afb_binding_interface *afbIface;   
 
-static void localping(struct afb_req request) {
+STATIC void localping(struct afb_req request) {
     json_object *query = afb_req_json(request);
     afb_req_success(request, query, NULL); 
 }
@@ -40,39 +38,45 @@ static void localping(struct afb_req request) {
 /*
  * array of the verbs exported to afb-daemon
  */
-static const struct afb_verb_desc_v1 binding_verbs[] = {
+STATIC const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,    .session= AFB_SESSION_NONE, .callback= localping,   .info= "Ping Binding" },
-  { .name= "getinfo",    .session= AFB_SESSION_NONE, .callback= alsaGetInfo, .info= "List All/One Sound Cards Info" },
-  { .name= "getctl",    .session= AFB_SESSION_NONE,  .callback= alsaGetCtl,  .info= "List All/One Controls from selected sndcard" },
-  { .name= "subctl",    .session= AFB_SESSION_NONE,  .callback= alsaSubCtl,  .info= "Subscribe to events from selected sndcard" },
+  { .name= "ping"   ,    .session= AFB_SESSION_NONE, .callback= localping,      .info= "Ping Binding" },
+  { .name= "setvolume",  .session= AFB_SESSION_NONE, .callback= intelHdaSetVol,    .info= "Set Volume" },
+  { .name= "getvolume",  .session= AFB_SESSION_NONE, .callback= intelHdaGetVol,    .info= "Get Volume" },
+  { .name= "subscribe",  .session= AFB_SESSION_NONE, .callback= intelHdaSubscribe, .info= "Subscribe AudioBinding Events" },
   { .name= NULL } /* marker for end of the array */
 };
 
 /*
  * description of the binding for afb-daemon
  */
-static const struct afb_binding binding_description = {
+STATIC const struct afb_binding binding_description = {
   /* description conforms to VERSION 1 */
   .type= AFB_BINDING_VERSION_1,
   .v1= {
-    .prefix= "alsacore",
-    .info= "Low Level Interface to Alsa Sound Lib",
+    .prefix= "intel-hda",
+    .info= "Hardware Abstraction Layer for IntelHDA sound card",
     .verbs = binding_verbs
   }
 };
 
-extern int afbBindingV1ServiceInit(struct afb_service service) {
-   // this is call when after all bindings are loaded
-   return (0); 
+// This receive all event this binding subscribe to 
+PUBLIC void afbBindingV1ServiceEvent(const char *evtname, struct json_object *object) {
+  
+    NOTICE (afbIface, "afbBindingV1ServiceEvent evtname=%s [msg=%s]", evtname, json_object_to_json_string(object));
+}
+
+// this is call when after all bindings are loaded
+PUBLIC int afbBindingV1ServiceInit(struct afb_service service) {
+    
+   return (intelHdaInit(service, binding_description.v1.prefix)); 
 };
 
 /*
  * activation function for registering the binding called by afb-daemon
  */
-const struct afb_binding *afbBindingV1Register(const struct afb_binding_interface *itf) {
+PUBLIC const struct afb_binding *afbBindingV1Register(const struct afb_binding_interface *itf) {
     afbIface= itf;
-    
     return &binding_description;	/* returns the description of the binding */
 }
 

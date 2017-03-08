@@ -29,6 +29,7 @@
 #include "AlsaLibMapping.h"
 
 #include <systemd/sd-event.h>
+static struct afb_service srvitf;
 
 // generic structure to pass parsed query values
 typedef struct {
@@ -50,9 +51,6 @@ typedef struct {
     int ucount;
     evtHandleT *evtHandle;
 } sndHandleT;
-
-
-
 
 STATIC json_object *DB2StringJsonOject (long dB) {
     char label [20];
@@ -323,7 +321,7 @@ PUBLIC void alsaGetInfo (struct afb_req request) {
         sndcards =json_object_new_array();
 
         // loop on potential card number
-        for (card =0; card < 32; card++) {
+        for (card =0; card < MAX_SND_CARD; card++) {
 
             // build card devid and probe it
             snprintf (devid, sizeof(devid), "hw:%i", card);
@@ -626,8 +624,8 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
 	return (0);    
 }
 
-// Loop on every potential Sound card and register active one
-PUBLIC void alsaSubCtl (struct afb_req request) {
+// Subscribe to every Alsa CtlEvent send by a given board
+PUBLIC void alsaSubcribe (struct afb_req request) {
     static sndHandleT sndHandles[MAX_SND_CARD];
     evtHandleT *evtHandle;
     snd_ctl_t  *ctlHandle;
@@ -675,6 +673,7 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
         evtHandle->ctl = ctlHandle;
         sndHandles[idxFree].ucount = 0;
         sndHandles[idxFree].cardid = cardid;
+        sndHandles[idxFree].evtHandle = evtHandle;
         
         // subscribe for sndctl events attached to devid
         err = snd_ctl_subscribe_events(evtHandle->ctl, 1);
@@ -714,10 +713,6 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
         goto ExitOnError;
     }
 
-    json_object *ctlEventJson = json_object_new_object();
-    json_object_object_add(ctlEventJson, "test",json_object_new_string ("done"));
-    afb_event_push(evtHandle->afbevt, ctlEventJson );
-    
     // increase usage count and return success
     sndHandles[idx].ucount ++;
     afb_req_success(request, NULL, NULL);
@@ -725,4 +720,68 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
     
   ExitOnError:
         return;
+}
+
+// Subscribe to every Alsa CtlEvent send by a given board
+PUBLIC void alsaGetCardId (struct afb_req request) {
+    char devid [10];
+    int card, err, index;
+    json_object *respJson;
+    snd_ctl_t   *ctlHandle;
+    snd_ctl_card_info_t *cardinfo;
+    
+    const char *sndname = afb_req_value(request, "sndname");
+    if (sndname == NULL) {
+        afb_req_fail_f (request, "argument-missing", "sndname=SndCardName missing");
+        goto ExitOnError;
+    }
+    
+    // loop on potential card number
+    snd_ctl_card_info_alloca(&cardinfo);  
+    for (card =0; card < MAX_SND_CARD; card++) {
+
+        // build card devid and probe it
+        snprintf (devid, sizeof(devid), "hw:%i", card);
+        
+        // open control interface for devid
+        err = snd_ctl_open(&ctlHandle, devid, SND_CTL_READONLY);
+        if (err < 0) continue;   
+        
+        snd_ctl_card_info(ctlHandle, cardinfo);
+        index    = snd_ctl_card_info_get_card(cardinfo);
+
+        // check if short|long name match        
+        if (!strcmp (sndname, snd_ctl_card_info_get_id(cardinfo))) break;
+        if (!strcmp (sndname, snd_ctl_card_info_get_name(cardinfo))) break;
+        if (!strcmp (sndname, snd_ctl_card_info_get_longname(cardinfo))) break;
+    }
+    
+    if (card == MAX_SND_CARD) {
+        afb_req_fail_f (request, "sndcard-notfound", "Fail to find card with name=%s", sndname);
+        goto ExitOnError;
+    }
+    
+    // proxy ctlevent as a binder event        
+    respJson = json_object_new_object();
+    json_object_object_add(respJson, "index"     ,json_object_new_int (index));
+    json_object_object_add(respJson, "devid"     ,json_object_new_string (devid));
+    json_object_object_add(respJson, "shortname" ,json_object_new_string (snd_ctl_card_info_get_name(cardinfo)));
+    json_object_object_add(respJson, "longname"  ,json_object_new_string (snd_ctl_card_info_get_longname(cardinfo)));
+        
+    afb_req_success(request, respJson, NULL);    
+    return;
+    
+  ExitOnError:
+        return;  
+}
+
+
+
+// This function is call when all plugins are loaded
+PUBLIC int alsaLibInit (struct afb_service service) {
+
+    // For future use    
+    srvitf = service;
+    
+    return 0;
 }

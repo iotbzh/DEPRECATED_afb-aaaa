@@ -2,41 +2,23 @@
 <head>
     <title>Hello world test</title>
     
-    <script type="text/javascript" src="websock.js"></script>
-    <script type="text/javascript">
-	var ws;
+    <script type="text/javascript" src="AFB-websock.js"></script>
+    <script type="text/javascript" src="AudioBinding.js"></script>
 
-	function onopen() {
-		document.getElementById("main").style.visibility = "visible";
-		document.getElementById("connected").innerHTML = "WebSocket Open";
-	}
-	function onabort() {
-		document.getElementById("main").style.visibility = "hidden";
-		document.getElementById("connected").innerHTML = "Connected Closed";
-	}
-	function init() {
-		ws = new AfbWsItf("api", onopen, onabort, new AfbCtxItf("mysecret"));
-	}
-	function replyok(obj) {
-		document.getElementById("output").innerHTML = "OK: "+JSON.stringify(obj);
-	}
-	function replyerr(obj) {
-		document.getElementById("output").innerHTML = "ERROR: "+JSON.stringify(obj);
-	}
-	function subscribe(devid) {
-                ws.call("alsacore", "subctl", {devid:devid}, replyok, replyerr);
-	}
-    </script>
-    
 <body onload="init();">
     <h1>Hello world test</h1>
+    <button id="connected">Binder WS Fail</button></li>
+    <br>
     <ol>
-     <li><a href="api/alsacore/getinfo">getinfo: List Sound Cards</a>
-     <li><a href="api/alsacore/getinfo?devid=hw:0">Card info about hw:0</a>
-     <li><a href="api/alsacore/getctl?devid=hw:0">List controls for hw:0 (quiet)</a>
-     <li><a href="api/alsacore/getctl?devid=hw:0&quiet=0">List controls for hw:0 (verbose)</a>
-     <li><a href="api/alsacore/getctl?devid=hw:0&numid=1&quiet=0">return control numid=1 for hw:0</a>
-     <li><button id="connected" onclick="subscribe('hw:0')">Click to Connected</button></li>
+    <li><a href="api/alsacore/getinfo">getinfo: List Sound Cards</a>
+    <li><a href="api/alsacore/getinfo?devid=hw:0">Card info about hw:0</a>
+    <li><a href="api/alsacore/getctl?devid=hw:0">List controls for hw:0 (quiet)</a>
+    <li><a href="api/alsacore/getctl?devid=hw:0&quiet=0">List controls for hw:0 (verbose)</a>
+    <li><a href="api/alsacore/getctl?devid=hw:0&numid=1&quiet=0">return control numid=1 for hw:0</a>
+    <br>    
+    <li><button onclick="callbinder('alsacore','subscribe', {devid:devid})">Subscribe AlsaCtl Events</button></li>
+    <br>    
     <div id="main" style="visibility:hidden">
     Server says... <div id="output"></div>
+    Events: <div id="outevt"></div>
     </div>    

@@ -2,6 +2,13 @@
 <configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
+      <df name="Alsa">
+        <df name="HardAbsLayer">
+          <df name="Includes">
+            <in>AlsaMixerHal.h</in>
+          </df>
+        </df>
+      </df>
       <df name="MostVolume">
         <df name="external">
           <in>ConnectionInfo.cpp</in>
@@ -57,6 +64,8 @@
           <preBuildFirst>true</preBuildFirst>
         </preBuild>
       </makefileType>
+      <item path="Alsa/Includes/AlsaMixerHal.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="0">

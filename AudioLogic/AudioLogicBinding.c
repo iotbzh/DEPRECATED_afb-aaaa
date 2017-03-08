@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#define _GNU_SOURCE  // needed for vasprintf
+#include "AlsaMixerHal.h"
 #include "AudioLogicLib.h"
 
 PUBLIC const struct afb_binding_interface *afbIface;   
@@ -36,15 +36,19 @@ STATIC void localping(struct afb_req request) {
     afb_req_success(request, query, NULL); 
 }
 
+
 /*
  * array of the verbs exported to afb-daemon
  */
 STATIC const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,    .session= AFB_SESSION_NONE, .callback= localping,      .info= "Ping Binding" },
-  { .name= "setvolume",  .session= AFB_SESSION_NONE, .callback= audioLogicSetVol,    .info= "Set Volume" },
-  { .name= "getvolume",  .session= AFB_SESSION_NONE, .callback= audioLogicGetVol,    .info= "Get Volume" },
-  { .name= "monitor",    .session= AFB_SESSION_NONE, .callback= audioLogicMonitor,   .info= "Subscribe Volume Events" },
+  { .name= "ping"   ,    .session= AFB_SESSION_NONE,  .callback= localping,      .info= "Ping Binding" },
+  { .name= "setvolume",  .session= AFB_SESSION_CHECK, .callback= audioLogicSetVol,    .info= "Set Volume" },
+  { .name= "getvolume",  .session= AFB_SESSION_CHECK, .callback= audioLogicGetVol,    .info= "Get Volume" },
+  { .name= "subscribe",  .session= AFB_SESSION_CHECK, .callback= audioLogicSubscribe, .info= "Subscribe AudioBinding Events" },
+  { .name= "monitor",    .session= AFB_SESSION_CHECK, .callback= audioLogicMonitor,   .info= "Activate AlsaCtl Monitoring" },
+  { .name= "open",       .session= AFB_SESSION_CREATE,.callback= audioLogicOpen,      .info= "Open a Dedicated SoundCard" },
+  { .name= "close",      .session= AFB_SESSION_CLOSE, .callback= audioLogicClose,     .info= "Close previously open SoundCard" },
   { .name= NULL } /* marker for end of the array */
 };
 
