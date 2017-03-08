@@ -270,13 +270,13 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     snd_ctl_card_info_alloca(&cardinfo);
 
     if ((err = snd_ctl_open(&handle, rqtSndId, 0)) < 0) {
-        INFO (binderIface, "SndCard [%s] Not Found", rqtSndId);
+        INFO (afbIface, "SndCard [%s] Not Found", rqtSndId);
         return NULL;
     }
 
     if ((err = snd_ctl_card_info(handle, cardinfo)) < 0) {
         snd_ctl_close(handle);
-        WARNING (binderIface, "SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
+        WARNING (afbIface, "SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
         return NULL;
     }
 
@@ -288,13 +288,13 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     name =  snd_ctl_card_info_get_name(cardinfo);
     json_object_object_add (sndcard, "name", json_object_new_string (name));
 
-    if (binderIface->verbosity > 1) {
+    if (afbIface->verbosity > 1) {
         json_object_object_add (sndcard, "devid", json_object_new_string(rqtSndId));
         driver= snd_ctl_card_info_get_driver(cardinfo);
         json_object_object_add (sndcard, "driver"  , json_object_new_string(driver));
         info  = strdup(snd_ctl_card_info_get_longname (cardinfo));
         json_object_object_add (sndcard, "info" , json_object_new_string (info));
-        INFO (binderIface, "AJG: Soundcard Devid=%-5s Cardid=%-7s Name=%s\n", rqtSndId, devid, info);
+        INFO (afbIface, "AJG: Soundcard Devid=%-5s Cardid=%-7s Name=%s\n", rqtSndId, devid, info);
     }
 
     // free card handle and return info
@@ -565,6 +565,7 @@ PUBLIC void alsaGetCtl(struct afb_req request) {
         return;
 }
 
+// This routine is called when ALSA event are fired
 STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void* userData) {
     int err;
     evtHandleT *evtHandle = (evtHandleT*)userData; 
@@ -579,7 +580,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
     int index;  
     
     if ((revents & EPOLLHUP) != 0) {
-        NOTICE (binderIface, "SndCtl hanghup [car disconnected]");
+        NOTICE (afbIface, "SndCtl hanghup [car disconnected]");
         goto ExitOnSucess;
     }
     
@@ -604,7 +605,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         devname= snd_ctl_event_elem_get_name(ctlEvent);
         index  = snd_ctl_event_elem_get_index(ctlEvent);
         
-        fprintf(stdout, "*** Debug (%i,%i,%i,%i,%s,%i)", numid, iface, device, subdev, devname, index);
+        DEBUG(afbIface, "sndCtlEventCB: (%i,%i,%i,%i,%s,%i)", numid, iface, device, subdev, devname, index);
 
         // proxy ctlevent as a binder event        
         ctlEventJson = json_object_new_object();
@@ -617,13 +618,12 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         afb_event_push(evtHandle->afbevt, ctlEventJson);
     }
 
-    
-    ExitOnError:
-        WARNING (binderIface, "sndCtlEventCB: ignored unsupported event type");
-	return (0);
-    
     ExitOnSucess:
         return 0;
+    
+    ExitOnError:
+        WARNING (afbIface, "sndCtlEventCB: ignored unsupported event type");
+	return (0);    
 }
 
 // Loop on every potential Sound card and register active one
@@ -688,7 +688,7 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
         snd_ctl_poll_descriptors(evtHandle->ctl, &evtHandle->pfds, 1);
 
         // register sound event to binder main loop
-        err = sd_event_add_io(afb_daemon_get_event_loop(binderIface->daemon), &evtHandle->src, evtHandle->pfds.fd, EPOLLIN, sndCtlEventCB, evtHandle);
+        err = sd_event_add_io(afb_daemon_get_event_loop(afbIface->daemon), &evtHandle->src, evtHandle->pfds.fd, EPOLLIN, sndCtlEventCB, evtHandle);
         if (err < 0) {
             afb_req_fail_f (request, "register-mainloop", "Cannot hook events to mainloop devid=%s err=%d", devid, err);
             snd_ctl_close(ctlHandle);
@@ -696,13 +696,13 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
         }
 
         // create binder event attached to devid name
-        evtHandle->afbevt = afb_daemon_make_event (binderIface->daemon, devid);
+        evtHandle->afbevt = afb_daemon_make_event (afbIface->daemon, devid);
         if (!afb_event_is_valid (evtHandle->afbevt)) {
             afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", devid);
             snd_ctl_close(ctlHandle);
             goto ExitOnError; 
         }
-        
+
         // everything looks OK let's move forward 
         idx=idxFree;
     }
@@ -714,6 +714,10 @@ PUBLIC void alsaSubCtl (struct afb_req request) {
         goto ExitOnError;
     }
 
+    json_object *ctlEventJson = json_object_new_object();
+    json_object_object_add(ctlEventJson, "test",json_object_new_string ("done"));
+    afb_event_push(evtHandle->afbevt, ctlEventJson );
+    
     // increase usage count and return success
     sndHandles[idx].ucount ++;
     afb_req_success(request, NULL, NULL);

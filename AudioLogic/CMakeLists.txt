@@ -22,7 +22,7 @@ INCLUDE_DIRECTORIES(${include_dirs})
 ##################################################
 # AudioLogicBinding
 ##################################################
-ADD_LIBRARY(audiologic-afb MODULE AudioLogicBinding.c AudioLogicMapping.c)
+ADD_LIBRARY(audiologic-afb MODULE AudioLogicBinding.c AudioLogicLib.c)
 
 SET_TARGET_PROPERTIES(audiologic-afb PROPERTIES
 	PREFIX ""

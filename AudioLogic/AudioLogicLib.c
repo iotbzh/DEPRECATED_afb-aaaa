@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "AudioLogicMapping.h"
+#include "AudioLogicLib.h"
 static struct afb_service srvitf;
 
 #define _GNU_SOURCE  // needed for vasprintf
@@ -37,13 +37,14 @@ PUBLIC int audioLogicInit (struct afb_service service) {
     return 0;
 }
 
+// This callback is fired when afb_service_call for api/alsacore/subctl returns
 STATIC void alsaSubcribeCB (void *handle, int iserror, struct json_object *result) {
 	struct afb_req request = afb_req_unstore(handle);
         struct json_object *x, *resp = NULL;
 	const char *info = NULL;
 
 	if (result) {
-	    fprintf (stdout, "result=[%s]\n", json_object_to_json_string (result));
+	    INFO (afbIface, "result=[%s]\n", json_object_to_json_string (result));
             if (json_object_object_get_ex(result, "request", &x) && json_object_object_get_ex(x, "info", &x))
 		info = json_object_get_string(x);
 		if (!json_object_object_get_ex(result, "response", &resp)) resp = NULL;
@@ -57,8 +58,8 @@ STATIC void alsaSubcribeCB (void *handle, int iserror, struct json_object *resul
 	afb_req_unref(request);
 }
 
-
-PUBLIC void audioLogicSubscribe(struct afb_req request) {
+// Create and subscribe to alsacore ctl events
+PUBLIC void audioLogicMonitor(struct afb_req request) {
     
     // save request in session as it might be used after return by callback
     struct afb_req *handle = afb_req_store(request);
@@ -67,12 +68,12 @@ PUBLIC void audioLogicSubscribe(struct afb_req request) {
     if (!handle) afb_req_fail(request, "error", "out of memory");
     else    afb_service_call(srvitf, "alsacore", "subctl", json_object_get(afb_req_json(request)), alsaSubcribeCB, handle);
 
-    // success/failure message will be position from callback    
+    // success/failure messages return from callback    
 }
 
+// Call when all bindings are loaded and ready to accept request
 PUBLIC void audioLogicGetVol(struct afb_req request) {
    
-
     afb_req_success (request, NULL, NULL);
     return;
     

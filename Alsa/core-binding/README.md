@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 Testing: (from project directory bindings)
- * start binder:  ~/opt/bin/afb-daemon --ldpaths=./Alsa/src/low-level-binding:./BusinessLogic/audiologic-afb.so --roothttp=htdocs
+ * start binder:  ~/opt/bin/afb-daemon --ldpaths=./build --roothttp=htdocs
  * connect browser on http://localhost:1234
 
  # List Avaliable Sound cards

@@ -37,8 +37,7 @@ typedef int BOOL;
 
 
 // import from AlsaAfbBinding
-extern const struct afb_binding_interface *binderIface;
-extern struct sd_event *afb_common_get_event_loop();
+extern const struct afb_binding_interface *afbIface;
 
 // import from AlsaAfbMapping
 PUBLIC void alsaGetInfo (struct afb_req request);

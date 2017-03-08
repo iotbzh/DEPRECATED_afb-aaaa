@@ -38,12 +38,12 @@ typedef int BOOL;
 
 
 // import from AlsaAfbBinding
-extern const struct afb_binding_interface *binderIface;
+extern const struct afb_binding_interface *afbIface;
 
 // import from AlsaAfbMapping
 PUBLIC void audioLogicSetVol (struct afb_req request);
 PUBLIC void audioLogicGetVol(struct afb_req request);
-PUBLIC void audioLogicSubscribe(struct afb_req request);
+PUBLIC void audioLogicMonitor(struct afb_req request);
 PUBLIC int  audioLogicInit (struct afb_service service);
 
 #endif /* AUDIOLIBMAPPING_H */

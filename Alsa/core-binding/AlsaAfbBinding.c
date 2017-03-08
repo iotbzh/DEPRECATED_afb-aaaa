@@ -30,7 +30,7 @@
 #include "AlsaLibMapping.h"
 #include <afb/afb-service-itf.h>
 
-PUBLIC const struct afb_binding_interface *binderIface;   
+PUBLIC const struct afb_binding_interface *afbIface;   
 
 static void localping(struct afb_req request) {
     json_object *query = afb_req_json(request);
@@ -71,7 +71,7 @@ extern int afbBindingV1ServiceInit(struct afb_service service) {
  * activation function for registering the binding called by afb-daemon
  */
 const struct afb_binding *afbBindingV1Register(const struct afb_binding_interface *itf) {
-    binderIface= itf;
+    afbIface= itf;
     
     return &binding_description;	/* returns the description of the binding */
 }

@@ -45,7 +45,7 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(GNUInstallDirs)
 
 
-SET(binding_install_dir ${CMAKE_INSTALL_FULL_LIBDIR}/afb)
+SET(binding_install_dir ${CMAKE_INSTALL_FULL_LIBDIR}/audio)
 
 # Generic useful macro
 ###########################################################
@@ -111,4 +111,5 @@ SET(link_libraries
 # Bindings to compile
 # --------------------
 add_subdirectory(Alsa)
-add_subdirectory(BusinessLogic)
+add_subdirectory(AudioLogic)
+add_subdirectory(htdocs)

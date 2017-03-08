@@ -27,11 +27,11 @@
 #include <sys/types.h>
 
 #define _GNU_SOURCE  // needed for vasprintf
-#include "AudioLogicMapping.h"
+#include "AudioLogicLib.h"
 
-PUBLIC const struct afb_binding_interface *binderIface;   
+PUBLIC const struct afb_binding_interface *afbIface;   
 
-static void localping(struct afb_req request) {
+STATIC void localping(struct afb_req request) {
     json_object *query = afb_req_json(request);
     afb_req_success(request, query, NULL); 
 }
@@ -39,19 +39,19 @@ static void localping(struct afb_req request) {
 /*
  * array of the verbs exported to afb-daemon
  */
-static const struct afb_verb_desc_v1 binding_verbs[] = {
+STATIC const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
   { .name= "ping"   ,    .session= AFB_SESSION_NONE, .callback= localping,      .info= "Ping Binding" },
   { .name= "setvolume",  .session= AFB_SESSION_NONE, .callback= audioLogicSetVol,    .info= "Set Volume" },
   { .name= "getvolume",  .session= AFB_SESSION_NONE, .callback= audioLogicGetVol,    .info= "Get Volume" },
-  { .name= "subscribe",  .session= AFB_SESSION_NONE, .callback= audioLogicSubscribe, .info= "Get Volume" },
+  { .name= "monitor",    .session= AFB_SESSION_NONE, .callback= audioLogicMonitor,   .info= "Subscribe Volume Events" },
   { .name= NULL } /* marker for end of the array */
 };
 
 /*
  * description of the binding for afb-daemon
  */
-static const struct afb_binding binding_description = {
+STATIC const struct afb_binding binding_description = {
   /* description conforms to VERSION 1 */
   .type= AFB_BINDING_VERSION_1,
   .v1= {
@@ -61,8 +61,14 @@ static const struct afb_binding binding_description = {
   }
 };
 
-extern int afbBindingV1ServiceInit(struct afb_service service) {
-   // this is call when after all bindings are loaded
+// This receive all event this binding subscribe to 
+PUBLIC void afbBindingV1ServiceEvent(const char *evtname, struct json_object *object) {
+  
+    NOTICE (afbIface, "afbBindingV1ServiceEvent evtname=%s [msg=%s]", evtname, json_object_to_json_string(object));
+}
+
+// this is call when after all bindings are loaded
+PUBLIC int afbBindingV1ServiceInit(struct afb_service service) {
     
    return (audioLogicInit(service)); 
 };
@@ -70,8 +76,8 @@ extern int afbBindingV1ServiceInit(struct afb_service service) {
 /*
  * activation function for registering the binding called by afb-daemon
  */
-const struct afb_binding *afbBindingV1Register(const struct afb_binding_interface *itf) {
-    binderIface= itf;
+PUBLIC const struct afb_binding *afbBindingV1Register(const struct afb_binding_interface *itf) {
+    afbIface= itf;
     
     return &binding_description;	/* returns the description of the binding */
 }
