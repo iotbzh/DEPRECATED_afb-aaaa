@@ -16,21 +16,11 @@
 # limitations under the License.
 ###########################################################################
 
+PROJECT(hadware-abstraction-layer C)
 
-INCLUDE_DIRECTORIES(${include_dirs})
+# Fulup NOTE: this might have to be change for a formal static/dynamic lib
+set(halsharedlib ${CMAKE_CURRENT_SOURCE_DIR}/Shared/SharedHalLib.c)
 
-##################################################
-# Inte-HDA sound card Hardware Abstraction Layer
-##################################################
-ADD_LIBRARY(intel-hda-hal MODULE IntelHdaBinding.c IntelHdaLib.c)
-
-SET_TARGET_PROPERTIES(intel-hda-hal PROPERTIES
-	PREFIX ""
-	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
-)
-
-TARGET_LINK_LIBRARIES(intel-hda-hal ${link_libraries})
-INSTALL(TARGETS intel-hda-hal
-        LIBRARY DESTINATION ${binding_install_dir})
-
+ADD_SUBDIRECTORY(IntelHda)
+ADD_SUBDIRECTORY(Shared)
 

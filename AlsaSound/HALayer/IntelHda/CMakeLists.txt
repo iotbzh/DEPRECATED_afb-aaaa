@@ -16,17 +16,21 @@
 # limitations under the License.
 ###########################################################################
 
-PROJECT(alsa-bindings C)
-PKG_CHECK_MODULES(alsa REQUIRED alsa)
 
-# Max Sound Card Number eligible to ctlevent subscription
-defstr(MAX_SND_CARD  16)
+INCLUDE_DIRECTORIES(${include_dirs})
 
-SET(link_libraries
-	${alsa_LIBRARIES}
-        ${link_libraries}
-	)
+##################################################
+# Inte-HDA sound card Hardware Abstraction Layer
+##################################################
+ADD_LIBRARY(intel-hda-hal MODULE IntelHdaHAL.c ${halsharedlib})
 
-ADD_SUBDIRECTORY(CoreBinding)
-ADD_SUBDIRECTORY(HALayer)
+SET_TARGET_PROPERTIES(intel-hda-hal PROPERTIES
+	PREFIX ""
+	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
+)
+
+TARGET_LINK_LIBRARIES(intel-hda-hal ${link_libraries})
+INSTALL(TARGETS intel-hda-hal
+        LIBRARY DESTINATION ${binding_install_dir})
+
 

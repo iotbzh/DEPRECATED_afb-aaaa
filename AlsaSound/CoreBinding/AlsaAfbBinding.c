@@ -40,11 +40,12 @@ static void localping(struct afb_req request) {
  */
 static const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= localping,    .info= "Ping Binding" },
-  { .name= "getinfo",   .session= AFB_SESSION_NONE, .callback= alsaGetInfo,  .info= "List All/One Sound Cards Info" },
-  { .name= "getctl",    .session= AFB_SESSION_NONE, .callback= alsaGetCtl,   .info= "List All/One Controls from selected sndcard" },
-  { .name= "subscribe", .session= AFB_SESSION_NONE, .callback= alsaSubcribe, .info= "Subscribe to events from selected sndcard" },
-  { .name= "getcardid", .session= AFB_SESSION_NONE, .callback= alsaGetCardId,.info= "Get CardId from its short/long name" },
+  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= localping,      .info= "Ping Binding" },
+  { .name= "getinfo",   .session= AFB_SESSION_NONE, .callback= alsaGetInfo,    .info= "List All/One Sound Cards Info" },
+  { .name= "getctl",    .session= AFB_SESSION_NONE, .callback= alsaGetCtl,     .info= "List All/One Controls from selected sndcard" },
+  { .name= "subscribe", .session= AFB_SESSION_NONE, .callback= alsaSubcribe,   .info= "Subscribe to events from selected sndcard" },
+  { .name= "getcardid", .session= AFB_SESSION_NONE, .callback= alsaGetCardId,  .info= "Get CardId from its short/long name" },
+  { .name= "registerHal",.session= AFB_SESSION_NONE,.callback= alsaRegisterHal,.info= "Register Hal CardName/ApiPrefix" },
   { .name= NULL } /* marker for end of the array */
 };
 

@@ -16,8 +16,15 @@
 # limitations under the License.
 ###########################################################################
 
-PROJECT(hadware-abstraction-layer C)
 
+INCLUDE_DIRECTORIES(${include_dirs})
 
-ADD_SUBDIRECTORY(IntelHda)
+##################################################
+# Shared HAL(Hardware Abstraction Layer)
+##################################################
+ADD_LIBRARY(shared-hal MODULE SharedHalLib.c)
+
+TARGET_LINK_LIBRARIES(shared-hal ${link_libraries})
+INSTALL(TARGETS shared-hal LIBRARY DESTINATION ${binding_install_dir})
+
 

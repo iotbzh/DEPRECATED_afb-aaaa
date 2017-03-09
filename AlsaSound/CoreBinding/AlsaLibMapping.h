@@ -36,6 +36,8 @@ typedef int BOOL;
 #include <afb/afb-binding.h>
 #include <afb/afb-service-itf.h>
 
+#include "MiscHelpers.h"
+
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
 
@@ -45,6 +47,7 @@ PUBLIC void alsaGetInfo (struct afb_req request);
 PUBLIC void alsaGetCtl(struct afb_req request);
 PUBLIC void alsaSubcribe (struct afb_req request);
 PUBLIC void alsaGetCardId (struct afb_req request);
+PUBLIC void alsaRegisterHal (struct afb_req request);
 
 
 #endif /* ALSALIBMAPPING_H */

@@ -98,7 +98,7 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
 SET(include_dirs
 	${INCLUDE_DIRS}
-	${CMAKE_SOURCE_DIR}/AlsaSound/include
+	${CMAKE_SOURCE_DIR}/AlsaSound/HALayer/include
 	${json-c_INCLUDE_DIRS}
 	${afb-daemon_INCLUDE_DIRS}
 	)

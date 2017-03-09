@@ -12,6 +12,9 @@ Testing: (from project directory bindings)
  # Get Info on a given Sound Card
  http://localhost:1234/api/alsacore/getinfo?devid=hw:0
 
+ # Get shortname/longname for a given card
+ http://localhost:1234/api/alsacore/getcardid?devid=hw:0
+
  # Get all controls from a given sound card
  http://localhost:1234/api/alsacore/getctl?devid=hw:0
 

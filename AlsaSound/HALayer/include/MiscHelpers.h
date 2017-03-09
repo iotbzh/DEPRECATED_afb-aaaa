@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
+#ifndef MISCHELPER_H
+#define MISCHELPER_H
 
-// few coding convention
-typedef int BOOL;
 #ifndef PUBLIC
   #define PUBLIC
 #endif
@@ -27,23 +27,7 @@ typedef int BOOL;
 #ifndef TRUE
   #define TRUE 1
 #endif
-#define STATIC    static
- 
-#ifndef AUDIOLIBMAPPING_H
-#define AUDIOLIBMAPPING_H
+#define STATIC static
 
-#include <json-c/json.h>
-#include <afb/afb-binding.h>
-#include <afb/afb-service-itf.h>
-
-// import from AlsaAfbBinding
-extern const struct afb_binding_interface *afbIface;
-
-// import from AlsaAfbMapping
-PUBLIC void intelHdaSetVol (struct afb_req request);
-PUBLIC void intelHdaGetVol(struct afb_req request);
-PUBLIC void intelHdaSubscribe(struct afb_req request);
-PUBLIC int  intelHdaInit (struct afb_service service, const char *cardname);
-
-#endif /* AUDIOLIBMAPPING_H */
+#endif /* MISCHELPER_H */
 

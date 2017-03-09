@@ -36,6 +36,8 @@ typedef int BOOL;
 #include <afb/afb-binding.h>
 #include <afb/afb-service-itf.h>
 
+#include "AlsaHalCtls.h"  // Alsa Hardware Abstraction Layer Controls
+
 
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
@@ -48,6 +50,13 @@ typedef struct {
   const char  *devid;
   const char  *shortname;
   const char  *longname;
+  const char  *halapi;
+  struct { // volume in % [0-100]
+      int masterPlaybackVolume;
+      int pcmPlaybackVolume;
+      int pcmPlaybackSwitch;
+      int captureVolume;
+  } volumes;
   json_object *queryurl;
 } AudioLogicCtxT;
 

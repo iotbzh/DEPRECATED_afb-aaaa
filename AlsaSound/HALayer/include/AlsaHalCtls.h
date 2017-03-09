@@ -20,6 +20,7 @@
  */
 
 
+
 #ifndef ALSAMIXERMAP_H
 #define ALSAMIXERMAP_H
 
@@ -31,41 +32,26 @@ typedef enum {
     SWITCH,
     ROUTE,
     CARD,
-} groupEnum;
+} halGroupEnumT;
 
 typedef enum {
     READ,
     WRITE,
     RW,
-} aclEnum;
+} halAclEnumT;
 
 typedef enum {
+   StartHalCrlTag=0,
+
+   // HighLevel Audio Control List
    Master_Playback_Volume,
    PCM_Playback_Volume,
    PCM_Playback_Switch,
    Capture_Volume,
-} actionEnum;
 
-typedef const struct {
-    actionEnum action;
-    int numid;
-    groupEnum group;
-    int values;
-    int minval;
-    int maxval;
-    int step;
-    char* info;
-    aclEnum acl;
-    
-} AlsaHalMapT;
+   EndHalCrlTag // used to compute number of ctls
+} halControlEnumT;
 
-typedef struct  {
-    const char  *halname;
-    const char  *longname;
-    const char  *info;
-    AlsaHalMapT *ctls;
-    
-} AlsaHalSndT;
 
 #endif /* ALSAMIXERMAP_H */
 

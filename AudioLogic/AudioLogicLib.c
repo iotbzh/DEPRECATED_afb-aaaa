@@ -27,15 +27,46 @@
 #include <sys/types.h>
 
 #include "AudioLogicLib.h"
+
 static struct afb_service srvitf;
+
+STATIC int cbCheckResponse (struct afb_req request, int iserror, struct json_object *result) {
+    struct json_object *response, *status, *info;
+
+    if (iserror) { // on error proxy information we got from lower layer
+        if (result) {       
+            if (json_object_object_get_ex(result,   "request", &response)) {
+                json_object_object_get_ex(response, "info"  , &info);
+                json_object_object_get_ex(response, "status", &status);
+                afb_req_fail(request, json_object_get_string(status), json_object_get_string(info));
+                goto OnExit;
+            }
+        } else {
+            afb_req_fail(request,  "cbCheckFail", "No Result inside API response" );
+        }
+        goto OnErrorExit;
+    }
+
+    return (0);
+    
+    OnErrorExit:
+        return (1);    
+}    
 
 
 PUBLIC void audioLogicSetVol(struct afb_req request) {
-   
+    struct json_object *queryurl;
+    
+    // keep request for callback to respond
+    struct afb_req *handle = afb_req_store(request);
+    
+    // get client context
+    AudioLogicCtxT *ctx = afb_req_context_get(request);
+    
     const char *vol = afb_req_value(request, "vol");
     if (vol == NULL) {
         afb_req_fail_f (request, "argument-missing", "vol=+-%[0,100] missing");
-        goto ExitOnError;
+        goto OnExit;
     }
     
     switch (vol[0]) {
@@ -48,34 +79,36 @@ PUBLIC void audioLogicSetVol(struct afb_req request) {
         
         default:
            afb_req_fail_f (request, "value-invalid", "volume should be (+-%[0-100]xxx) vol=%s", vol);
-           goto ExitOnError;  
+           goto OnExit;  
+    }
+        
+    if (!ctx->halapi) {
+        afb_req_fail_f(request, "context-invalid", "No valid halapi in client context");
+        goto OnExit;
     }
     
-    // Should call here Hardware Alsa Abstraction Layer for corresponding Sound Card
-    afb_req_success (request, NULL, NULL);
-    return;
+    // ********** Caluler le volume en % de manière intelligente
     
-    ExitOnError:
+    queryurl=json_object_new_object();
+    json_object_object_add(ctx->queryurl, "pcm",json_object_new_int(Master_Playback_Volume));
+    json_object_object_add(ctx->queryurl, "value",json_object_new_int(volume));
+    
+    // subcontract HAL API to process volume
+    afb_service_call(srvitf, ctx->halapi, "volume", queryurl, audioLogicSetVolCB, handle);
+    
+    // final success/failure messages handle from callback
+    OnExit:
         return;  
 }
 
 // This callback is fired when afb_service_call for api/alsacore/subctl returns
 STATIC void alsaSubcribeCB (void *handle, int iserror, struct json_object *result) {
-	struct afb_req request = afb_req_unstore(handle);
-        struct json_object *x, *resp = NULL;
-	const char *info = NULL;
+    struct afb_req request = afb_req_unstore(handle);
 
-	if (result) {
-	    INFO (afbIface, "result=[%s]\n", json_object_to_json_string (result));
-            if (json_object_object_get_ex(result, "request", &x) && json_object_object_get_ex(x, "info", &x))
-            info = json_object_get_string(x);
-            if (!json_object_object_get_ex(result, "response", &resp)) resp = NULL;
-        }
+    if (!cbCheckResponse (request, iserror, result)) goto OnExit
         
-        // push message respond
-	if (iserror) afb_req_fail_f(request,  "Fail", info);
-	else         afb_req_success(request, resp, info);
-        
+  OnExit:
+    return;
 }
 
 // Create and subscribe to alsacore ctl events
@@ -117,65 +150,150 @@ PUBLIC void audioLogicGetVol(struct afb_req request) {
 }
 
 // This callback is fired when afb_service_call for api/alsacore/subctl returns
-STATIC void audioLogicOpenCB (void *handle, int iserror, struct json_object *result) {
-    struct afb_req request = afb_req_unstore(handle);
+STATIC void audioLogicOpenCB2 (void *handle, int iserror, struct json_object *result) {
     struct json_object *response;
-    //INFO (afbIface, "result=[%s]\n", json_object_to_json_string (result));
-
-
-    if (iserror) { // on error proxy information we got from lower layer
-        if (result) {
-            struct json_object *status, *info;
-        
-            if (json_object_object_get_ex(result,   "request", &response)) {
-                json_object_object_get_ex(response, "info"  , &info);
-                json_object_object_get_ex(response, "status", &status);
-                afb_req_fail(request, json_object_get_string(status), json_object_get_string(info));
-                goto OnExit;
-            }
-        } else {
-            afb_req_fail(request,  "Fail", "Unknown Error" );
-        }
-        goto OnExit;
-    }    
+    
+    // Make sure we got a response from API
+    struct afb_req request = afb_req_unstore(handle);
+    if (!cbCheckResponse (request, iserror, result)) goto OnExit
     
     // Get response from object
     json_object_object_get_ex(result, "response", &response);
-    if (response) {
-        struct json_object *subobj;
-        
-        // attach client context to session
-        AudioLogicCtxT *ctx = malloc (sizeof(AudioLogicCtxT));
-        
-        // extract information from Json Alsa Object 
-        json_object_object_get_ex(response, "cardid", &subobj);
-        if (subobj) ctx->cardid= json_object_get_int(subobj);
-        
-        // store devid as an object for further alsa request
-        json_object_object_get_ex(response, "devid", &subobj);
-        if (subobj) ctx->devid= strdup(json_object_get_string(subobj));        
-        
-        json_object_object_get_ex(response, "shortname", &subobj);
-        if (subobj)ctx->shortname=strdup(json_object_get_string(subobj));
-        
-        json_object_object_get_ex(response, "longname", &subobj);
-        if (subobj)ctx->longname=strdup(json_object_get_string(subobj));
+    if (!response) {
+        afb_req_fail_f(request, "response-notfound", "No Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        goto OnExit;            
+    }
     
-        // add AudioLogicCtxT to Client Session
-        NOTICE (afbIface, "audioLogicOpen ctx->devid=[%s]", ctx->devid);
-                
-        // save queryurl with devid only for further ALSA request
-        ctx->queryurl=json_object_new_object();
-        json_object_object_add(ctx->queryurl, "devid",json_object_new_string(ctx->devid));
-
-        afb_req_context_set(request, ctx, free);
+    // get client context
+    AudioLogicCtxT *ctx = afb_req_context_get(request);
+    if (!ctx) {
+        afb_req_fail_f(request, "ctx-notfound", "No Client Context HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        goto OnExit;            
     }
 
-    // release original calling request
-    afb_req_success(request, response, NULL);
-
+    // extract sounds controls information from received Object 
+    struct json_object *ctls;
+    json_object_object_get_ex(response, "ctls", &ctls);
+    if (!ctls) {
+        afb_req_fail_f(request, "ctls-notfound", "No Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        goto OnExit; 
+    }
     
+    // make sure return controls have a valid type
+    if (json_object_get_type (ctls) != json_type_array ) {
+        afb_req_fail_f(request, "ctls-notarray", "Invalid Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        goto OnExit;         
+    }
+    
+    // loop on array and store values into client context
+    for (int idx=0; idx < json_object_array_length (ctls), idx++) {
+        struct json_object *ctl;
+        halControlEnumT control;
+        int value;
+        
+        ctl = json_object_array_get_idx(ctls, idx);
+        if (json_object_array_length(ctl != 2)) {
+            afb_req_fail_f(request, "ctl-invalid", "Invalid Control return from HAL/getcontrol devid=[%] name=[%s] ctl=%s"
+            , ctx->devid, ctx->shortname, json_object_get_string(ctl));
+            goto OnExit;                     
+        }
+        
+        // As HAL and Business logic use the same AlsaMixerHal.h direct conversion is not an issue
+        control = (halControlEnumT)json_object_get_int(json_object_array_get_idx(ctl,0));
+        value   = json_object_get_int(json_object_array_get_idx(ctl,0));
+        
+        switch(control) {
+            case Master_Playback_Volume:
+                ctx->volumes.masterPlaybackVolume = value;
+                break;
+                    
+            case PCM_Playback_Volume:
+                ctx->volumes.pcmPlaybackVolume = value;                
+                break;
+                
+            case PCM_Playback_Switch:
+                ctx->volumes.pcmPlaybackSwitch = value;
+                break;
+                
+            case Capture_Volume:
+                ctx->volumes.captureVolume = value;
+                break;
+                    
+            default:
+                NOTICE (afbIface, "audioLogicOpenCB2 unknown HAL control=[%s]", json_object_get_string(ctl)):
+        }
+    }
+        
   OnExit:
+    afb_req_context_set(request, ctx, free);
+    return;
+}
+
+// This callback is fired when afb_service_call for api/alsacore/subctl returns
+STATIC void audioLogicOpenCB1 (void *handle, int iserror, struct json_object *result) {
+    struct json_object *response, *subobj;
+    
+    // Make sure we got a valid API response
+    struct afb_req request = afb_req_unstore(handle);
+    if (!cbCheckResponse (request, iserror, result)) goto OnExit
+    
+    // Get response from object
+    json_object_object_get_ex(result, "response", &response);
+    if (!response) {
+        afb_req_fail_f(request, "response-notfound", "No Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        goto OnExit;            
+    }
+
+    // attach client context to session
+    AudioLogicCtxT *ctx = malloc (sizeof(AudioLogicCtxT));
+
+    // extract information from Json Alsa Object 
+    json_object_object_get_ex(response, "cardid", &subobj);
+    if (subobj) ctx->cardid= json_object_get_int(subobj);
+
+    // store devid as an object for further alsa request
+    json_object_object_get_ex(response, "devid", &subobj);
+    if (subobj) ctx->devid= strdup(json_object_get_string(subobj));        
+
+    json_object_object_get_ex(response, "halapi", &subobj);
+    if (subobj) ctx->halapi= strdup(json_object_get_string(subobj));        
+
+    json_object_object_get_ex(response, "shortname", &subobj);
+    if (subobj)ctx->shortname=strdup(json_object_get_string(subobj));
+
+    json_object_object_get_ex(response, "longname", &subobj);
+    if (subobj)ctx->longname=strdup(json_object_get_string(subobj));
+
+    // save queryurl with devid only for further ALSA request
+    ctx->queryurl=json_object_new_object();
+    json_object_object_add(ctx->queryurl, "devid",json_object_new_string(ctx->devid));
+
+    afb_req_context_set(request, ctx, free);
+
+    // sound card was find let's store keycontrols into client session
+    if (!ctx->halapi) {
+        afb_req_fail_f(request, "hal-notfound", "No HAL found devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        goto OnExit;
+    } 
+    
+    struct json_object *queryurl =json_object_new_object();	
+    struct json_object *ctls =json_object_new_object();	
+
+    // add sound controls we want to keep track of into client session context
+    json_object_object_add(ctls, json_object_new_int((int)Master_Playback_Volume));
+    json_object_object_add(ctls, json_object_new_int((int)PCM_Playback_Volume));
+    json_object_object_add(ctls, json_object_new_int((int)PCM_Playback_Switch));
+    json_object_object_add(ctls, json_object_new_int((int)Capture_Volume));
+
+    // send request to soundcard HAL binding
+    json_object_array_add(queryurl, ctx->queryurl);
+    json_object_object_add(queryurl, "ctls",ctls);
+    afb_service_call(srvitf, ctx->halapi, "getControl", queryurl, audioLogicOpenCB2, handle);
+    
+    afb_req_success(request, response, NULL);
+      
+  OnExit:
+    // release original calling request
     afb_req_unref(request);
     return;
 }
@@ -186,7 +304,7 @@ PUBLIC void audioLogicOpen(struct afb_req request) {
     // Delegate query to lower level
     struct afb_req *handle = afb_req_store(request);
     if (!handle) afb_req_fail(request, "error", "out of memory");
-    else afb_service_call(srvitf, "alsacore", "getCardId", json_object_get(afb_req_json(request)), audioLogicOpenCB, handle);
+    else afb_service_call(srvitf, "alsacore", "getCardId", json_object_get(afb_req_json(request)), audioLogicOpenCB1, handle);
 }
 
 // Free client context create from audioLogicOpenCB
@@ -200,7 +318,6 @@ PUBLIC void audioLogicClose (struct afb_req request) {
 
 // this function is call after all binder are loaded and initialised
 PUBLIC int audioLogicInit (struct afb_service service) {
-    srvitf = service;
-    
+    srvitf = service;    
     return 0;
 }

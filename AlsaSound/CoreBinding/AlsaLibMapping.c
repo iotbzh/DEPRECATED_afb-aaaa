@@ -52,6 +52,14 @@ typedef struct {
     evtHandleT *evtHandle;
 } sndHandleT;
 
+typedef struct {
+    char *apiprefix;
+    char *shortname;    
+}cardRegistryT;
+
+cardRegistryT *cardRegistry[MAX_SND_CARD+1];
+
+
 STATIC json_object *DB2StringJsonOject (long dB) {
     char label [20];
 	if (dB < 0) {
@@ -511,7 +519,7 @@ PUBLIC void alsaGetCtl(struct afb_req request) {
         json_object *query = afb_req_json(request);
         
         afb_req_fail_f (request, "Query=%s NumID not integer &numid=%s&", json_object_to_json_string(query), rqtNumid);
-        goto ExitOnError;
+        goto OnErrorExit;
     };
     
     const char *rqtQuiet = afb_req_value(request, "quiet");
@@ -520,18 +528,18 @@ PUBLIC void alsaGetCtl(struct afb_req request) {
         json_object *query = afb_req_json(request);
         
         afb_req_fail_f (request, "Query=%s NumID not integer &numid=%s&", json_object_to_json_string(query), rqtQuiet);
-        goto ExitOnError;
+        goto OnErrorExit;
     };
     
     // Open sound we use Alsa high level API like amixer.c
     if (!queryValues.devid || (err = snd_hctl_open(&handle, queryValues.devid, 0)) < 0) {
         afb_req_fail_f (request, "alsaGetControl devid=[%s] open fail error=%s\n", queryValues.devid, snd_strerror(err));
-        goto ExitOnError;
+        goto OnErrorExit;
     }
 
     if ((err = snd_hctl_load(handle)) < 0) {
         afb_req_fail_f (request, "alsaGetControl devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
-        goto ExitOnError;
+        goto OnErrorExit;
     }
 
     // allocate ram for ALSA elements
@@ -546,7 +554,7 @@ PUBLIC void alsaGetCtl(struct afb_req request) {
             json_object_put(sndctrls); // we abandon request let's free response
             afb_req_fail_f (request, "alsaGetControl devid=[%s/%s] snd_hctl_elem_info error: %s\n"
                            , queryValues.devid, snd_hctl_name(handle), snd_strerror(err));
-            goto ExitOnError;           
+            goto OnErrorExit;           
         }
 
         // each control is added into a JSON array
@@ -559,7 +567,7 @@ PUBLIC void alsaGetCtl(struct afb_req request) {
     return;
     
     // nothing special only for debugger breakpoint
-    ExitOnError:
+    OnErrorExit:
         return;
 }
 
@@ -587,7 +595,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         snd_ctl_event_alloca(&ctlEvent); // initialise event structure on stack
         
         err = snd_ctl_read(evtHandle->ctl, ctlEvent);
-        if (err < 0) goto ExitOnError;
+        if (err < 0) goto OnErrorExit;
         
         // we only process sndctrl element
         if (snd_ctl_event_get_type(ctlEvent) != SND_CTL_EVENT_ELEM) goto ExitOnSucess;
@@ -619,7 +627,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
     ExitOnSucess:
         return 0;
     
-    ExitOnError:
+    OnErrorExit:
         WARNING (afbIface, "sndCtlEventCB: ignored unsupported event type");
 	return (0);    
 }
@@ -636,14 +644,14 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     const char *devid = afb_req_value(request, "devid");
     if (devid == NULL) {
         afb_req_fail_f (request, "devid-missing", "devid=hw:xxx missing");
-        goto ExitOnError;
+        goto OnErrorExit;
     }
     
     // open control interface for devid
     err = snd_ctl_open(&ctlHandle, devid, SND_CTL_READONLY);
     if (err < 0) {
     afb_req_fail_f (request, "devid-unknown", "SndCard devid=%s Not Found err=%d", devid, err);
-    goto ExitOnError;
+    goto OnErrorExit;
     }
     
     // get sound card index use to search existing subscription
@@ -666,7 +674,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         if (idxFree == -1) {
             afb_req_fail_f (request, "register-toomany", "Cannot register new event Maxcard==%devent name=%s", idx);
             snd_ctl_close(ctlHandle);
-            goto ExitOnError;            
+            goto OnErrorExit;            
         } 
         
         evtHandle = malloc (sizeof(evtHandleT));
@@ -680,7 +688,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         if (err < 0) {
             afb_req_fail_f (request, "subscribe-fail", "Cannot subscribe events from devid=%s err=%d", devid, err);
             snd_ctl_close(ctlHandle);
-            goto ExitOnError;
+            goto OnErrorExit;
         }
             
         // get pollfd attach to this sound board
@@ -691,7 +699,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         if (err < 0) {
             afb_req_fail_f (request, "register-mainloop", "Cannot hook events to mainloop devid=%s err=%d", devid, err);
             snd_ctl_close(ctlHandle);
-            goto ExitOnError;
+            goto OnErrorExit;
         }
 
         // create binder event attached to devid name
@@ -699,7 +707,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         if (!afb_event_is_valid (evtHandle->afbevt)) {
             afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", devid);
             snd_ctl_close(ctlHandle);
-            goto ExitOnError; 
+            goto OnErrorExit; 
         }
 
         // everything looks OK let's move forward 
@@ -710,7 +718,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     err = afb_req_subscribe(request, evtHandle->afbevt);
     if (err != 0) {
         afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", devid, err);
-        goto ExitOnError;
+        goto OnErrorExit;
     }
 
     // increase usage count and return success
@@ -718,14 +726,15 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     afb_req_success(request, NULL, NULL);
     return;
     
-  ExitOnError:
+  OnErrorExit:
         return;
 }
 
 // Subscribe to every Alsa CtlEvent send by a given board
 PUBLIC void alsaGetCardId (struct afb_req request) {
     char devid [10];
-    int card, err, index;
+    const char *devname, *shortname, *longname;
+    int card, err, index, idx;
     json_object *respJson;
     snd_ctl_t   *ctlHandle;
     snd_ctl_card_info_t *cardinfo;
@@ -733,7 +742,7 @@ PUBLIC void alsaGetCardId (struct afb_req request) {
     const char *sndname = afb_req_value(request, "sndname");
     if (sndname == NULL) {
         afb_req_fail_f (request, "argument-missing", "sndname=SndCardName missing");
-        goto ExitOnError;
+        goto OnErrorExit;
     }
     
     // loop on potential card number
@@ -747,31 +756,77 @@ PUBLIC void alsaGetCardId (struct afb_req request) {
         err = snd_ctl_open(&ctlHandle, devid, SND_CTL_READONLY);
         if (err < 0) continue;   
         
+        // extract sound card information
         snd_ctl_card_info(ctlHandle, cardinfo);
         index    = snd_ctl_card_info_get_card(cardinfo);
-
+        devname  = snd_ctl_card_info_get_id(cardinfo);
+        shortname= snd_ctl_card_info_get_name(cardinfo);
+        longname = snd_ctl_card_info_get_longname(cardinfo);
+        
         // check if short|long name match        
-        if (!strcmp (sndname, snd_ctl_card_info_get_id(cardinfo))) break;
-        if (!strcmp (sndname, snd_ctl_card_info_get_name(cardinfo))) break;
-        if (!strcmp (sndname, snd_ctl_card_info_get_longname(cardinfo))) break;
+        if (!strcmp (sndname, devname)) break;
+        if (!strcmp (sndname, shortname)) break;
+        if (!strcmp (sndname, longname)) break;
     }
     
     if (card == MAX_SND_CARD) {
         afb_req_fail_f (request, "sndcard-notfound", "Fail to find card with name=%s", sndname);
-        goto ExitOnError;
+        goto OnErrorExit;
     }
     
     // proxy ctlevent as a binder event        
     respJson = json_object_new_object();
     json_object_object_add(respJson, "index"     ,json_object_new_int (index));
     json_object_object_add(respJson, "devid"     ,json_object_new_string (devid));
-    json_object_object_add(respJson, "shortname" ,json_object_new_string (snd_ctl_card_info_get_name(cardinfo)));
-    json_object_object_add(respJson, "longname"  ,json_object_new_string (snd_ctl_card_info_get_longname(cardinfo)));
+    json_object_object_add(respJson, "shortname" ,json_object_new_string (shortname));
+    json_object_object_add(respJson, "longname"  ,json_object_new_string (longname));
         
+    // search for a HAL binder card mapping name to api prefix
+    for (idx=0; idx < MAX_SND_CARD; idx++) {
+       if (!strcmp (cardRegistry[idx]->shortname, shortname)) break;
+    }
+    // if a match if found, then we have an HAL for this board let's return its value
+    if (idx < MAX_SND_CARD) json_object_object_add(respJson, "halapi",json_object_new_string (cardRegistry[idx]->apiprefix));
+    
     afb_req_success(request, respJson, NULL);    
     return;
     
-  ExitOnError:
+  OnErrorExit:
+        return;  
+}
+
+// Register loaded HAL with board Name and API prefix
+PUBLIC void alsaRegisterHal (struct afb_req request) {
+    static int index=0;
+    const char *shortname, *apiPrefix;
+    
+    apiPrefix = afb_req_value(request, "prefix");
+    if (apiPrefix == NULL) {
+        afb_req_fail_f (request, "argument-missing", "prefix=BindingApiPrefix missing");
+        goto OnErrorExit;
+    }
+    
+    shortname = afb_req_value(request, "name");
+    if (shortname == NULL) {
+        afb_req_fail_f (request, "argument-missing", "sndname=SndCardName missing");
+        goto OnErrorExit;
+    }
+    
+    if (index == MAX_SND_CARD) {
+        afb_req_fail_f (request, "alsahal-toomany", "Fail to register sndname=[%s]", shortname);
+        goto OnErrorExit;        
+    }
+    
+    cardRegistry[index]= malloc (sizeof(cardRegistry));
+    cardRegistry[index]->apiprefix=strdup(apiPrefix);
+    cardRegistry[index]->shortname=strdup(shortname);
+    index++;cardRegistry[index]=NULL;
+ 
+    // when OK nothing to return
+    afb_req_success(request, NULL, NULL);    
+    return;
+    
+  OnErrorExit:
         return;  
 }
 
