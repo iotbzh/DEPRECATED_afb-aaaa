@@ -22,7 +22,7 @@ INCLUDE_DIRECTORIES(${include_dirs})
 ##################################################
 # Inte-HDA sound card Hardware Abstraction Layer
 ##################################################
-ADD_LIBRARY(intel-hda-hal MODULE IntelHdaHAL.c ${halsharedlib})
+ADD_LIBRARY(intel-hda-hal MODULE IntelHdaHAL.c )
 
 SET_TARGET_PROPERTIES(intel-hda-hal PROPERTIES
 	PREFIX ""

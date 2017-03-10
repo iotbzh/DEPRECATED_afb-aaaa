@@ -30,10 +30,21 @@
 
 PUBLIC const struct afb_binding_interface *afbIface;   
 
-STATIC void localping(struct afb_req request) {
-    json_object *query = afb_req_json(request);
-    afb_req_success(request, query, NULL); 
-}
+// Map HAL Enum to Labels
+typedef const struct {
+    halCtlsEnumT control;
+    char *label;
+} LogicControlT;
+
+// High Level Control Mapping to String for JSON & HTML5 
+STATIC LogicControlT LogicControl[] = {
+    {.control= Master_Playback_Volume,.label= "Master_Volume"},
+    {.control= PCM_Playback_Volume,   .label= "Playback_Volume"},
+    {.control= PCM_Playback_Switch,   .label= "Playback_Switch"},
+    {.control= Capture_Volume,        .label= "Capture_Volume"},
+    
+    {.control= 0,.label= NULL} // closing convention
+};
 
 
 /*
@@ -41,7 +52,7 @@ STATIC void localping(struct afb_req request) {
  */
 STATIC const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,    .session= AFB_SESSION_NONE,  .callback= localping,      .info= "Ping Binding" },
+  { .name= "ping"   ,    .session= AFB_SESSION_NONE,  .callback= pingtest,      .info= "Ping Binding" },
   { .name= "setvolume",  .session= AFB_SESSION_CHECK, .callback= audioLogicSetVol,    .info= "Set Volume" },
   { .name= "getvolume",  .session= AFB_SESSION_CHECK, .callback= audioLogicGetVol,    .info= "Get Volume" },
   { .name= "subscribe",  .session= AFB_SESSION_CHECK, .callback= audioLogicSubscribe, .info= "Subscribe AudioBinding Events" },

@@ -15,29 +15,13 @@
  * limitations under the License.
  */
 
+#ifndef AUDIOLOGIC_H
+#define AUDIOLOGIC_H
 
-// few coding convention
-typedef int BOOL;
-#ifndef PUBLIC
-  #define PUBLIC
-#endif
-#ifndef FALSE
-  #define FALSE 0
-#endif
-#ifndef TRUE
-  #define TRUE 1
-#endif
-#define STATIC    static
- 
-#ifndef AUDIOLIBMAPPING_H
-#define AUDIOLIBMAPPING_H
-
+#include "AudioCommonLib.h"
 #include <json-c/json.h>
 #include <afb/afb-binding.h>
 #include <afb/afb-service-itf.h>
-
-#include "AlsaHalCtls.h"  // Alsa Hardware Abstraction Layer Controls
-
 
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
@@ -69,5 +53,5 @@ PUBLIC void audioLogicClose(struct afb_req request);
 PUBLIC void audioLogicSubscribe(struct afb_req request);
 PUBLIC int  audioLogicInit (struct afb_service service);
 
-#endif /* AUDIOLIBMAPPING_H */
+#endif /* AUDIOLOGIC_H */
 

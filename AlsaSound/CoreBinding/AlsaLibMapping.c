@@ -27,7 +27,6 @@
 
 #include <alsa/asoundlib.h>
 #include "AlsaLibMapping.h"
-
 #include <systemd/sd-event.h>
 static struct afb_service srvitf;
 

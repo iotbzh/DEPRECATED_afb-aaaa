@@ -16,15 +16,16 @@
 # limitations under the License.
 ###########################################################################
 
+PROJECT(audio-common C)
 
 INCLUDE_DIRECTORIES(${include_dirs})
 
 ##################################################
-# Shared HAL(Hardware Abstraction Layer)
+# AudioCommon is a local static Library
 ##################################################
-ADD_LIBRARY(shared-hal MODULE SharedHalLib.c)
-
-TARGET_LINK_LIBRARIES(shared-hal ${link_libraries})
-INSTALL(TARGETS shared-hal LIBRARY DESTINATION ${binding_install_dir})
+ADD_LIBRARY(audiocommon STATIC AudioCommonLib.c)
+SET_TARGET_PROPERTIES(audiocommon PROPERTIES OUTPUT_NAME audiocommon)
+SET(link_libraries ${libefence_LIBRARIES} ${json-c_LIBRARIES})
+TARGET_LINK_LIBRARIES(audiocommon ${link_libraries})
 
 

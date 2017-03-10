@@ -98,18 +98,21 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
 SET(include_dirs
 	${INCLUDE_DIRS}
-	${CMAKE_SOURCE_DIR}/AlsaSound/HALayer/include
+	${CMAKE_CURRENT_SOURCE_DIR}/Common
 	${json-c_INCLUDE_DIRS}
 	${afb-daemon_INCLUDE_DIRS}
 	)
 
-SET(link_libraries
+# AudioCommon is linked statically with each audiobindings
+SET(link_libraries 
+        ${CMAKE_BINARY_DIR}/Common/libaudiocommon.a
 	${libefence_LIBRARIES}
 	${json-c_LIBRARIES}
 	)
 
 # Bindings to compile
 # --------------------
+add_subdirectory(Common)
 add_subdirectory(AlsaSound)
 add_subdirectory(AudioLogic)
 add_subdirectory(htdocs)

@@ -15,28 +15,11 @@
  * limitations under the License.
  */
 
-
-// few coding convention
-typedef int BOOL;
-#ifndef PUBLIC
-  #define PUBLIC
-#endif
-#ifndef FALSE
-  #define FALSE 0
-#endif
-#ifndef TRUE
-  #define TRUE 1
-#endif
-#define STATIC    static
  
 #ifndef ALSALIBMAPPING_H
 #define ALSALIBMAPPING_H
 
-#include <json-c/json.h>
-#include <afb/afb-binding.h>
-#include <afb/afb-service-itf.h>
-
-#include "MiscHelpers.h"
+#include "AudioCommonLib.h"
 
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;

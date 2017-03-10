@@ -15,38 +15,48 @@
  * limitations under the License.
  */
 
-#ifndef SHAREDHALLIB_H
-#define SHAREDHALLIB_H
+#ifndef SHAREHALLIB_H
+#define SHAREHALLIB_H
 
 #include <stdio.h>
-#include <afb/afb-binding.h>
+#include "AudioCommonLib.h"
 
-#include "MiscHelpers.h"
-#include "AlsaHalCtls.h"
-
-typedef const struct {
-    halControlEnumT control;
-    int numid;
-    halGroupEnumT group;
-    int values;
-    int minval;
-    int maxval;
-    int step;
-    char* info;
-    halAclEnumT acl;
-    
+typedef struct {
+     halCtlsEnumT control;
+     int numid;
+     halGroupEnumT group;
+     int values;
+     int minval;
+     int maxval;
+     int step;
+     halAclEnumT acl;
 } alsaHalCtlMapT;
+
+// avoid compiler warning [Jose does not like typedef :) ]
+typedef struct afb_service alsaHalServiceT;
+
+typedef struct {
+   struct json_object* (*callback)(alsaHalServiceT service, int control, int value, alsaHalCtlMapT *map, void* handle);
+   void* handle;        
+} alsaHalCbMapT;
+
+typedef struct {
+    alsaHalCtlMapT alsa;
+    alsaHalCbMapT cb;
+    char* info;
+} alsaHalMapT;
 
 typedef struct  {
     const char  *prefix;
     const char  *name;
     const char  *info;
-    alsaHalCtlMapT *ctls;
+    alsaHalMapT *ctls;
+    int (*initCB) (const struct afb_binding_interface *itf, struct afb_service service);
     
 } alsaHalSndCardT;
 
 PUBLIC alsaHalSndCardT alsaHalSndCard;
-PUBLIC struct afb_binding alsaHalBinding;
+PUBLIC char* SharedHalLibVersion;
 
-#endif /* SHAREDHALLIB_H */
+#endif /* SHAREHALLIB_H */
 

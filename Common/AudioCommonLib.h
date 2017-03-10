@@ -19,10 +19,17 @@
  *   http://www.tldp.org/HOWTO/Alsa-sound-6.html 
  */
 
+#ifndef AUDIOCOMMON_H
+#define AUDIOCOMMON_H
 
+#include <json-c/json.h>
+#include <afb/afb-binding.h>
+#include <afb/afb-service-itf.h>
 
-#ifndef ALSAMIXERMAP_H
-#define ALSAMIXERMAP_H
+#ifndef PUBLIC
+  #define PUBLIC
+#endif
+#define STATIC static
 
 // Most controls are MIXER but some vendor specific are possible
 typedef enum {
@@ -32,6 +39,7 @@ typedef enum {
     SWITCH,
     ROUTE,
     CARD,
+    ENUM,
 } halGroupEnumT;
 
 typedef enum {
@@ -50,8 +58,11 @@ typedef enum {
    Capture_Volume,
 
    EndHalCrlTag // used to compute number of ctls
-} halControlEnumT;
+} halCtlsEnumT;
 
+PUBLIC int cbCheckResponse(struct afb_req request, int iserror, struct json_object *result) ;
+PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl, void *handle);
+PUBLIC void pingtest(struct afb_req request);
 
-#endif /* ALSAMIXERMAP_H */
+#endif /* AUDIOCOMMON_H */
 

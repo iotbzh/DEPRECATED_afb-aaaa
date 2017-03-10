@@ -6,7 +6,7 @@
         <df name="HALayer">
           <df name="include">
             <in>AlsaHalIface.h</in>
-            <in>MiscHelpers.h</in>
+            <in>AudioCommonLib.h</in>
           </df>
         </df>
       </df>
@@ -65,15 +65,33 @@
           <preBuildFirst>true</preBuildFirst>
         </preBuild>
       </makefileType>
+      <item path="AlsaSound/HALayer/Shared/ShareHalLib.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="AlsaSound/HALayer/Shared/SharedHalLib.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="AlsaSound/HALayer/include/AlsaHalIface.h"
             ex="false"
             tool="3"
             flavor2="0">
       </item>
-      <item path="AlsaSound/HALayer/include/MiscHelpers.h"
+      <item path="AlsaSound/HALayer/include/AudioCommonLib.h"
             ex="false"
             tool="3"
             flavor2="0">
+      </item>
+      <item path="Common/AudioCommonLib.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Common/include/AudioCommonLib.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Common/include/ShareHalLib.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Common/include/SharedHalLib.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="0">
       </item>

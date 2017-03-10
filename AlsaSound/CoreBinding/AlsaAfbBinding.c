@@ -30,17 +30,12 @@
 
 PUBLIC const struct afb_binding_interface *afbIface;   
 
-static void localping(struct afb_req request) {
-    json_object *query = afb_req_json(request);
-    afb_req_success(request, query, NULL); 
-}
-
 /*
  * array of the verbs exported to afb-daemon
  */
 static const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= localping,      .info= "Ping Binding" },
+  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= pingtest,      .info= "Ping Binding" },
   { .name= "getinfo",   .session= AFB_SESSION_NONE, .callback= alsaGetInfo,    .info= "List All/One Sound Cards Info" },
   { .name= "getctl",    .session= AFB_SESSION_NONE, .callback= alsaGetCtl,     .info= "List All/One Controls from selected sndcard" },
   { .name= "subscribe", .session= AFB_SESSION_NONE, .callback= alsaSubcribe,   .info= "Subscribe to events from selected sndcard" },

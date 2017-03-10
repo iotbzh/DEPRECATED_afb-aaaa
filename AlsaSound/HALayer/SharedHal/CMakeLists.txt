@@ -16,16 +16,14 @@
 # limitations under the License.
 ###########################################################################
 
-PROJECT(hadware-abstraction-layer C)
+INCLUDE_DIRECTORIES(${include_dirs})
 
-SET(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/SharedHal ${include_dirs})
+##################################################
+# Shared HAL(Hardware Abstraction Layer)
+##################################################
+ADD_LIBRARY(sharedhal STATIC SharedHalLib.c)
+SET_TARGET_PROPERTIES(sharedhal PROPERTIES OUTPUT_NAME sharedhal)
+SET(link_libraries ${libefence_LIBRARIES} ${json-c_LIBRARIES})
+TARGET_LINK_LIBRARIES(sharedhal ${link_libraries})
 
-# Add ShareHalLib statically within each HAL bindings
-SET(link_libraries 
-    ${CMAKE_BINARY_DIR}/AlsaSound/HALayer/SharedHal/libsharedhal.a
-    ${link_libraries}
-)
-
-ADD_SUBDIRECTORY(SharedHal)
-ADD_SUBDIRECTORY(IntelHda)
 
