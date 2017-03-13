@@ -287,7 +287,7 @@ PUBLIC int afbBindingV1ServiceInit(struct afb_service service) {
     queryurl = json_object_new_object();
     json_object_object_add(queryurl, "prefix", json_object_new_string(alsaHalSndCard.prefix));
     json_object_object_add(queryurl, "name", json_object_new_string(alsaHalSndCard.name));
-    afb_service_call(srvitf, "alsacore", "registerHal", queryurl, halInitCB, NULL);
+    afb_service_call(srvitf, "alsacore", "registerHal", queryurl, halInitCB, queryurl);
 
   OnExit:
     return (rc);

@@ -12,9 +12,10 @@
     <ol>
     <li><a href="api/alsacore/getinfo">getinfo: List Sound Cards</a>
     <li><a href="api/alsacore/getinfo?devid=hw:0">Card info about hw:0</a>
-    <li><a href="api/alsacore/getctl?devid=hw:0">List controls for hw:0 (quiet)</a>
-    <li><a href="api/alsacore/getctl?devid=hw:0&quiet=0">List controls for hw:0 (verbose)</a>
-    <li><a href="api/alsacore/getctl?devid=hw:0&numid=1&quiet=0">return control numid=1 for hw:0</a>
+    <li><a href="api/alsacore/getctls?devid=hw:0">List All Controls for hw:0 (quiet)</a>
+    <li><a href="api/alsacore/getctls?devid=hw:0&quiet=0">List controls for hw:0 (verbose)</a>
+    <li><a href="api/alsacore/getctls?devid=hw:0&numids=[1,2]&quiet=0">List Controls 1+2 for hw:0 (verbose)</a>
+    <li><a href="api/alsacore/getctls?devid=hw:0&numids=1&quiet=0">return control numid=1 for hw:0</a>
     <br>    
     <li><button onclick="callbinder('alsacore','subscribe', {devid:devid})">Subscribe AlsaCtl Events</button></li>
     <br>    

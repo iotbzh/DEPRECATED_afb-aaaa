@@ -35,9 +35,9 @@ PUBLIC const struct afb_binding_interface *afbIface;
  */
 static const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= pingtest,      .info= "Ping Binding" },
+  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= pingtest,       .info= "Ping Binding" },
   { .name= "getinfo",   .session= AFB_SESSION_NONE, .callback= alsaGetInfo,    .info= "List All/One Sound Cards Info" },
-  { .name= "getctl",    .session= AFB_SESSION_NONE, .callback= alsaGetCtl,     .info= "List All/One Controls from selected sndcard" },
+  { .name= "getctls",    .session= AFB_SESSION_NONE,.callback= alsaGetCtls,    .info= "List All/One Controls from selected sndcard" },
   { .name= "subscribe", .session= AFB_SESSION_NONE, .callback= alsaSubcribe,   .info= "Subscribe to events from selected sndcard" },
   { .name= "getcardid", .session= AFB_SESSION_NONE, .callback= alsaGetCardId,  .info= "Get CardId from its short/long name" },
   { .name= "registerHal",.session= AFB_SESSION_NONE,.callback= alsaRegisterHal,.info= "Register Hal CardName/ApiPrefix" },
@@ -59,7 +59,7 @@ static const struct afb_binding binding_description = {
 
 extern int afbBindingV1ServiceInit(struct afb_service service) {
    // this is call when after all bindings are loaded
-   alsaLibInit (service);  // AlsaBinding check for sound card at installation time   
+   // alsaLibInit (service);  // AlsaBinding check for sound card at installation time   
    return (0); 
 };
 
