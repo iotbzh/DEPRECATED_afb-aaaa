@@ -33,8 +33,9 @@ static struct afb_service srvitf;
 // generic structure to pass parsed query values
 typedef struct {
   const char *devid;
-  int  numid;
-  int  quiet;  
+  const char *numids;
+  int quiet;
+  int count;
 } queryValuesT;
 
 // generic sndctrl event handle hook to event callback when pooling
@@ -56,8 +57,55 @@ typedef struct {
     char *shortname;    
 }cardRegistryT;
 
+// use to store crl numid user request
+typedef struct {
+    unsigned int numId;
+    char * token;
+    json_object *jValues;
+    int used;
+} ctlRequestT;
+
+
 cardRegistryT *cardRegistry[MAX_SND_CARD+1];
 
+STATIC void NumidsListParse (ctlRequestT *ctlRequest, const char *numids) {
+    char *token, *tmptok;
+    
+    // parse requested NUMID from string to array of int;
+    tmptok=(char*)numids;
+    for (int idx; (token = strtok_r(tmptok, ",", &tmptok)); idx ++) {
+        int err=0;
+        ctlRequest[idx].token = token;
+        
+        err = sscanf (token, "%d", &ctlRequest[idx].numId);
+        if (err) ctlRequest[idx].used=-1; 
+        else ctlRequest[idx].used=0;        
+    }
+}
+
+STATIC  int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues) {
+    
+    // no NumId is interpreted as ALL for get and error for set
+    queryValues->numids = afb_req_value(request, "numids");
+    if (queryValues->numids != NULL) {
+        queryValues->count=1;
+        for (int idx=0; queryValues->numids[idx] != '\0'; idx++) if (queryValues->numids[idx] == ',') queryValues->count ++;
+    } else queryValues->count=0;
+
+    const char *rqtQuiet = afb_req_value(request, "quiet");
+    if (!rqtQuiet) queryValues->quiet=99; // default super quiet
+    else if (rqtQuiet && ! sscanf (rqtQuiet, "%d", &queryValues->quiet)) {
+        json_object *query = afb_req_json(request);
+        
+        afb_req_fail_f (request, "quiet-notinteger","Query=%s NumID not integer &numid=%s&", json_object_to_json_string(query), rqtQuiet);
+        goto OnErrorExit;
+    };
+    
+    return 0;
+    
+    OnErrorExit:
+        return 1;
+}
 
 STATIC json_object *DB2StringJsonOject (long dB) {
     char label [20];
@@ -266,7 +314,7 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
 STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     const char  *info, *name;
     const char *devid, *driver;
-    json_object *sndcard;
+    json_object *ctlDev;
     snd_ctl_t   *handle;
     snd_ctl_card_info_t *cardinfo;
     int err;
@@ -286,31 +334,31 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     }
 
     // start a new json object to store card info
-    sndcard = json_object_new_object();
+    ctlDev = json_object_new_object();
 
     devid= snd_ctl_card_info_get_id(cardinfo);
-    json_object_object_add (sndcard, "devid"  , json_object_new_string(devid));
+    json_object_object_add (ctlDev, "devid"  , json_object_new_string(devid));
     name =  snd_ctl_card_info_get_name(cardinfo);
-    json_object_object_add (sndcard, "name", json_object_new_string (name));
+    json_object_object_add (ctlDev, "name", json_object_new_string (name));
 
     if (afbIface->verbosity > 1) {
-        json_object_object_add (sndcard, "devid", json_object_new_string(rqtSndId));
+        json_object_object_add (ctlDev, "devid", json_object_new_string(rqtSndId));
         driver= snd_ctl_card_info_get_driver(cardinfo);
-        json_object_object_add (sndcard, "driver"  , json_object_new_string(driver));
+        json_object_object_add (ctlDev, "driver"  , json_object_new_string(driver));
         info  = strdup(snd_ctl_card_info_get_longname (cardinfo));
-        json_object_object_add (sndcard, "info" , json_object_new_string (info));
+        json_object_object_add (ctlDev, "info" , json_object_new_string (info));
         INFO (afbIface, "AJG: Soundcard Devid=%-5s Cardid=%-7s Name=%s\n", rqtSndId, devid, info);
     }
 
     // free card handle and return info
     snd_ctl_close(handle);    
-    return (sndcard);
+    return (ctlDev);
 }
 
 // Loop on every potential Sound card and register active one
 PUBLIC void alsaGetInfo (struct afb_req request) {
     int  card;
-    json_object *sndcard, *sndcards;
+    json_object *ctlDev, *ctlDevs;
     char devid[32];
     
     const char *rqtSndId = afb_req_value(request, "devid");
@@ -319,28 +367,28 @@ PUBLIC void alsaGetInfo (struct afb_req request) {
 
     if (rqtSndId != NULL) {
         // only one card was requested let's probe it
-        sndcard = alsaCardProbe (rqtSndId);
-        if (sndcard != NULL) afb_req_success(request, sndcard, NULL);
-        else afb_req_fail_f (request, "SndCard [%s] Not Found", rqtSndId);
+        ctlDev = alsaCardProbe (rqtSndId);
+        if (ctlDev != NULL) afb_req_success(request, ctlDev, NULL);
+        else afb_req_fail_f (request, "sndscard-notfound", "SndCard [%s] Not Found", rqtSndId);
         
     } else {
-        // return an array of sndcard
-        sndcards =json_object_new_array();
+        // return an array of ctlDev
+        ctlDevs =json_object_new_array();
 
         // loop on potential card number
         for (card =0; card < MAX_SND_CARD; card++) {
 
             // build card devid and probe it
             snprintf (devid, sizeof(devid), "hw:%i", card);
-            sndcard = alsaCardProbe (devid);
+            ctlDev = alsaCardProbe (devid);
 
             // Alsa has hole within card list [ignore them]
-            if (sndcard != NULL) {
-                // add current sndcard to sndcards object
-                json_object_array_add (sndcards, sndcard);
+            if (ctlDev != NULL) {
+                // add current ctlDev to ctlDevs object
+                json_object_array_add (ctlDevs, ctlDev);
             }    
         }
-        afb_req_success (request, sndcards, NULL);  
+        afb_req_success (request, ctlDevs, NULL);  
     }
 }
 
@@ -368,111 +416,105 @@ STATIC json_object *getControlAcl (snd_ctl_elem_info_t *info) {
     return (jsonAclCtl);
 }
 
-
-
-// pack element from ALSA control into a JSON object
-STATIC json_object * alsaGetSingleCtl (snd_hctl_elem_t *elem, snd_ctl_elem_info_t *info, queryValuesT *queryValues) {
-
-    int err;
-    json_object *jsonAlsaCtl,*jsonClassCtl;
-    snd_ctl_elem_id_t *elemid;
-    snd_ctl_elem_type_t elemtype;
-    snd_ctl_elem_value_t *control;
-    int count, idx;
+// process ALSA control and store then into ctlRequest
+STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, int quiet) {
+    snd_ctl_elem_type_t  elemType;
+    snd_ctl_elem_value_t *elemData;
+    snd_ctl_elem_info_t  *elemInfo;
+    int count, idx, err;
 
     // allocate ram for ALSA elements
-    snd_ctl_elem_value_alloca(&control);
-    snd_ctl_elem_id_alloca   (&elemid);
+    snd_ctl_elem_value_alloca(&elemData);
+    snd_ctl_elem_info_alloca(&elemInfo);
 
-    // get elemId out of elem
-    snd_hctl_elem_get_id(elem, elemid);
+    // let's make sure we are processing the right control    
+    if (ctlRequest->numId != snd_ctl_elem_id_get_numid (elemId)) goto OnErrorExit;
+    
+    // set info event ID and get value
+    snd_ctl_elem_info_set_id (elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
+    elemType = snd_ctl_elem_info_get_type(elemInfo);
+    
+    // alsaGetSingleCtl populated response directly in a json object
+    ctlRequest->jValues= json_object_new_object();
+ 
+    if (quiet < 2) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
+    if (quiet < 1) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
+    if (quiet < 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
 
-    // when ctrlid is set, return only this ctrl
-    if (queryValues->numid != -1 && queryValues->numid != snd_ctl_elem_id_get_numid(elemid)) return NULL;
 
-    // build a json object out of element
-    jsonAlsaCtl = json_object_new_object(); // http://alsa-lib.sourcearchive.com/documentation/1.0.24.1-3/group__Control_ga4e4f251147f558bc2ad044e836e449d9.html
-    json_object_object_add (jsonAlsaCtl,"numid", json_object_new_int(snd_ctl_elem_id_get_numid (elemid)));
-    if (queryValues->quiet < 2) json_object_object_add (jsonAlsaCtl,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemid)));
-    if (queryValues->quiet < 1) json_object_object_add (jsonAlsaCtl,"iface", json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemid))));
-    if (queryValues->quiet < 3)json_object_object_add (jsonAlsaCtl,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(info)));
+    // number item and value(s) within control.
+    count = snd_ctl_elem_info_get_count (elemInfo);
 
-    elemtype = snd_ctl_elem_info_get_type(info);
+    if (snd_ctl_elem_info_is_readable(elemInfo)) {
+        json_object *jsonValuesCtl = json_object_new_array();
 
-	// number item and value(s) within control.
-	count = snd_ctl_elem_info_get_count (info);
+        if ((err = snd_ctl_elem_read(ctlDev, elemData)) < 0) {
+            json_object *jsonValuesCtl = json_object_new_object();
+            json_object_object_add (jsonValuesCtl,"error", json_object_new_string(snd_strerror(err)));
+    } else {
+        for (idx = 0; idx < count; idx++) { // start from one in amixer.c !!!
+            switch (elemType) {
+            case SND_CTL_ELEM_TYPE_BOOLEAN: {
+                    json_object_array_add (jsonValuesCtl, json_object_new_boolean (snd_ctl_elem_value_get_boolean(elemData, idx)));
+                    break;
+                    }
+            case SND_CTL_ELEM_TYPE_INTEGER:
+                    json_object_array_add (jsonValuesCtl, json_object_new_int ((int)snd_ctl_elem_value_get_integer(elemData, idx)));
+                    break;
+            case SND_CTL_ELEM_TYPE_INTEGER64:
+                    json_object_array_add (jsonValuesCtl, json_object_new_int64 (snd_ctl_elem_value_get_integer64(elemData, idx)));
+                    break;
+            case SND_CTL_ELEM_TYPE_ENUMERATED:
+                    json_object_array_add (jsonValuesCtl, json_object_new_int (snd_ctl_elem_value_get_enumerated(elemData, idx)));
+                    break;
+            case SND_CTL_ELEM_TYPE_BYTES:
+                    json_object_array_add (jsonValuesCtl, json_object_new_int ((int)snd_ctl_elem_value_get_byte(elemData, idx)));
+                    break;
+            case SND_CTL_ELEM_TYPE_IEC958: {
+                    json_object *jsonIec958Ctl = json_object_new_object();
+                    snd_aes_iec958_t iec958;
+                    snd_ctl_elem_value_get_iec958(elemData, &iec958);
 
-	if (snd_ctl_elem_info_is_readable(info)) {
-	    json_object *jsonValuesCtl = json_object_new_array();
-
-		if ((err = snd_hctl_elem_read(elem, control)) < 0) {
-		       json_object *jsonValuesCtl = json_object_new_object();
-       		   json_object_object_add (jsonValuesCtl,"error", json_object_new_string(snd_strerror(err)));
-		} else {
-			for (idx = 0; idx < count; idx++) { // start from one in amixer.c !!!
-				switch (elemtype) {
-				case SND_CTL_ELEM_TYPE_BOOLEAN: {
-					json_object_array_add (jsonValuesCtl, json_object_new_boolean (snd_ctl_elem_value_get_boolean(control, idx)));
-					break;
-					}
-				case SND_CTL_ELEM_TYPE_INTEGER:
-					json_object_array_add (jsonValuesCtl, json_object_new_int ((int)snd_ctl_elem_value_get_integer(control, idx)));
-					break;
-				case SND_CTL_ELEM_TYPE_INTEGER64:
-					json_object_array_add (jsonValuesCtl, json_object_new_int64 (snd_ctl_elem_value_get_integer64(control, idx)));
-					break;
-				case SND_CTL_ELEM_TYPE_ENUMERATED:
-					json_object_array_add (jsonValuesCtl, json_object_new_int (snd_ctl_elem_value_get_enumerated(control, idx)));
-					break;
-				case SND_CTL_ELEM_TYPE_BYTES:
-					json_object_array_add (jsonValuesCtl, json_object_new_int ((int)snd_ctl_elem_value_get_byte(control, idx)));
-					break;
-				case SND_CTL_ELEM_TYPE_IEC958: {
-					json_object *jsonIec958Ctl = json_object_new_object();
-					snd_aes_iec958_t iec958;
-					snd_ctl_elem_value_get_iec958(control, &iec958);
-
-					json_object_object_add (jsonIec958Ctl,"AES0",json_object_new_int(iec958.status[0]));
-					json_object_object_add (jsonIec958Ctl,"AES1",json_object_new_int(iec958.status[1]));
-					json_object_object_add (jsonIec958Ctl,"AES2",json_object_new_int(iec958.status[2]));
-					json_object_object_add (jsonIec958Ctl,"AES3",json_object_new_int(iec958.status[3]));
-					json_object_array_add  (jsonValuesCtl, jsonIec958Ctl);
-					break;
-					}
-				default:
-					json_object_array_add (jsonValuesCtl, json_object_new_string ("?unknown?"));
-					break;
-				}
-			}
-		}
-		json_object_object_add (jsonAlsaCtl,"value",jsonValuesCtl);
+                    json_object_object_add (jsonIec958Ctl,"AES0",json_object_new_int(iec958.status[0]));
+                    json_object_object_add (jsonIec958Ctl,"AES1",json_object_new_int(iec958.status[1]));
+                    json_object_object_add (jsonIec958Ctl,"AES2",json_object_new_int(iec958.status[2]));
+                    json_object_object_add (jsonIec958Ctl,"AES3",json_object_new_int(iec958.status[3]));
+                    json_object_array_add  (jsonValuesCtl, jsonIec958Ctl);
+                    break;
+                    }
+            default:
+                    json_object_array_add (jsonValuesCtl, json_object_new_string ("?unknown?"));
+                    break;
+            }
+        }
+    }
+    json_object_object_add (ctlRequest->jValues,"value",jsonValuesCtl);
     }
 
-
-    if (!queryValues->quiet) {  // in simple mode do not print usable values
-        jsonClassCtl = json_object_new_object();
-        json_object_object_add (jsonClassCtl,"type" , json_object_new_string(snd_ctl_elem_type_name(elemtype)));
+    if (!quiet) {  // in simple mode do not print usable values
+        json_object *jsonClassCtl = json_object_new_object();
+        json_object_object_add (jsonClassCtl,"type" , json_object_new_string(snd_ctl_elem_type_name(elemType)));
 		json_object_object_add (jsonClassCtl,"count", json_object_new_int(count));
 
-		switch (elemtype) {
+		switch (elemType) {
 			case SND_CTL_ELEM_TYPE_INTEGER:
-				json_object_object_add (jsonClassCtl,"min",  json_object_new_int((int)snd_ctl_elem_info_get_min(info)));
-				json_object_object_add (jsonClassCtl,"max",  json_object_new_int((int)snd_ctl_elem_info_get_max(info)));
-				json_object_object_add (jsonClassCtl,"step", json_object_new_int((int)snd_ctl_elem_info_get_step(info)));
+				json_object_object_add (jsonClassCtl,"min",  json_object_new_int((int)snd_ctl_elem_info_get_min(elemInfo)));
+				json_object_object_add (jsonClassCtl,"max",  json_object_new_int((int)snd_ctl_elem_info_get_max(elemInfo)));
+				json_object_object_add (jsonClassCtl,"step", json_object_new_int((int)snd_ctl_elem_info_get_step(elemInfo)));
 				break;
 			case SND_CTL_ELEM_TYPE_INTEGER64:
-				json_object_object_add (jsonClassCtl,"min",  json_object_new_int64(snd_ctl_elem_info_get_min64(info)));
-				json_object_object_add (jsonClassCtl,"max",  json_object_new_int64(snd_ctl_elem_info_get_max64(info)));
-				json_object_object_add (jsonClassCtl,"step", json_object_new_int64(snd_ctl_elem_info_get_step64(info)));
+				json_object_object_add (jsonClassCtl,"min",  json_object_new_int64(snd_ctl_elem_info_get_min64(elemInfo)));
+				json_object_object_add (jsonClassCtl,"max",  json_object_new_int64(snd_ctl_elem_info_get_max64(elemInfo)));
+				json_object_object_add (jsonClassCtl,"step", json_object_new_int64(snd_ctl_elem_info_get_step64(elemInfo)));
 				break;
 			case SND_CTL_ELEM_TYPE_ENUMERATED: {
-				unsigned int item, items = snd_ctl_elem_info_get_items(info);
+				unsigned int item, items = snd_ctl_elem_info_get_items(elemInfo);
 				json_object *jsonEnum = json_object_new_array();
 
 				for (item = 0; item < items; item++) {
-					snd_ctl_elem_info_set_item(info, item);
-					if ((err = snd_hctl_elem_info(elem, info)) >= 0) {
-						json_object_array_add (jsonEnum, json_object_new_string(snd_ctl_elem_info_get_item_name(info)));
+					snd_ctl_elem_info_set_item(elemInfo, item);
+					if ((err = snd_ctl_elem_info(ctlDev, elemInfo)) >= 0) {
+						json_object_array_add (jsonEnum, json_object_new_string(snd_ctl_elem_info_get_item_name(elemInfo)));
 					}
 				}
 				json_object_object_add (jsonClassCtl, "enums",jsonEnum);
@@ -482,92 +524,119 @@ STATIC json_object * alsaGetSingleCtl (snd_hctl_elem_t *elem, snd_ctl_elem_info_
 			}
 
 		// add collected class info with associated ACLs
-		json_object_object_add (jsonAlsaCtl,"ctrl", jsonClassCtl);
-		json_object_object_add (jsonAlsaCtl,"acl"  , getControlAcl (info));
+		json_object_object_add (ctlRequest->jValues,"ctrl", jsonClassCtl);
+		json_object_object_add (ctlRequest->jValues,"acl"  , getControlAcl (elemInfo));
 
 		// check for tlv [direct port from amixer.c]
-		if (snd_ctl_elem_info_is_tlv_readable(info)) {
+		if (snd_ctl_elem_info_is_tlv_readable(elemInfo)) {
 				unsigned int *tlv;
 				tlv = malloc(4096);
-				if ((err = snd_hctl_elem_tlv_read(elem, tlv, 4096)) < 0) {
+				if ((err = snd_ctl_elem_info(ctlDev, elemInfo)) < 0) {
 					fprintf (stderr, "Control %s element TLV read error\n", snd_strerror(err));
 					free(tlv);
 				} else {
-					json_object_object_add (jsonAlsaCtl,"tlv", decodeTlv (tlv, 4096));
+					json_object_object_add (ctlRequest->jValues,"tlv", decodeTlv (tlv, 4096));
 		   }
 		}
-   }
-   return (jsonAlsaCtl);
+    }
+    ctlRequest->used=1;
+    return 0;
+   
+ OnErrorExit:
+    ctlRequest->used=-1;
+    return -1;
+   
 }
 
+// assign multiple control to the same value
+PUBLIC void alsaGetCtls (struct afb_req request) {
+    ctlRequestT *ctlRequest;
+    const char *warmsg=NULL;
+    int err=0, status=0;
+    unsigned int ctlUsed;
+    snd_ctl_t *ctlDev;
+    snd_ctl_elem_list_t *ctlList;  
 
-PUBLIC void alsaGetCtl(struct afb_req request) {
-    int err = 0;
-    snd_hctl_t *handle;
-    snd_hctl_elem_t *elem;
-    snd_ctl_elem_info_t *info;
-    json_object *sndctrls, *control;
+    json_object *sndctrls=json_object_new_object();;
     queryValuesT queryValues;
+       
+    err = alsaCheckQuery (request, &queryValues);
+    if (err) goto OnErrorExit;
+    
+    // prepare SndCard control handle for open    
+    snd_ctl_elem_list_alloca(&ctlList); 
 
-    // get API params
-    queryValues.devid = afb_req_value(request, "devid");
-    
-    const char *rqtNumid = afb_req_value(request, "numid");
-    if (!rqtNumid) queryValues.numid=-1;
-    else if (rqtNumid && ! sscanf (rqtNumid, "%d", &queryValues.numid)) {
-        json_object *query = afb_req_json(request);
-        
-        afb_req_fail_f (request, "Query=%s NumID not integer &numid=%s&", json_object_to_json_string(query), rqtNumid);
+    if ((err = snd_ctl_open(&ctlDev, queryValues.devid, 0)) < 0) {
+        afb_req_fail_f (request, "sndcrl-notfound","devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
-    };
+    }
     
-    const char *rqtQuiet = afb_req_value(request, "quiet");
-    if (!rqtQuiet) queryValues.quiet=99; // default super quiet
-    else if (rqtQuiet && ! sscanf (rqtQuiet, "%d", &queryValues.quiet)) {
-        json_object *query = afb_req_json(request);
-        
-        afb_req_fail_f (request, "Query=%s NumID not integer &numid=%s&", json_object_to_json_string(query), rqtQuiet);
-        goto OnErrorExit;
-    };
-    
-    // Open sound we use Alsa high level API like amixer.c
-    if (!queryValues.devid || (err = snd_hctl_open(&handle, queryValues.devid, 0)) < 0) {
-        afb_req_fail_f (request, "alsaGetControl devid=[%s] open fail error=%s\n", queryValues.devid, snd_strerror(err));
+    if ((err = snd_ctl_elem_list (ctlDev, ctlList)) < 0) {
+        afb_req_fail_f (request, "sndcrl-notfound","devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
 
-    if ((err = snd_hctl_load(handle)) < 0) {
-        afb_req_fail_f (request, "alsaGetControl devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
-        goto OnErrorExit;
-    }
-
-    // allocate ram for ALSA elements
-    snd_ctl_elem_info_alloca(&info);
-
-    // create an json array to hold all sndcard response
-    sndctrls = json_object_new_array();
-
-    for (elem = snd_hctl_first_elem(handle); elem != NULL; elem = snd_hctl_elem_next(elem)) {
-
-        if ((err = snd_hctl_elem_info(elem, info)) < 0) {
-            json_object_put(sndctrls); // we abandon request let's free response
-            afb_req_fail_f (request, "alsaGetControl devid=[%s/%s] snd_hctl_elem_info error: %s\n"
-                           , queryValues.devid, snd_hctl_name(handle), snd_strerror(err));
-            goto OnErrorExit;           
+    // Parse numids string (empty == all)
+    ctlUsed= snd_ctl_elem_list_get_used(ctlList);
+    if (queryValues.count==0) {
+        ctlRequest= alloca (sizeof(ctlRequestT)*(ctlUsed));
+    } else {
+        ctlRequest= alloca (sizeof(ctlRequestT)*(queryValues.count));
+        NumidsListParse (ctlRequest, queryValues.numids);
+    }  
+        
+    // Loop on all ctlDev controls
+    for (int ctlIndex=0; ctlIndex <  ctlUsed; ctlIndex++) {
+        unsigned int selected=0;
+        int jdx;
+        
+        if (queryValues.count == 0) {
+                selected=1; // check is this numid is selected within query        
+                jdx = ctlIndex;  // map all existing ctl as requested
+        } else {
+            int numid = snd_ctl_elem_list_get_numid(ctlList, ctlIndex); 
+            // check if current control was requested in query numids list
+            for (jdx=0; jdx < queryValues.count; jdx++) {
+                if (numid < 0) ctlRequest[jdx].used=-1;               
+                else if (numid == ctlRequest[jdx].numId) {
+                    selected = 1;
+                    break;
+                }
+            }            
         }
-
-        // each control is added into a JSON array
-        control = alsaGetSingleCtl(elem, info, &queryValues);
-        if (control) json_object_array_add(sndctrls, control);
-
+        
+        // control is selected open ctlid and get value 
+        if (selected) {
+            snd_ctl_elem_id_t  *elemId;
+            snd_ctl_elem_id_alloca(&elemId);
+           
+            snd_ctl_elem_list_get_id (ctlList, ctlIndex, elemId);
+            err = alsaGetSingleCtl (ctlDev, elemId, &ctlRequest[jdx], queryValues.quiet);
+            if (err) status++;
+            else json_object_object_add (sndctrls, ctlRequest[jdx].token, ctlRequest[jdx].jValues);
+        }
     }
-
-    afb_req_success (request, sndctrls, NULL);
-    return;
-    
-    // nothing special only for debugger breakpoint
+  
+    // if we had error let's add them into response message info
+    if (status) {
+        json_object *warnings = json_object_new_object();
+        for (int jdx=0; jdx < queryValues.count; jdx++) {
+            if (ctlRequest[jdx].used <= 0) {
+               if (ctlRequest[jdx].used == 0) json_object_object_add (warnings, ctlRequest[jdx].token, json_object_new_string ("does not exist"));
+               else json_object_object_add (warnings, ctlRequest[jdx].token, json_object_new_string ("Invalid"));
+            }
+            if (ctlRequest[jdx].numId == -1) {
+               json_object_object_add (warnings, ctlRequest[jdx].token, json_object_new_string ("Invalid"));
+            }
+        }
+        warmsg=json_object_to_json_string(warnings);
+    }
+  
+    // send response warning if any are passed into info element
+    afb_req_success (request, sndctrls, warmsg);
+            
     OnErrorExit:
-        return;
+        return;        
 }
 
 // This routine is called when ALSA event are fired
@@ -635,7 +704,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
 PUBLIC void alsaSubcribe (struct afb_req request) {
     static sndHandleT sndHandles[MAX_SND_CARD];
     evtHandleT *evtHandle;
-    snd_ctl_t  *ctlHandle;
+    snd_ctl_t  *ctlDev;
     snd_ctl_card_info_t *card_info; 
     int err, idx, cardid;
     int idxFree=-1;
@@ -647,7 +716,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     }
     
     // open control interface for devid
-    err = snd_ctl_open(&ctlHandle, devid, SND_CTL_READONLY);
+    err = snd_ctl_open(&ctlDev, devid, SND_CTL_READONLY);
     if (err < 0) {
     afb_req_fail_f (request, "devid-unknown", "SndCard devid=%s Not Found err=%d", devid, err);
     goto OnErrorExit;
@@ -655,7 +724,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     
     // get sound card index use to search existing subscription
     snd_ctl_card_info_alloca(&card_info);  
-    snd_ctl_card_info(ctlHandle, card_info);
+    snd_ctl_card_info(ctlDev, card_info);
     cardid = snd_ctl_card_info_get_card(card_info);
     
     // search for an existing subscription and mark 1st free slot
@@ -672,12 +741,12 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         // reach MAX_SND_CARD event registration
         if (idxFree == -1) {
             afb_req_fail_f (request, "register-toomany", "Cannot register new event Maxcard==%devent name=%s", idx);
-            snd_ctl_close(ctlHandle);
+            snd_ctl_close(ctlDev);
             goto OnErrorExit;            
         } 
         
         evtHandle = malloc (sizeof(evtHandleT));
-        evtHandle->ctl = ctlHandle;
+        evtHandle->ctl = ctlDev;
         sndHandles[idxFree].ucount = 0;
         sndHandles[idxFree].cardid = cardid;
         sndHandles[idxFree].evtHandle = evtHandle;
@@ -686,7 +755,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         err = snd_ctl_subscribe_events(evtHandle->ctl, 1);
         if (err < 0) {
             afb_req_fail_f (request, "subscribe-fail", "Cannot subscribe events from devid=%s err=%d", devid, err);
-            snd_ctl_close(ctlHandle);
+            snd_ctl_close(ctlDev);
             goto OnErrorExit;
         }
             
@@ -697,7 +766,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         err = sd_event_add_io(afb_daemon_get_event_loop(afbIface->daemon), &evtHandle->src, evtHandle->pfds.fd, EPOLLIN, sndCtlEventCB, evtHandle);
         if (err < 0) {
             afb_req_fail_f (request, "register-mainloop", "Cannot hook events to mainloop devid=%s err=%d", devid, err);
-            snd_ctl_close(ctlHandle);
+            snd_ctl_close(ctlDev);
             goto OnErrorExit;
         }
 
@@ -705,7 +774,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         evtHandle->afbevt = afb_daemon_make_event (afbIface->daemon, devid);
         if (!afb_event_is_valid (evtHandle->afbevt)) {
             afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", devid);
-            snd_ctl_close(ctlHandle);
+            snd_ctl_close(ctlDev);
             goto OnErrorExit; 
         }
 
@@ -735,7 +804,7 @@ PUBLIC void alsaGetCardId (struct afb_req request) {
     const char *devname, *shortname, *longname;
     int card, err, index, idx;
     json_object *respJson;
-    snd_ctl_t   *ctlHandle;
+    snd_ctl_t   *ctlDev;
     snd_ctl_card_info_t *cardinfo;
     
     const char *sndname = afb_req_value(request, "sndname");
@@ -752,11 +821,11 @@ PUBLIC void alsaGetCardId (struct afb_req request) {
         snprintf (devid, sizeof(devid), "hw:%i", card);
         
         // open control interface for devid
-        err = snd_ctl_open(&ctlHandle, devid, SND_CTL_READONLY);
+        err = snd_ctl_open(&ctlDev, devid, SND_CTL_READONLY);
         if (err < 0) continue;   
         
         // extract sound card information
-        snd_ctl_card_info(ctlHandle, cardinfo);
+        snd_ctl_card_info(ctlDev, cardinfo);
         index    = snd_ctl_card_info_get_card(cardinfo);
         devname  = snd_ctl_card_info_get_id(cardinfo);
         shortname= snd_ctl_card_info_get_name(cardinfo);
@@ -769,7 +838,7 @@ PUBLIC void alsaGetCardId (struct afb_req request) {
     }
     
     if (card == MAX_SND_CARD) {
-        afb_req_fail_f (request, "sndcard-notfound", "Fail to find card with name=%s", sndname);
+        afb_req_fail_f (request, "ctlDev-notfound", "Fail to find card with name=%s", sndname);
         goto OnErrorExit;
     }
     

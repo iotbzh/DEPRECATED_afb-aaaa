@@ -28,6 +28,7 @@ extern const struct afb_binding_interface *afbIface;
 PUBLIC int  alsaLibInit (struct afb_service service);
 PUBLIC void alsaGetInfo (struct afb_req request);
 PUBLIC void alsaGetCtl(struct afb_req request);
+PUBLIC void alsaSetCtrl(struct afb_req request);
 PUBLIC void alsaSubcribe (struct afb_req request);
 PUBLIC void alsaGetCardId (struct afb_req request);
 PUBLIC void alsaRegisterHal (struct afb_req request);
