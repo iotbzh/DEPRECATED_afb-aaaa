@@ -71,8 +71,9 @@ PUBLIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest)
         ctlRequest[idx].jValues = NULL;
         ctlRequest[idx].used=0;
 
-        
-        switch (json_object_get_type(ctlRequest[idx].jToken)) {
+        enum json_type jtype=json_object_get_type(ctlRequest[idx].jToken);
+        switch (jtype) {
+            json_object *jId, *jVal;
             
             case json_type_int:
                 // if NUMID is not an array then it should be an integer numid with no value
@@ -98,7 +99,20 @@ PUBLIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest)
                     // Value is an int or an array with potentially multiple subvalues
                     ctlRequest[idx].jValues = jValues;
                 }
-            default:
+                break;
+                
+            case json_type_object:
+                // numid+values formated as {id:xxx, val:[aa,bb...,nn]}
+                if (!json_object_object_get_ex (ctlRequest[idx].jToken,"id", &jId) || !json_object_object_get_ex (ctlRequest[idx].jToken,"val",&jVal)) {
+                    NOTICE (afbIface,"Invalid Json=%s missing 'id'|'val'", json_object_get_string(ctlRequest[idx].jToken));
+                    ctlRequest[idx].used=-1;
+                } else {
+                    ctlRequest[idx].numId   =json_object_get_int(jId);
+                    ctlRequest[idx].jValues =jVal;
+                }
+                
+                
+            default:                
                 ctlRequest[idx].used=-1;   
         }
     }
@@ -488,17 +502,27 @@ STATIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
         goto OnErrorExit;
     }
     
-    count = snd_ctl_elem_info_get_count (elemInfo);
-    if (!json_object_is_type (ctlRequest->jValues, json_type_array)) {
-        length=1;
-        valueIsArray=0;
-    } else {
-        length = json_object_array_length (ctlRequest->jValues);
-        valueIsArray=1;
+    count = snd_ctl_elem_info_get_count (elemInfo); 
+    if (count == 0) goto OnErrorExit;
+    
+    enum json_type jtype= json_object_get_type(ctlRequest->jValues);
+    switch (jtype) {
+        case json_type_array:
+            length = json_object_array_length (ctlRequest->jValues);
+            valueIsArray=1;           
+            break;
+        case json_type_int:
+            length=1;
+            valueIsArray=0;
+            break;                        
+        default:
+            count =0;
+            break;
     }
 
+
     if (count == 0 || count < length) {
-        NOTICE (afbIface, "Invalid Values ALSA NUMID=%d Values=[%s] wanted count=%d", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), count);
+        NOTICE (afbIface, "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), length, count);
         goto OnErrorExit;
     }
 
@@ -517,9 +541,10 @@ STATIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
         value= json_object_get_int (element);
         snd_ctl_elem_value_set_integer(elemData, index, value);
     }
-
-    if ((err = snd_ctl_elem_write(ctlDev, elemData)) < 0) {
-        NOTICE (afbIface, "Fail to write ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
+    
+    err = snd_ctl_elem_write(ctlDev, elemData);
+    if (err < 0) {
+        NOTICE (afbIface, "Fail to write ALSA NUMID=%d Values=[%s] Error=%s", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), snd_strerror(err));
         goto OnErrorExit;
     }
     
@@ -556,7 +581,7 @@ STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     if (snd_ctl_elem_read(ctlDev, elemData) < 0) goto OnErrorExit;
 
     ctlRequest->jValues= json_object_new_object();
-    json_object_object_add (ctlRequest->jValues,"numid" , ctlRequest->jToken);
+    json_object_object_add (ctlRequest->jValues,"id" , ctlRequest->jToken);
     if (quiet < 2) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
     if (quiet < 1) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
     if (quiet < 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
@@ -597,7 +622,7 @@ STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
                 break;
         }
     }
-    json_object_object_add (ctlRequest->jValues,"value",jsonValuesCtl);
+    json_object_object_add (ctlRequest->jValues,"val",jsonValuesCtl);
 
     if (!quiet) {  // in simple mode do not print usable values
         json_object *jsonClassCtl = json_object_new_object();
