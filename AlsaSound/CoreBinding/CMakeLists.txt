@@ -22,7 +22,7 @@ INCLUDE_DIRECTORIES(${include_dirs})
 ##################################################
 # AlsaBinding
 ##################################################
-ADD_LIBRARY(alsacore-afb MODULE AlsaAfbBinding.c AlsaLibMapping.c)
+ADD_LIBRARY(alsacore-afb MODULE AlsaCoreBinding.c AlsaCtlSetGet.c AlsaUseCase.c)
 
 SET_TARGET_PROPERTIES(alsacore-afb PROPERTIES
 	PREFIX ""

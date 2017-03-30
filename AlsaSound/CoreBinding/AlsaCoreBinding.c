@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "AlsaLibMapping.h"
+#include "AlsaCoreBinding.h"
 
 PUBLIC const struct afb_binding_interface *afbIface;   
 
@@ -35,12 +35,17 @@ PUBLIC const struct afb_binding_interface *afbIface;
  */
 static const struct afb_verb_desc_v1 binding_verbs[] = {
   /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,   .session= AFB_SESSION_NONE, .callback= pingtest,       .info= "Ping Binding" },
-  { .name= "getinfo",   .session= AFB_SESSION_NONE, .callback= alsaGetInfo,    .info= "List All/One Sound Cards Info" },
-  { .name= "getctls",    .session= AFB_SESSION_NONE,.callback= alsaGetCtls,    .info= "List All/One Controls from selected sndcard" },
-  { .name= "subscribe", .session= AFB_SESSION_NONE, .callback= alsaSubcribe,   .info= "Subscribe to events from selected sndcard" },
-  { .name= "getcardid", .session= AFB_SESSION_NONE, .callback= alsaGetCardId,  .info= "Get CardId from its short/long name" },
-  { .name= "registerHal",.session= AFB_SESSION_NONE,.callback= alsaRegisterHal,.info= "Register Hal CardName/ApiPrefix" },
+  { .name= "ping"   ,    .session= AFB_SESSION_NONE, .callback= pingtest,        .info= "Ping Binding" },
+  { .name= "getinfo",    .session= AFB_SESSION_NONE, .callback= alsaGetInfo,     .info= "List All/One Sound Cards Info" },
+  { .name= "getctls",    .session= AFB_SESSION_NONE,.callback= alsaGetCtls,      .info= "List All/One Controls from selected sndcard" },
+  { .name= "subscribe",  .session= AFB_SESSION_NONE, .callback= alsaSubcribe,    .info= "Subscribe to events from selected sndcard" },
+  { .name= "getcardid",  .session= AFB_SESSION_NONE, .callback= alsaGetCardId,   .info= "Get CardId from its short/long name" },
+  { .name= "registerHal",.session= AFB_SESSION_NONE,.callback= alsaRegisterHal,  .info= "Register Hal CardName/ApiPrefix" },
+  { .name= "ucmquery",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseQuery,.info= "Use Case Query" },
+  { .name= "ucmset",     .session= AFB_SESSION_NONE, .callback= alsaUseCaseSet,  .info= "Use Case Set" },
+  { .name= "ucmget",     .session= AFB_SESSION_NONE, .callback= alsaUseCaseGet,  .info= "Use Case Get" },
+  { .name= "ucmreset",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseReset,.info= "Use Case Reset to Default" },
+  { .name= "ucmclose",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseClose,.info= "Use Case Close Manager" },
   { .name= NULL } /* marker for end of the array */
 };
 

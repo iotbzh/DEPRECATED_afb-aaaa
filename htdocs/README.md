@@ -3,5 +3,5 @@
 ------------------------------------------------------------------------
   
   # Load bindings directly from development tree for debug
-  afb-daemon --token=x --ldpaths=build/Alsa/core-binding --port=1234 --roothttp=htdocs --verbose
+  afb-daemon --verbose --verbose --token="" --ldpaths=build --port=1234 --roothttp=htdocs
 

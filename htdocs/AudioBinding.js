@@ -14,12 +14,15 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
     
-    // default soundcard is hw:0
+    // default soundcard is "PCH"
     var devid=getParameterByName("devid");
     if (!devid) devid="hw:0";
     
     var sndname=getParameterByName("sndname");
     if (!sndname) sndname="PCH";
+    
+    var quiet=getParameterByName("quiet");
+    if (!quiet) quiet="99";
     
     function init() {
             ws = new afb.ws(onopen, onabort);
@@ -57,11 +60,13 @@
     function send(message) {
             var api = document.getElementById("api").value;
             var verb = document.getElementById("verb").value;
+            document.getElementById("question").innerHTML = "subscribe: "+api+"/"+verb + " (" + JSON.stringify(message) +")";
             ws.call(api+"/"+verb, {data:message}).then(replyok, replyerr);
     }
     
     
     function callbinder(api, verb, query) {
             console.log ("subscribe api="+api+" verb="+verb+" query=" +query);
+            document.getElementById("question").innerHTML = "apicall: " + api+"/"+verb +" ("+ JSON.stringify(query)+")";
             ws.call(api+"/"+verb, query).then(replyok, replyerr);
     }

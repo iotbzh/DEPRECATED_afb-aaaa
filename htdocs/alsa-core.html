@@ -4,22 +4,36 @@
     
     <script type="text/javascript" src="AFB-websock.js"></script>
     <script type="text/javascript" src="AudioBinding.js"></script>
+    
+<b>http://localhost:1234/alsa-core.html?devid=hw:xx</b>
 
 <body onload="init();">
     <h1>Hello world test</h1>
-    <button id="connected">Binder WS Fail</button></li>
+    <button id="connected" onclick="init()">Binder WS Fail</button></li>
     <br>
     <ol>
     <li><a href="api/alsacore/getinfo">getinfo: List Sound Cards</a>
-    <li><a href="api/alsacore/getinfo?devid=hw:0">Card info about hw:0</a>
-    <li><a href="api/alsacore/getctls?devid=hw:0">List All Controls for hw:0 (quiet)</a>
-    <li><a href="api/alsacore/getctls?devid=hw:0&quiet=0">List controls for hw:0 (verbose)</a>
-    <li><a href="api/alsacore/getctls?devid=hw:0&numids=[1,2]&quiet=0">List Controls 1+2 for hw:0 (verbose)</a>
-    <li><a href="api/alsacore/getctls?devid=hw:0&numids=1&quiet=0">return control numid=1 for hw:0</a>
+    <li><button onclick="callbinder('alsacore','getinfo', {quiet:quiet})">Get All Sound Card info</button></li>
+    <li><button onclick="callbinder('alsacore','getinfo', {devid:devid, quiet:quiet})">Get Sound Card info devid=xx</button></li>
+    <li><button onclick="callbinder('alsacore','getctls', {devid:devid, quiet:quiet})">Get all Alsa Ctls for devid=xx</button></li>
+    <li><button onclick="callbinder('alsacore','getctls', {devid:devid, quiet:quiet, numids:[1,2]})">Get Alsa Ctls numid=1+2</button></li>
+    <li><button onclick="callbinder('alsacore','getctls', {devid:devid, quiet:quiet, numids:1})">Get Alsa Ctl numid=1</button></li>
+        <br>    
+    <li><button onclick="callbinder('alsacore','ucmquery', {devid:devid, quiet:quiet})">List UCM verbs</button></li>
+    <li><button onclick="callbinder('alsacore','ucmset'  , {devid:devid, quiet:quiet, verb:'HiFi'})">Set UCM HiFi</button></li>
+    <li><button onclick="callbinder('alsacore','ucmset'  , {devid:devid, quiet:quiet, verb:'HiFi', dev:'Headphone'})">Set UCM HiFi+Headphone</button></li>
+    <li><button onclick="callbinder('alsacore','ucmset'  , {devid:devid, quiet:quiet, verb:'HiFi', dev:'Headphone', mod:'RecordMedia'})">Set UCM HiFi+Headphone+RecordMedia</button></li>
+    <br>    
+    <li><button onclick="callbinder('alsacore','ucmget'  , {devid:devid, quiet:quiet, values:['OutputDspName','PlaybackPCM','CapturePCM']})">Get UCM OutputDspName+PlaybackPCM+CapturePCM (after SET UCM)</button></li>
     <br>    
     <li><button onclick="callbinder('alsacore','subscribe', {devid:devid})">Subscribe AlsaCtl Events</button></li>
-    <br>    
+    <br>
+    </ol>
+    
     <div id="main" style="visibility:hidden">
-    Server says... <div id="output"></div>
-    Events: <div id="outevt"></div>
+    <ol>
+    <li>Question <div id="question"></div>
+    <li>Response <div id="output"></div>
+    <li>Events: <div id="outevt"></div>
+    </ol>
     </div>    

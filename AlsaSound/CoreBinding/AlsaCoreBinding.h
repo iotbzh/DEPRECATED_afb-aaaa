@@ -21,16 +21,39 @@
 
 #include "AudioCommonLib.h"
 
+
+typedef enum {
+    ACTION_SET,
+    ACTION_GET
+} ActionSetGetT;
+
+// generic structure to pass parsed query values
+typedef struct {
+  const char *devid;
+  json_object *jNumIds;
+  int quiet;
+  int count;
+} queryValuesT;
+
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
+PUBLIC int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues);
 
-// import from AlsaAfbMapping
+// AlseCoreSetGet exports
 PUBLIC void alsaGetInfo (struct afb_req request);
 PUBLIC void alsaGetCtls(struct afb_req request);
 PUBLIC void alsaSetCtrl(struct afb_req request);
 PUBLIC void alsaSubcribe (struct afb_req request);
 PUBLIC void alsaGetCardId (struct afb_req request);
 PUBLIC void alsaRegisterHal (struct afb_req request);
+
+// AlsaUseCase exports
+PUBLIC void alsaUseCaseQuery(struct afb_req request); 
+PUBLIC void alsaUseCaseSet(struct afb_req request); 
+PUBLIC void alsaUseCaseGet(struct afb_req request); 
+PUBLIC void alsaUseCaseClose(struct afb_req request); 
+PUBLIC void alsaUseCaseReset(struct afb_req request); 
+
 
 
 #endif /* ALSALIBMAPPING_H */

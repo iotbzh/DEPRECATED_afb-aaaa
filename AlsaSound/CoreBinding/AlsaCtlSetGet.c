@@ -27,41 +27,10 @@
 #define _GNU_SOURCE  // needed for vasprintf
 
 #include <alsa/asoundlib.h>
-#include "AlsaLibMapping.h"
+#include "AlsaCoreBinding.h"
 #include <systemd/sd-event.h>
 
 
-typedef enum {
-    ACTION_SET,
-    ACTION_GET
-} ActionSetGetT;
-
-// generic structure to pass parsed query values
-typedef struct {
-  const char *devid;
-  json_object *jNumIds;
-  int quiet;
-  int count;
-} queryValuesT;
-
-// generic sndctrl event handle hook to event callback when pooling
-typedef struct {
-    struct pollfd pfds;
-    sd_event_source *src;
-    snd_ctl_t *ctl;
-    struct afb_event afbevt;
-} evtHandleT;
-
-typedef struct {
-    int cardid;
-    int ucount;
-    evtHandleT *evtHandle;
-} sndHandleT;
-
-typedef struct {
-    char *apiprefix;
-    char *shortname;    
-}cardRegistryT;
 
 // use to store crl numid user request
 typedef struct {
@@ -71,15 +40,37 @@ typedef struct {
     int used;
 } ctlRequestT;
 
+// generic sndctrl event handle hook to event callback when pooling
+typedef struct {
+    struct pollfd pfds;
+    sd_event_source *src;
+    snd_ctl_t  *ctlDev;
+    int quiet;
+    struct afb_event afbevt;
+} evtHandleT;
+
+typedef struct {
+    int ucount;
+    int cardId;
+    evtHandleT *evtHandle;
+} sndHandleT;
+
+typedef struct {
+    char *apiprefix;
+    char *shortname;    
+}cardRegistryT;
 
 cardRegistryT *cardRegistry[MAX_SND_CARD+1];
 
-STATIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest) {
+PUBLIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest) {
     json_object *jValues;
     int length;
     
-    for (int idx=0; queryValues->count; idx ++) {                
+    for (int idx=0; idx < queryValues->count; idx ++) {                
         ctlRequest[idx].jToken = json_object_array_get_idx (queryValues->jNumIds, idx);
+        ctlRequest[idx].jValues = NULL;
+        ctlRequest[idx].used=0;
+
         
         switch (json_object_get_type(ctlRequest[idx].jToken)) {
             
@@ -97,7 +88,6 @@ STATIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest)
                 }
 
                 ctlRequest[idx].numId =json_object_get_int(json_object_array_get_idx (ctlRequest[idx].jToken, 0));
-                ctlRequest[idx].used=0;
 
                 if (length == 2) {
                     jValues = json_object_array_get_idx (ctlRequest[idx].jToken, 1);
@@ -114,33 +104,51 @@ STATIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest)
     }
 }
 
-STATIC  int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues) {
+PUBLIC  int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues) {
 
     queryValues->devid = afb_req_value(request, "devid");
     if (queryValues->devid == NULL) goto OnErrorExit;
     const char *numids;
+    json_object *jNumIds;
 
     const char *rqtQuiet = afb_req_value(request, "quiet");
     if (!rqtQuiet) queryValues->quiet=99; // default super quiet
     else if (rqtQuiet && ! sscanf (rqtQuiet, "%d", &queryValues->quiet)) {
         json_object *query = afb_req_json(request);
         
-        afb_req_fail_f (request, "quiet-notinteger","Query=%s NumID not integer &numid=%s&", json_object_to_json_string(query), rqtQuiet);
+        afb_req_fail_f (request, "quiet-notinteger","Query=%s Quiet not integer &quiet=%s&", json_object_to_json_string(query), rqtQuiet);
         goto OnErrorExit;
     };
    
     // no NumId is interpreted as ALL for get and error for set
     numids = afb_req_value(request, "numids");
-    if (numids != NULL) {
+    if (numids == NULL) {
         queryValues->count=0;
         goto OnExit;
     }
 
-    queryValues->jNumIds = json_tokener_parse(numids);
-    queryValues->count = json_object_array_length (queryValues->jNumIds);
-    if (queryValues->count <= 0) {
-        afb_req_fail_f (request, "numid-notarray","NumId=%s NumId not valid JSON array", numids);
+    jNumIds = json_tokener_parse(numids);
+    if (!jNumIds) {
+        afb_req_fail_f (request, "numids-notjson","numids=%s not a valid json entry", numids);
         goto OnErrorExit;        
+    };
+    
+    enum json_type jtype= json_object_get_type(jNumIds);
+    switch (jtype) {
+        case json_type_array:
+            queryValues->jNumIds = jNumIds;
+            queryValues->count = json_object_array_length (jNumIds);
+            break;
+            
+        case json_type_int:
+            queryValues->count = 1;
+            queryValues->jNumIds = json_object_new_array ();
+            json_object_array_add (queryValues->jNumIds, jNumIds);
+            break;
+        
+        default:           
+            afb_req_fail_f (request, "numid-notarray","NumId=%s NumId not valid JSON array", numids);
+            goto OnErrorExit;        
     }
 
 OnExit:    
@@ -362,14 +370,12 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     snd_ctl_card_info_t *cardinfo;
     int err;
 
-
-    snd_ctl_card_info_alloca(&cardinfo);
-
     if ((err = snd_ctl_open(&handle, rqtSndId, 0)) < 0) {
         INFO (afbIface, "SndCard [%s] Not Found", rqtSndId);
         return NULL;
     }
 
+    snd_ctl_card_info_alloca(&cardinfo);
     if ((err = snd_ctl_card_info(handle, cardinfo)) < 0) {
         snd_ctl_close(handle);
         WARNING (afbIface, "SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
@@ -390,7 +396,7 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
         json_object_object_add (ctlDev, "driver"  , json_object_new_string(driver));
         info  = strdup(snd_ctl_card_info_get_longname (cardinfo));
         json_object_object_add (ctlDev, "info" , json_object_new_string (info));
-        INFO (afbIface, "AJG: Soundcard Devid=%-5s Cardid=%-7s Name=%s\n", rqtSndId, devid, info);
+        INFO (afbIface, "AJG: Soundcard Devid=%-5s devid=%-7s Name=%s\n", rqtSndId, devid, info);
     }
 
     // free card handle and return info
@@ -532,8 +538,6 @@ STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     snd_ctl_elem_info_t  *elemInfo;
     int count, idx, err;
 
-    // let's make sure we are processing the right control    
-    if (ctlRequest->numId != snd_ctl_elem_id_get_numid (elemId)) goto OnErrorExit;
          
     // set info event ID and get value
 
@@ -552,6 +556,7 @@ STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     if (snd_ctl_elem_read(ctlDev, elemData) < 0) goto OnErrorExit;
 
     ctlRequest->jValues= json_object_new_object();
+    json_object_object_add (ctlRequest->jValues,"numid" , ctlRequest->jToken);
     if (quiet < 2) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
     if (quiet < 1) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
     if (quiet < 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
@@ -658,8 +663,7 @@ PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
     unsigned int ctlCount;
     snd_ctl_t *ctlDev;
     snd_ctl_elem_list_t *ctlList;  
-
-    json_object *sndctrls=json_object_new_object();;
+    json_object *sndctls=json_object_new_array();;
     queryValuesT queryValues;
        
     err = alsaCheckQuery (request, &queryValues);
@@ -737,29 +741,38 @@ PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
                     err = 1;
             }
             if (err) status++;
-            else json_object_object_add (sndctrls, json_object_to_json_string(ctlRequest[jdx].jToken), ctlRequest[jdx].jValues);
+            else {
+                json_object_array_add (sndctls, ctlRequest[jdx].jValues);
+            }
         }
     }
   
     // if we had error let's add them into response message info
-    json_object *warnings = json_object_new_object();
+    json_object *warnings = json_object_new_array();
     for (int jdx=0; jdx < queryValues.count; jdx++) {
         if (ctlRequest[jdx].used <= 0) {
-           if (ctlRequest[jdx].used == 0) json_object_object_add (warnings, json_object_to_json_string(ctlRequest[jdx].jToken), json_object_new_string ("Does Not Exist"));
-           else json_object_object_add (warnings, json_object_to_json_string(ctlRequest[jdx].jToken), json_object_new_string ("Invalid Value"));
+            json_object *failctl = json_object_new_object();
+            json_object_object_add (failctl, "numid", ctlRequest[jdx].jToken);
+            if (ctlRequest[jdx].jValues) 
+                json_object_object_add(failctl, "values", ctlRequest[jdx].jValues);
+
+            if (ctlRequest[jdx].numId == -1) json_object_object_add (failctl, "info", json_object_new_string ("Invalid NumID"));
+            else {
+               if (ctlRequest[jdx].used == 0) json_object_object_add (failctl, "info", json_object_new_string ("Does Not Exist"));
+               if (ctlRequest[jdx].used == -1) json_object_object_add (failctl, "info", json_object_new_string ("Invalid Value"));
+            }
+            json_object_array_add (warnings, failctl);
         }
-        if (ctlRequest[jdx].numId == -1) {
-           json_object_object_add (warnings, json_object_to_json_string(ctlRequest[jdx].jToken), json_object_new_string ("Invalid NumID"));
-        }
-        // free intermediary object
+        /* WARNING!!!! Check with Jose why following put free jValues
         if (ctlRequest[jdx].jToken) json_object_put(ctlRequest[jdx].jToken);
         if (ctlRequest[jdx].jValues) json_object_put(ctlRequest[jdx].jValues);
+        */
     }
-    if (json_object_object_length(warnings)) warmsg=json_object_to_json_string(warnings);
-    else json_object_put(warnings);
+    
+    if (json_object_array_length(warnings)) warmsg=json_object_to_json_string_ext(warnings, JSON_C_TO_STRING_PLAIN);
   
-    // send response warning if any are passed into info element
-    afb_req_success (request, sndctrls, warmsg);
+    // send response+warning if any
+    afb_req_success (request, sndctls, warmsg);
     snd_ctl_elem_list_clear(ctlList);
     
     OnErrorExit:
@@ -779,15 +792,15 @@ PUBLIC void alsaSetCtls (struct afb_req request) {
 STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void* userData) {
     int err;
     evtHandleT *evtHandle = (evtHandleT*)userData; 
-    snd_ctl_event_t *ctlEvent;
-    json_object *ctlEventJson;
+    snd_ctl_event_t *eventId;
+    json_object *ctlEventJ;
     unsigned int mask;
-    int numid;
     int iface;
     int device;
     int subdev;
     const char*devname;
-    int index;  
+    ctlRequestT ctlRequest;
+    snd_ctl_elem_id_t *elemId;
     
     if ((revents & EPOLLHUP) != 0) {
         NOTICE (afbIface, "SndCtl hanghup [car disconnected]");
@@ -795,37 +808,43 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
     }
     
     if ((revents & EPOLLIN) != 0)  {
-          
-        snd_ctl_event_alloca(&ctlEvent); // initialise event structure on stack
         
-        err = snd_ctl_read(evtHandle->ctl, ctlEvent);
+        // initialise event structure on stack  
+        snd_ctl_event_alloca(&eventId); 
+        snd_ctl_elem_id_alloca(&elemId);
+        
+        err = snd_ctl_read(evtHandle->ctlDev, eventId);
         if (err < 0) goto OnErrorExit;
         
         // we only process sndctrl element
-        if (snd_ctl_event_get_type(ctlEvent) != SND_CTL_EVENT_ELEM) goto ExitOnSucess;
+        if (snd_ctl_event_get_type(eventId) != SND_CTL_EVENT_ELEM) goto ExitOnSucess;
        
         // we only process value changed events
-        mask = snd_ctl_event_elem_get_mask(ctlEvent);
+        mask = snd_ctl_event_elem_get_mask(eventId);
         if (!(mask & SND_CTL_EVENT_MASK_VALUE)) goto ExitOnSucess;
-       
-        numid  = snd_ctl_event_elem_get_numid(ctlEvent);
-        iface  = snd_ctl_event_elem_get_interface(ctlEvent);
-        device = snd_ctl_event_elem_get_device(ctlEvent);
-        subdev = snd_ctl_event_elem_get_subdevice(ctlEvent);
-        devname= snd_ctl_event_elem_get_name(ctlEvent);
-        index  = snd_ctl_event_elem_get_index(ctlEvent);
         
-        DEBUG(afbIface, "sndCtlEventCB: (%i,%i,%i,%i,%s,%i)", numid, iface, device, subdev, devname, index);
+        snd_ctl_event_elem_get_id (eventId, elemId);
+        
+        err = alsaGetSingleCtl (evtHandle->ctlDev, elemId, &ctlRequest, evtHandle->quiet);
+        if (err) goto OnErrorExit;
 
+        iface  = snd_ctl_event_elem_get_interface(eventId);
+        device = snd_ctl_event_elem_get_device(eventId);
+        subdev = snd_ctl_event_elem_get_subdevice(eventId);
+        devname= snd_ctl_event_elem_get_name(eventId);
+        
         // proxy ctlevent as a binder event        
-        ctlEventJson = json_object_new_object();
-        json_object_object_add(ctlEventJson, "numid"  ,json_object_new_int (numid));
-        json_object_object_add(ctlEventJson, "iface"  ,json_object_new_int (iface));
-        json_object_object_add(ctlEventJson, "device" ,json_object_new_int (device));
-        json_object_object_add(ctlEventJson, "subdev" ,json_object_new_int (subdev));
-        json_object_object_add(ctlEventJson, "devname",json_object_new_string (devname));
-        json_object_object_add(ctlEventJson, "index"  ,json_object_new_int (index));
-        afb_event_push(evtHandle->afbevt, ctlEventJson);
+        ctlEventJ = json_object_new_object();
+        json_object_object_add(ctlEventJ, "device" ,json_object_new_int (device));
+        json_object_object_add(ctlEventJ, "subdev" ,json_object_new_int (subdev));
+        if (evtHandle->quiet < 2) {
+            json_object_object_add(ctlEventJ, "iface"  ,json_object_new_int (iface));
+            json_object_object_add(ctlEventJ, "devname",json_object_new_string (devname));
+        }
+        if (ctlRequest.jValues) (json_object_object_add(ctlEventJ, "values"  ,ctlRequest.jValues));
+        DEBUG(afbIface, "sndCtlEventCB=%s", json_object_get_string(ctlEventJ));
+        afb_event_push(evtHandle->afbevt, ctlEventJ);
+
     }
 
     ExitOnSucess:
@@ -841,31 +860,34 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     static sndHandleT sndHandles[MAX_SND_CARD];
     evtHandleT *evtHandle;
     snd_ctl_t  *ctlDev;
-    snd_ctl_card_info_t *card_info; 
-    int err, idx, cardid;
-    int idxFree=-1;
+    int err, idx, cardId, idxFree=-1;
+    snd_ctl_card_info_t *cardinfo;
+    queryValuesT queryValues;
+
     
-    const char *devid = afb_req_value(request, "devid");
-    if (devid == NULL) {
-        afb_req_fail_f (request, "devid-missing", "devid=hw:xxx missing");
+    err = alsaCheckQuery (request, &queryValues);
+    if (err) goto OnErrorExit;
+
+
+   // open control interface for devid
+    err = snd_ctl_open(&ctlDev, queryValues.devid, SND_CTL_READONLY);
+    if (err < 0) {
+        ctlDev=NULL;
+        afb_req_fail_f (request, "devid-unknown", "SndCard devid=%s Not Found err=%s", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
     
-    // open control interface for devid
-    err = snd_ctl_open(&ctlDev, devid, SND_CTL_READONLY);
-    if (err < 0) {
-    afb_req_fail_f (request, "devid-unknown", "SndCard devid=%s Not Found err=%d", devid, err);
-    goto OnErrorExit;
+    snd_ctl_card_info_alloca(&cardinfo);    
+    if ((err = snd_ctl_card_info(ctlDev, cardinfo)) < 0) {        
+        afb_req_fail_f (request, "devid-invalid", "SndCard devid=%s Not Found err=%s", queryValues.devid, snd_strerror(err));
+        goto OnErrorExit;
     }
     
-    // get sound card index use to search existing subscription
-    snd_ctl_card_info_alloca(&card_info);  
-    snd_ctl_card_info(ctlDev, card_info);
-    cardid = snd_ctl_card_info_get_card(card_info);
+    cardId=snd_ctl_card_info_get_card(cardinfo);
     
     // search for an existing subscription and mark 1st free slot
     for (idx= 0; idx < MAX_SND_CARD; idx ++) {
-      if (sndHandles[idx].ucount > 0 && sndHandles[idx].cardid == cardid) {
+      if (sndHandles[idx].ucount > 0 && cardId == sndHandles[idx].cardId) {
          evtHandle= sndHandles[idx].evtHandle;
          break;
       } else if (idxFree == -1) idxFree= idx; 
@@ -877,40 +899,37 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         // reach MAX_SND_CARD event registration
         if (idxFree == -1) {
             afb_req_fail_f (request, "register-toomany", "Cannot register new event Maxcard==%devent name=%s", idx);
-            snd_ctl_close(ctlDev);
             goto OnErrorExit;            
         } 
         
         evtHandle = malloc (sizeof(evtHandleT));
-        evtHandle->ctl = ctlDev;
+        evtHandle->ctlDev = ctlDev;
+        evtHandle->quiet  = queryValues.quiet;
         sndHandles[idxFree].ucount = 0;
-        sndHandles[idxFree].cardid = cardid;
+        sndHandles[idxFree].cardId = cardId;
         sndHandles[idxFree].evtHandle = evtHandle;
         
         // subscribe for sndctl events attached to devid
-        err = snd_ctl_subscribe_events(evtHandle->ctl, 1);
+        err = snd_ctl_subscribe_events(evtHandle->ctlDev, 1);
         if (err < 0) {
-            afb_req_fail_f (request, "subscribe-fail", "Cannot subscribe events from devid=%s err=%d", devid, err);
-            snd_ctl_close(ctlDev);
+            afb_req_fail_f (request, "subscribe-fail", "Cannot subscribe events from devid=%s err=%d", queryValues.devid, err);
             goto OnErrorExit;
         }
             
         // get pollfd attach to this sound board
-        snd_ctl_poll_descriptors(evtHandle->ctl, &evtHandle->pfds, 1);
+        snd_ctl_poll_descriptors(evtHandle->ctlDev, &evtHandle->pfds, 1);
 
         // register sound event to binder main loop
         err = sd_event_add_io(afb_daemon_get_event_loop(afbIface->daemon), &evtHandle->src, evtHandle->pfds.fd, EPOLLIN, sndCtlEventCB, evtHandle);
         if (err < 0) {
-            afb_req_fail_f (request, "register-mainloop", "Cannot hook events to mainloop devid=%s err=%d", devid, err);
-            snd_ctl_close(ctlDev);
+            afb_req_fail_f (request, "register-mainloop", "Cannot hook events to mainloop devid=%s err=%d", queryValues.devid, err);
             goto OnErrorExit;
         }
 
         // create binder event attached to devid name
-        evtHandle->afbevt = afb_daemon_make_event (afbIface->daemon, devid);
+        evtHandle->afbevt = afb_daemon_make_event (afbIface->daemon, queryValues.devid);
         if (!afb_event_is_valid (evtHandle->afbevt)) {
-            afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", devid);
-            snd_ctl_close(ctlDev);
+            afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", queryValues.devid);
             goto OnErrorExit; 
         }
 
@@ -921,7 +940,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     // subscribe to binder event    
     err = afb_req_subscribe(request, evtHandle->afbevt);
     if (err != 0) {
-        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", devid, err);
+        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", queryValues.devid, err);
         goto OnErrorExit;
     }
 
@@ -931,6 +950,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     return;
     
   OnErrorExit:
+        if (ctlDev) snd_ctl_close(ctlDev);            
         return;
 }
 

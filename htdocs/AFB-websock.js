@@ -58,6 +58,7 @@ var AFB_websocket;
 		this.ws.onmessage = onmessage.bind(this);
 		this.onopen = onopen;
 		this.onabort = onabort;
+		this.onclose = onabort;
 	}
 
 	function onerror(event) {
@@ -132,6 +133,7 @@ var AFB_websocket;
 
 	function close() {
 		this.ws.close();
+                this.onabort();
 	}
 
 	function call(method, request) {
