@@ -17,11 +17,11 @@ AFB_daemon dependency on Standard Linux Distributions
 ```
     # Might want to add following variables into ~/.bashrc
     # export CC=gcc-5; export CXX=g++-5  # if using gcc5
-    echo "export DEST=$HOME/opt" >>~/.bashrc
-    echo "export LD_LIBRARY_PATH=$DEST/lib64" >>~/.bashrc
-    echo "export LIBRARY_PATH=$DEST/lib64" >>~/.bashrc
-    echo "export PKG_CONFIG_PATH=$DEST/lib64/pkgconfig" >>~/.bashrc
-    echo "export PATH=$DEST/bin:$PATH" >>~/.bashrc
+    echo "export DEST=\$HOME/opt" >>~/.bashrc
+    echo "export LD_LIBRARY_PATH=\$DEST/lib64" >>~/.bashrc
+    echo "export LIBRARY_PATH=\$DEST/lib64" >>~/.bashrc
+    echo "export PKG_CONFIG_PATH=\$DEST/lib64/pkgconfig" >>~/.bashrc
+    echo "export PATH=\$DEST/bin:\$PATH" >>~/.bashrc
     source ~/.bashrc
 
     # install AGL pached version of LibMicroHttpd
