@@ -1,23 +1,28 @@
 ------------------------------------------------------------------------
 AGL-AudioBindings expose ALSA, Pulse & Most APIs through AGL framework
 ------------------------------------------------------------------------
-
+http://www.linuxjournal.com/node/6735/print
+http://equalarea.com/paul/alsa-audio.html
+http://mpd.wikia.com/wiki/Alsa
+http://alsa.opensrc.org/How_to_use_softvol_to_control_the_master_volume
 
 AFB_daemon dependency on Standard Linux Distributions
 -------------------------------------------------------
     # handle dependencies > (OpenSuse-42.2, Fedora-25, Ubuntu 16.04.2LTS)
     gcc > 4.8
     systemd-devel (libsystemd-dev>=222) 
-    libopenssl-devel 
     uuid-devel
-    file-devel (libmagic-dev)
+    file-devel(OpenSuSe) or libmagic-dev(Ubuntu)
     libjson-c-devel
     alsa-devel
     ElectricFence (BUG should not be mandatory)
+    libopenssl-devel libgcrypt-devel libgnutls-devel (optional but requested by libmicrohttpd for https)
 
     OpenSuse >=42.2 
-      zypper in gcc5 gdb gcc5-c++ cmake ElectricFence systemd-devel libopenssl-devel uuid-devel file-devel alsa-devel
+      zypper in gcc5 gdb gcc5-c++ cmake ElectricFence systemd-devel libopenssl-devel uuid-devel alsa-devel libgcrypt-devel libgnutls-devel libjson-c-devel file-devel 
 
+    Ubuntu >= 16.4
+      apt-get install cmake electric-fence libsystemd-dev libssl-dev uuid-dev libasound2-dev libgcrypt20-dev libgnutls-dev libgnutls-dev libjson-c-dev libmagic-dev
 
     libmicrohttpd with AGL patches http://iot.bzh/download/public/2016/appfw/libmicrohttpd-0.9.49-agl.tgz
     afb-daemon from AGL Gerrit git clone https://gerrit.automotivelinux.org/gerrit/src/app-framework-binder

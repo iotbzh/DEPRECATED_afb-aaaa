@@ -579,9 +579,11 @@ STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     snd_ctl_elem_value_alloca(&elemData);    
     snd_ctl_elem_value_set_id(elemData, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (snd_ctl_elem_read(ctlDev, elemData) < 0) goto OnErrorExit;
+    
+    int numid= snd_ctl_elem_info_get_numid(elemInfo);
 
     ctlRequest->jValues= json_object_new_object();
-    json_object_object_add (ctlRequest->jValues,"id" , ctlRequest->jToken);
+    json_object_object_add (ctlRequest->jValues,"id" , json_object_new_int(numid));
     if (quiet < 2) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
     if (quiet < 1) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
     if (quiet < 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
@@ -723,14 +725,14 @@ PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
     } else {
         ctlRequest= alloca (sizeof(ctlRequestT)*(queryValues.count));
         NumidsListParse (&queryValues, ctlRequest);
-    }  
-        
+    }
+          
     // Loop on all ctlDev controls
     for (int ctlIndex=0; ctlIndex < ctlCount; ctlIndex++) {
         unsigned int selected=0;
         int jdx;
         
-        if (queryValues.count == 0) {
+        if (queryValues.count == 0 && action == ACTION_GET) {
                 selected=1; // check is this numid is selected within query        
                 jdx = ctlIndex;  // map all existing ctl as requested
         } else {
@@ -795,6 +797,7 @@ PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
     }
     
     if (json_object_array_length(warnings)) warmsg=json_object_to_json_string_ext(warnings, JSON_C_TO_STRING_PLAIN);
+    else json_object_put(warnings);
   
     // send response+warning if any
     afb_req_success (request, sndctls, warmsg);
