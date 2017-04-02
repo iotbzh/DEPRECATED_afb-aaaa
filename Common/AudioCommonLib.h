@@ -61,7 +61,7 @@ typedef enum {
 } halCtlsEnumT;
 
 PUBLIC int cbCheckResponse(struct afb_req request, int iserror, struct json_object *result) ;
-PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl, void *handle);
+PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl);
 PUBLIC void pingtest(struct afb_req request);
 
 #endif /* AUDIOCOMMON_H */

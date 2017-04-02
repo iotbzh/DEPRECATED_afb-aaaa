@@ -233,68 +233,6 @@ STATIC json_object *ucmGetValue (ucmHandleT *ucmHandle, const char *verb, const 
     return (NULL);
 }
 
-PUBLIC void alsaUseCaseSet(struct afb_req request) { 
-    int err, ucmIdx;
-    queryValuesT queryValues;
-    json_object *jResponse = json_object_new_object();
-    
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
-    
-    ucmIdx = alsaUseCaseOpen (request, &queryValues, TRUE);
-    if (ucmIdx < 0) goto OnErrorExit;
-    
-    snd_use_case_mgr_t *ucmMgr= ucmHandles[ucmIdx].ucm;
-    const char *cardName= ucmHandles[ucmIdx].cardName;
-    
-    const char *verb = afb_req_value(request, "verb");
-    const char *mod  = afb_req_value(request, "mod");
-    const char *dev  = afb_req_value(request, "dev");
-    // Known identifiers: _verb - set current verb = value _enadev - enable given device = value _disdev - disable given device = value _swdev/{old_device} - new_device = value
-
-    if (verb) {
-        err = snd_use_case_set (ucmMgr, "_verb", verb);
-        if (err) {        
-            afb_req_fail_f (request, "ucmset-verb", "SndCard devid=[%s] name=[%s] Invalid UCM verb=[%s] err=%s", queryValues.devid, cardName, verb, snd_strerror(err));
-            goto OnErrorExit;
-        }
-    }
-
-    if (dev) {
-        err = snd_use_case_set (ucmMgr, "_enadev", dev);
-        if (err) {        
-            afb_req_fail_f (request, "ucmset-dev", "SndCard devid=[%s] name=[%s] Invalid UCMverb=[%s] dev=%s err=%s", queryValues.devid, cardName, verb, dev, snd_strerror(err));
-            goto OnErrorExit;
-        }
-    }
-    
-    if (mod) {
-        err = snd_use_case_set (ucmMgr, "_enamod", mod);
-        if (err) {        
-            afb_req_fail_f (request, "ucmset-mod", "SndCard devid=[%s] name=[%s] Invalid UCM verb=[%s] mod=[%s] err=%s", queryValues.devid, cardName, verb, mod, snd_strerror(err));
-            goto OnErrorExit;
-        }
-    }
-    
-    if (queryValues.quiet <= 3) {
-        json_object *jValue;
-
-        jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, dev, "OutputDspName");
-        if (jValue) json_object_object_add (jResponse, "OutputDspName", jValue);
-        
-        jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, dev, "PlaybackPCM");
-        if (jValue) json_object_object_add (jResponse, "PlaybackPCM", jValue);
-
-        jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, mod, "CapturePCM");
-        if (jValue) json_object_object_add (jResponse, "CapturePCM", jValue);
-    }
-    afb_req_success (request, jResponse, NULL);
- 
-  OnErrorExit:
-    return;
-}
-
-
 PUBLIC void alsaUseCaseGet (struct afb_req request) {
     int err, ucmIdx, labelCount;
     queryValuesT queryValues;
@@ -379,6 +317,71 @@ PUBLIC void alsaUseCaseGet (struct afb_req request) {
     return;        
 }
     
+PUBLIC void alsaUseCaseSet(struct afb_req request) { 
+    int err, ucmIdx;
+    queryValuesT queryValues;
+    json_object *jResponse = json_object_new_object();
+    
+    err = alsaCheckQuery (request, &queryValues);
+    if (err) goto OnErrorExit;
+    
+    ucmIdx = alsaUseCaseOpen (request, &queryValues, TRUE);
+    if (ucmIdx < 0) goto OnErrorExit;
+    
+    snd_use_case_mgr_t *ucmMgr= ucmHandles[ucmIdx].ucm;
+    const char *cardName= ucmHandles[ucmIdx].cardName;
+    
+    const char *verb = afb_req_value(request, "verb");
+    const char *mod  = afb_req_value(request, "mod");
+    const char *dev  = afb_req_value(request, "dev");
+    // Known identifiers: _verb - set current verb = value _enadev - enable given device = value _disdev - disable given device = value _swdev/{old_device} - new_device = value
+
+    if (verb) {
+        err = snd_use_case_set (ucmMgr, "_verb", verb);
+        if (err) {        
+            afb_req_fail_f (request, "ucmset-verb", "SndCard devid=[%s] name=[%s] Invalid UCM verb=[%s] err=%s", queryValues.devid, cardName, verb, snd_strerror(err));
+            goto OnErrorExit;
+        }
+    }
+
+    if (dev) {
+        err = snd_use_case_set (ucmMgr, "_enadev", dev);
+        if (err) {        
+            afb_req_fail_f (request, "ucmset-dev", "SndCard devid=[%s] name=[%s] Invalid UCMverb=[%s] dev=%s err=%s", queryValues.devid, cardName, verb, dev, snd_strerror(err));
+            goto OnErrorExit;
+        }
+    }
+    
+    if (mod) {
+        err = snd_use_case_set (ucmMgr, "_enamod", mod);
+        if (err) {        
+            afb_req_fail_f (request, "ucmset-mod", "SndCard devid=[%s] name=[%s] Invalid UCM verb=[%s] mod=[%s] err=%s", queryValues.devid, cardName, verb, mod, snd_strerror(err));
+            goto OnErrorExit;
+        }
+    }
+    
+    // label are requested transfert request to get
+    if (afb_req_value(request, "values")) return alsaUseCaseGet(request);
+    
+    if (queryValues.quiet <= 3) {
+        json_object *jValue;
+
+        jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, dev, "OutputDspName");
+        if (jValue) json_object_object_add (jResponse, "OutputDspName", jValue);
+        
+        jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, dev, "PlaybackPCM");
+        if (jValue) json_object_object_add (jResponse, "PlaybackPCM", jValue);
+
+        jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, mod, "CapturePCM");
+        if (jValue) json_object_object_add (jResponse, "CapturePCM", jValue);
+    }
+    afb_req_success (request, jResponse, NULL);
+ 
+  OnErrorExit:
+    return;
+}
+
+
 
 PUBLIC void alsaUseCaseReset (struct afb_req request) {
     int err, ucmIdx;
