@@ -53,15 +53,16 @@ OnErrorExit:
     return (-1);
 }
 
+
 // This function should be part of Generic AGL Framework
-PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl, void *handle) {
+PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl) {
     json_object* response = NULL;
     int status = 0;
     sem_t semid;
 
     // Nested procedure are allow in GNU and allow us to keep caller stack valid
 
-    void callback(void *handle, int iserror, struct json_object * result) {
+    void callback(void *handle, int iserror, struct json_object *result) {
 
         // Process Basic Error
         if (!cbCheckResponse(request, iserror, result)) {
@@ -88,7 +89,7 @@ OnExitCB:
     }
 
     // Call service and wait for call back to finish before moving any further
-    afb_service_call(srvitf, "alsacore", "getctl", queryurl, callback, handle);
+    afb_service_call(srvitf, api, verb, queryurl, callback, NULL);
     sem_wait(&semid);
 
 OnExit:
