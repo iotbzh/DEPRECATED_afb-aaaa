@@ -117,6 +117,12 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 # set default include directories
 INCLUDE_DIRECTORIES(${EXTRA_INCLUDE_DIRS})
 
+# If no install dir try to guest some smart default
+if(NOT BINDINGS_INSTALL_DIR)
+    message (status "*** ${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME}")
+    set(BINDINGS_INSTALL_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME})
+endif()
+
 # Bindings to compile
 # --------------------
 file(GLOB filelist "[A-z]*")

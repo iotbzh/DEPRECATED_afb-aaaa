@@ -55,7 +55,7 @@
 
 # Install default destination 
 # --------------------------------
-  set(binding_install_dir ${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME})
+  # set(BINDINGS_INSTALL_DIR DestinationPath )
 
 # Print a helper message when every thing is finished
 # ----------------------------------------------------

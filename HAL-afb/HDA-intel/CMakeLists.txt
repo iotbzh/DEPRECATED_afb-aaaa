@@ -38,4 +38,4 @@ PROJECT_TARGET_ADD(hal-intel-hda)
 
     # installation directory
     INSTALL(TARGETS hal-intel-hda
-        LIBRARY DESTINATION ${binding_install_dir})
+        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

@@ -37,4 +37,4 @@ PROJECT_TARGET_ADD(audio-afb)
 
     # installation directory
     INSTALL(TARGETS audio-afb
-        LIBRARY DESTINATION ${binding_install_dir})
+        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

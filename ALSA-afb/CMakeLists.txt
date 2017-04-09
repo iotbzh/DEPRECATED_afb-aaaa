@@ -26,7 +26,7 @@ PROJECT_TARGET_ADD(alsa-afb)
     SET_TARGET_PROPERTIES(alsa-afb PROPERTIES
 	PREFIX ""
 	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
-        OUTPUT_NAME alsabinding
+        OUTPUT_NAME alsa-lowlevel-binding
     )
 
     # Library dependencies (include updates automatically)
@@ -37,5 +37,5 @@ PROJECT_TARGET_ADD(alsa-afb)
 
     # installation directory
     INSTALL(TARGETS alsa-afb
-        LIBRARY DESTINATION ${binding_install_dir})
+        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
 
