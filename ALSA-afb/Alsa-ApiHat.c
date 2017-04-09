@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "AlsaCoreBinding.h"
+#include "Alsa-ApiHat.h"
 
 PUBLIC const struct afb_binding_interface *afbIface;   
 

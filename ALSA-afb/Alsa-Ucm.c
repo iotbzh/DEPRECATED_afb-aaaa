@@ -36,9 +36,10 @@
 #define _GNU_SOURCE  // needed for vasprintf
 
 #include <alsa/asoundlib.h>
-#include "AlsaCoreBinding.h"
 #include <alsa/asoundlib.h>
 #include <alsa/use-case.h>
+
+#include "Alsa-ApiHat.h"
 
 typedef struct {
      snd_use_case_mgr_t *ucm;

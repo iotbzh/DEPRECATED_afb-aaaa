@@ -26,7 +26,7 @@ PROJECT_TARGET_ADD(hal-intel-hda)
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(hal-intel-hda PROPERTIES
 	PREFIX ""
-	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
+	LINK_FLAGS ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME intel-hda-binding
     )
 

@@ -27,10 +27,9 @@
 #define _GNU_SOURCE  // needed for vasprintf
 
 #include <alsa/asoundlib.h>
-#include "AlsaCoreBinding.h"
 #include <systemd/sd-event.h>
 
-
+#include "Alsa-ApiHat.h"
 
 // use to store crl numid user request
 typedef struct {

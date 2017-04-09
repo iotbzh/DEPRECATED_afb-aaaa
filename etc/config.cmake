@@ -39,11 +39,20 @@
 # Static constante definition
 # -----------------------------
   add_compile_options(-DMAX_SND_CARD=16)
-  add_compile_options(-DCONTROL_CDEV_RX="/dev/inic-usb-crx")
+
+# Print a helper message when every thing is finished
+# ----------------------------------------------------
+  setc(CLOSING_MESSAGE "Test with: afb-daemon --ldpaths=. --port=1234 --roothttp=../htdocs --tracereq=common --token="" --verbose")
+
+# (BUG!!!) as PKG_CONFIG_PATH does not work [should be en env variable]
+# ---------------------------------------------------------------------
+  setc(CMAKE_INSTALL_PREFIX ${HOME}/opt)
+  setc(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
+  setc(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Optional dependencies order
 # ---------------------------
-  #set(EXTRA_DEPENDENCY_ORDER target1 target2 ...)
+  #set(EXTRA_DEPENDENCIES_ORDER target1 target2 ...)
 
 # Optional Extra global include path
 # ------------------------------------
@@ -53,12 +62,12 @@
 # -------------------------
   # set(EXTRA_LINK_LIBRARIES lib1 lib2 ... )
 
-# Install default destination 
-# --------------------------------
-  # set(BINDINGS_INSTALL_DIR DestinationPath )
+# Optional force binding installation
+# ------------------------------------
+  # set(BINDINGS_INSTALL_PREFIX DestinationPath )
 
-# Print a helper message when every thing is finished
-# ----------------------------------------------------
-  setc(CLOSING_MESSAGE "Test with: afb-daemon --ldpaths=. --port=1234 --roothttp=../htdocs --tracereq=common --token="" --verbose")
+# Optional force binding Linking flag
+# ------------------------------------
+  # set(BINDINGS_LINK_FLAG LinkOptions )
 
 

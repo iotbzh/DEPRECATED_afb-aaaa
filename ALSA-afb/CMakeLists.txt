@@ -20,12 +20,12 @@
 PROJECT_TARGET_ADD(alsa-afb)
 
     # Define project Targets
-    ADD_LIBRARY(alsa-afb MODULE AlsaCoreBinding.c AlsaCtlSetGet.c AlsaUseCase.c)
+    ADD_LIBRARY(alsa-afb MODULE Alsa-ApiHat.c  Alsa-SetGet.c  Alsa-Ucm.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(alsa-afb PROPERTIES
 	PREFIX ""
-	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
+	LINK_FLAGS ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME alsa-lowlevel-binding
     )
 

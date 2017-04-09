@@ -118,9 +118,15 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 INCLUDE_DIRECTORIES(${EXTRA_INCLUDE_DIRS})
 
 # If no install dir try to guest some smart default
-if(NOT BINDINGS_INSTALL_DIR)
-    message (status "*** ${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME}")
+if(BINDINGS_INSTALL_PREFIX)
+    set(BINDINGS_INSTALL_DIR ${BINDINGS_INSTALL_PREFIX}/${PROJECT_NAME})
+else()
     set(BINDINGS_INSTALL_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME})
+endif()
+
+# Default Linkflag
+if(NOT BINDINGS_LINK_FLAG)
+    set(BINDINGS_LINK_FLAG "-Wl,--version-script=${CMAKE_SOURCE_DIR}/etc/export.map")
 endif()
 
 # Bindings to compile
