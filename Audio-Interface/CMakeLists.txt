@@ -16,17 +16,22 @@
 # limitations under the License.
 ###########################################################################
 
-PROJECT(alsa-bindings C)
-PKG_CHECK_MODULES(alsa REQUIRED alsa)
+# Add target to project dependency list
+PROJECT_TARGET_ADD(audio-interface)
 
-# Max Sound Card Number eligible to ctlevent subscription
-defstr(MAX_SND_CARD  16)
+    # Define targets 
+    ADD_LIBRARY(audio-interface STATIC audio-interface.c)
 
-SET(link_libraries
-	${alsa_LIBRARIES}
-        ${link_libraries}
-	)
+    # Library properties
+    SET_TARGET_PROPERTIES(audio-interface PROPERTIES OUTPUT_NAME audiointerface)
 
-ADD_SUBDIRECTORY(CoreBinding)
-ADD_SUBDIRECTORY(HALayer)
+    # Library dependencies
+    #TARGET_LINK_LIBRARIES(audio-interface
+    #  empty
+    #)
+   
+    # Define target includes
+    TARGET_INCLUDE_DIRECTORIES(audio-interface 
+        PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}
+    )
 

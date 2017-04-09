@@ -16,16 +16,26 @@
 # limitations under the License.
 ###########################################################################
 
-PROJECT(hadware-abstraction-layer C)
 
-SET(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/SharedHal ${include_dirs})
+# Add target to project dependency list
+PROJECT_TARGET_ADD(hal-intel-hda)
 
-# Add ShareHalLib statically within each HAL bindings
-SET(link_libraries 
-    ${CMAKE_BINARY_DIR}/AlsaSound/HALayer/SharedHal/libsharedhal.a
-    ${link_libraries}
-)
+    # Define project Targets
+    ADD_LIBRARY(hal-intel-hda MODULE IntelHdaHAL.c)
 
-ADD_SUBDIRECTORY(SharedHal)
-ADD_SUBDIRECTORY(IntelHda)
+    # Binder exposes a unique public entry point
+    SET_TARGET_PROPERTIES(hal-intel-hda PROPERTIES
+	PREFIX ""
+	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
+        OUTPUT_NAME intel-hda-binding
+    )
 
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(hal-intel-hda 
+        hal-interface
+        audio-interface
+    )
+
+    # installation directory
+    INSTALL(TARGETS hal-intel-hda
+        LIBRARY DESTINATION ${binding_install_dir})

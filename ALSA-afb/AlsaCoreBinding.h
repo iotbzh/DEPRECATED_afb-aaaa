@@ -19,7 +19,7 @@
 #ifndef ALSALIBMAPPING_H
 #define ALSALIBMAPPING_H
 
-#include "AudioCommonLib.h"
+#include "audio-interface.h"
 
 
 typedef enum {

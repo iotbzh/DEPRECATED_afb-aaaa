@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "AudioLogicLib.h"
+#include "HighLevelBinding.h"
 
 static struct afb_service srvitf;
 

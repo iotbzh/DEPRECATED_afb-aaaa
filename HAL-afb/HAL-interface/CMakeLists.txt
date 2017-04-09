@@ -17,20 +17,21 @@
 ###########################################################################
 
 
-INCLUDE_DIRECTORIES(${include_dirs})
+# Add target to project dependency list
+PROJECT_TARGET_ADD(hal-interface)
 
-##################################################
-# AudioLogicBinding
-##################################################
-ADD_LIBRARY(audiologic-afb MODULE AudioLogicBinding.c AudioLogicLib.c)
+    # Define targets 
+    ADD_LIBRARY(hal-interface STATIC hal-interface.c)
 
-SET_TARGET_PROPERTIES(audiologic-afb PROPERTIES
-	PREFIX ""
-	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
-)
+    # Library properties
+    SET_TARGET_PROPERTIES(hal-interface PROPERTIES OUTPUT_NAME halinterface)
 
-TARGET_LINK_LIBRARIES(audiologic-afb ${link_libraries})
-INSTALL(TARGETS audiologic-afb
-        LIBRARY DESTINATION ${binding_install_dir})
-
-
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(hal-interface
+        audio-interface
+    )
+ 
+    # Define target includes
+    TARGET_INCLUDE_DIRECTORIES(hal-interface 
+        PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}
+    )

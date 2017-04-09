@@ -16,16 +16,13 @@
 # limitations under the License.
 ###########################################################################
 
-PROJECT(audio-common C)
 
-INCLUDE_DIRECTORIES(${include_dirs})
-
-##################################################
-# AudioCommon is a local static Library
-##################################################
-ADD_LIBRARY(audiocommon STATIC AudioCommonLib.c)
-SET_TARGET_PROPERTIES(audiocommon PROPERTIES OUTPUT_NAME audiocommon)
-SET(link_libraries ${libefence_LIBRARIES} ${json-c_LIBRARIES})
-TARGET_LINK_LIBRARIES(audiocommon ${link_libraries})
-
+# Include any directory starting with a Capital letter
+# -----------------------------------------------------
+file(GLOB filelist "[A-Z]*")
+foreach(filename ${filelist})
+  if(EXISTS "${filename}/CMakeLists.txt")
+      add_subdirectory(${filename})
+  endif(EXISTS "${filename}/CMakeLists.txt")
+endforeach()
 

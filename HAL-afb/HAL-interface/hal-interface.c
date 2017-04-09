@@ -29,7 +29,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "SharedHalLib.h"
+#include "hal-interface.h"
 
 typedef struct {
     int index;

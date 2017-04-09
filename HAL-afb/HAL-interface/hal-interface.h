@@ -19,7 +19,7 @@
 #define SHAREHALLIB_H
 
 #include <stdio.h>
-#include "AudioCommonLib.h"
+#include "audio-interface.h"
 
 typedef struct {
      halCtlsEnumT control;

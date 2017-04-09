@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 #define _GNU_SOURCE 
-#include "AudioCommonLib.h"
-#include "SharedHalLib.h"  // Include Share Interface to Alsa Sound Card HAL
+#include "hal-interface.h"
+#include "audio-interface.h" 
 
 // Force a hard dependency to ShareHallLib
 PUBLIC char* SharedHalLibVersion;

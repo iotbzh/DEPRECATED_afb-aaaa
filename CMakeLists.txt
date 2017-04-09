@@ -17,47 +17,62 @@
 ###########################################################################
 
 
-# Select GCC5 is avaliable
-###########################################################################
-execute_process(COMMAND gcc-5 -dumpversion RESULT_VARIABLE GCC5RC OUTPUT_QUIET ERROR_QUIET)
-if(GCC5RC EQUAL 0)
-message(STATUS "GCC version-5 selected")
-set(CMAKE_C_COMPILER "gcc-5")
-set(CMAKE_CXX_COMPILER "g++-5")
-endif(GCC5RC EQUAL 0)
+#--------------------------------------------------------------------------
+#  WARNING: 
+#     Do not change this cmake template
+#     Customise your preferences in "./etc/config.cmake"
+#--------------------------------------------------------------------------
 
 
-# Compiler should be selected before projet()
-project(audio-binding)
-SET(PROJECT_NAME "AFB Audio Binding")
-SET(PROJECT_PRETTY_NAME "Audio Binding")
-SET(PROJECT_DESCRIPTION "Expose Audio API through AGL Framework")
-SET(PROJECT_VERSION "1.0")
-SET(PROJECT_URL "https://github.com/iotbzh/afb-audio")
+# Generic useful macro
+# -----------------------
+macro(PROJECT_TARGET_ADD TARGET_NAME)
+    set(PROJECT_TARGETS ${PROJECT_TARGETS} ${TARGET_NAME}  CACHE INTERNAL PROJECT_TARGETS)
+endmacro(PROJECT_TARGET_ADD)
+
+macro(defstr name value)
+    add_definitions(-D${name}=${value})
+endmacro(defstr)
+
+macro(setc name value)
+    if(NOT DEFINED ${name})
+	set(${name} ${value})
+    endif(NOT DEFINED ${name})
+endmacro(setc)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
-SET(CMAKE_BUILD_TYPE Debug)
-SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+setc(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMP0048 1)
+
+
+# Compiler selection should append before project definition
+# -----------------------------------------------------------
+foreach (GCC_VERSION "6" "5")
+    execute_process(COMMAND gcc-${GCC_VERSION} -dumpversion RESULT_VARIABLE GCCRC OUTPUT_QUIET ERROR_QUIET)
+    if(GCCRC EQUAL 0)
+        set(CMAKE_C_COMPILER "gcc-${GCC_VERSION}")
+        set(CMAKE_CXX_COMPILER "g++-${GCC_VERSION}")
+        set(CMAKE_C_VERSION ${GCC_VERSION})
+        break()
+    endif(GCCRC EQUAL 0)
+endforeach(GCC_VERSION)
+
+# Include project configuration
+# ------------------------------
+include(${CMAKE_CURRENT_SOURCE_DIR}/etc/config.cmake)
+project(${NAME} VERSION ${VERSION})
+setc (PROJECT_PRETTY_NAME ${PRETTY_NAME})
+setc (PROJECT_DESCRIPTION ${DESCRIPTION})
+message(STATUS "")
+message(STATUS "Project=${PROJECT_NAME}/${VERSION}[${PRETTY_NAME} ${DESCRIPTION}]")
+message(STATUS "")
+message(STATUS "gcc/g++ version-${CMAKE_C_VERSION}.x selected")
 
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
 INCLUDE(GNUInstallDirs)
-
-
-SET(binding_install_dir ${CMAKE_INSTALL_FULL_LIBDIR}/audio)
-
-# Generic useful macro
-###########################################################
-macro(defstr name value)
-	add_definitions(-D${name}=${value})
-endmacro(defstr)
-
-macro(setc name value)
-	if(NOT DEFINED ${name})
-		set(${name} ${value})
-	endif(NOT DEFINED ${name})
-endmacro(setc)
 
 # Default compilation options
 ############################################################################
@@ -73,46 +88,66 @@ add_compile_options(-g)
 
 setc(CMAKE_C_FLAGS_PROFILING   "-g -O2 -pg -Wp,-U_FORTIFY_SOURCE")
 setc(CMAKE_C_FLAGS_DEBUG       "-g -O2 -ggdb -Wp,-U_FORTIFY_SOURCE")
-setc(CMAKE_C_FLAGS_RELEASE     "-g -O2")
+setc(CMAKE_C_FLAGS_RELEASE     "-O2")
 setc(CMAKE_C_FLAGS_CCOV        "-g -O2 --coverage")
 setc(CMAKE_INSTALL_PREFIX      "${CMAKE_SOURCE_DIR}/Install")
 
-# Warning as PKG_CONFIG_PATH does not work [should be en env variable]
-set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH 1)
-set(CMAKE_PREFIX_PATH ${HOME}/opt/lib64/pkgconfig)
+# (BUG!!!) as PKG_CONFIG_PATH does not work [should be en env variable]
+setc(PKG_CONFIG_USE_CMAKE_PREFIX_PATH 1)
 
+# Loop on required package and add options
+foreach (PKG_CONFIG ${PKG_REQUIRED_LIST})
+    PKG_CHECK_MODULES(${PKG_CONFIG} REQUIRED ${PKG_CONFIG})
 
-# Generic Package dependencies
-############################################################################
-PKG_CHECK_MODULES(json-c REQUIRED json-c)
-PKG_CHECK_MODULES(afb-daemon REQUIRED afb-daemon)
+    INCLUDE_DIRECTORIES(${${PKG_CONFIG}_INCLUDE_DIRS})
+    list (APPEND link_libraries ${${PKG_CONFIG}_LIBRARIES})
+    add_compile_options (${${PKG_CONFIG}_CFLAGS})
+endforeach(PKG_CONFIG)
 
-IF(CMAKE_BUILD_TYPE MATCHES Debug)
+# Optional LibEfence Malloc debug library
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   CHECK_LIBRARY_EXISTS(efence malloc "" HAVE_LIBEFENCE)
   IF(HAVE_LIBEFENCE)
     MESSAGE(STATUS "Linking with ElectricFence for debugging purposes...")
     SET(libefence_LIBRARIES "-lefence")
+    list (APPEND link_libraries libefence_LIBRARIES})
   ENDIF(HAVE_LIBEFENCE)
-ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
-
-SET(include_dirs
-	${INCLUDE_DIRS}
-	${CMAKE_CURRENT_SOURCE_DIR}/Common
-	${json-c_INCLUDE_DIRS}
-	${afb-daemon_INCLUDE_DIRS}
-	)
-
-# AudioCommon is linked statically with each audiobindings
-SET(link_libraries 
-        ${CMAKE_BINARY_DIR}/Common/libaudiocommon.a
-	${libefence_LIBRARIES}
-	${json-c_LIBRARIES}
-	)
+# set default include directories
+INCLUDE_DIRECTORIES(${EXTRA_INCLUDE_DIRS})
 
 # Bindings to compile
 # --------------------
-add_subdirectory(Common)
-add_subdirectory(AlsaSound)
-add_subdirectory(AudioLogic)
-add_subdirectory(htdocs)
+file(GLOB filelist "[A-z]*")
+foreach(filename ${filelist})
+  if(EXISTS "${filename}/CMakeLists.txt")
+      add_subdirectory(${filename})
+  endif(EXISTS "${filename}/CMakeLists.txt")
+endforeach()
+
+# Add a dummy target to enable global dependency order
+# -----------------------------------------------------
+if(EXTRA_DEPENDENCIES_ORDER)
+    set(DEPENDENCIES_TARGET ${PROJECT_NAME}_extra_dependencies)
+    add_custom_target(${DEPENDENCIES_TARGET} ALL
+        DEPENDS ${EXTRA_DEPENDENCY_ORDER} 
+    )
+endif()
+
+# Cmake does not maintain targets list before 3.7
+# -------------------------------------------------
+if(${CMAKE_VERSION} VERSION_LESS 3.7)
+    set(GLOBAL_TARGET_LIST ${PROJECT_TARGETS})
+else()
+    get_property(GLOBAL_TARGET_LIST GLOBAL PROPERTY GlobalTargetList)
+endif()
+
+# Print developer helper message when everything is done
+# -------------------------------------------------------
+if(CLOSING_MESSAGE AND GLOBAL_TARGET_LIST)
+    add_custom_target(${PROJECT_NAME}_done ALL
+        DEPENDS ${DEPENDENCIES_TARGET} ${GLOBAL_TARGET_LIST}
+        COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${CLOSING_MESSAGE}"
+    )
+endif()

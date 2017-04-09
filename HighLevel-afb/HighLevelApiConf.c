@@ -26,7 +26,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "AudioLogicLib.h"
+#include "HighLevelBinding.h"
 
 PUBLIC const struct afb_binding_interface *afbIface;   
 

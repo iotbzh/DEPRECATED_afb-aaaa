@@ -16,14 +16,25 @@
 # limitations under the License.
 ###########################################################################
 
-INCLUDE_DIRECTORIES(${include_dirs})
+# Add target to project dependency list
+PROJECT_TARGET_ADD(audio-afb)
 
-##################################################
-# Shared HAL(Hardware Abstraction Layer)
-##################################################
-ADD_LIBRARY(sharedhal STATIC SharedHalLib.c)
-SET_TARGET_PROPERTIES(sharedhal PROPERTIES OUTPUT_NAME sharedhal)
-SET(link_libraries ${libefence_LIBRARIES} ${json-c_LIBRARIES})
-TARGET_LINK_LIBRARIES(sharedhal ${link_libraries})
+    # Define project Targets
+    ADD_LIBRARY(audio-afb MODULE HighLevelApiConf.c HighLevelBinding.c)
 
+    # Binder exposes a unique public entry point
+    SET_TARGET_PROPERTIES(audio-afb PROPERTIES
+	PREFIX ""
+	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
+        OUTPUT_NAME audio-highlevel-binding
+    )
 
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(audio-afb 
+        audio-interface
+        ${link_libraries}
+    )
+
+    # installation directory
+    INSTALL(TARGETS audio-afb
+        LIBRARY DESTINATION ${binding_install_dir})

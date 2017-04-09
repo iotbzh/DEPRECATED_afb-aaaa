@@ -23,7 +23,7 @@
 #include <semaphore.h>
 #include <string.h>
 
-#include "AudioCommonLib.h"
+#include "audio-interface.h"
 
 typedef struct {
     int index;

@@ -16,21 +16,26 @@
 # limitations under the License.
 ###########################################################################
 
+# Add target to project dependency list
+PROJECT_TARGET_ADD(alsa-afb)
 
-INCLUDE_DIRECTORIES(${include_dirs})
+    # Define project Targets
+    ADD_LIBRARY(alsa-afb MODULE AlsaCoreBinding.c AlsaCtlSetGet.c AlsaUseCase.c)
 
-##################################################
-# Inte-HDA sound card Hardware Abstraction Layer
-##################################################
-ADD_LIBRARY(intel-hda-hal MODULE IntelHdaHAL.c )
-
-SET_TARGET_PROPERTIES(intel-hda-hal PROPERTIES
+    # Binder exposes a unique public entry point
+    SET_TARGET_PROPERTIES(alsa-afb PROPERTIES
 	PREFIX ""
 	LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/export.map"
-)
+        OUTPUT_NAME alsabinding
+    )
 
-TARGET_LINK_LIBRARIES(intel-hda-hal ${link_libraries})
-INSTALL(TARGETS intel-hda-hal
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(alsa-afb 
+        audio-interface 
+        ${link_libraries}
+    )
+
+    # installation directory
+    INSTALL(TARGETS alsa-afb
         LIBRARY DESTINATION ${binding_install_dir})
-
 

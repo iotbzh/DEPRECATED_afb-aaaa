@@ -18,10 +18,11 @@
 #ifndef AUDIOLOGIC_H
 #define AUDIOLOGIC_H
 
-#include "AudioCommonLib.h"
 #include <json-c/json.h>
 #include <afb/afb-binding.h>
 #include <afb/afb-service-itf.h>
+
+#include "audio-interface.h"
 
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;

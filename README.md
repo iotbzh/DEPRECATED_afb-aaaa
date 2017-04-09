@@ -19,31 +19,29 @@ AFB_daemon dependency on Standard Linux Distributions
     libopenssl-devel libgcrypt-devel libgnutls-devel (optional but requested by libmicrohttpd for https)
 
     OpenSuse >=42.2 
-      zypper in gcc5 gdb gcc5-c++ cmake ElectricFence systemd-devel libopenssl-devel  libuuid-devel alsa-devel libgcrypt-devel libgnutls-devel libjson-c-devel file-devel 
+      zypper in gcc5 gdb gcc5-c++ cit make ElectricFence systemd-devel libopenssl-devel  libuuid-devel alsa-devel libgcrypt-devel libgnutls-devel libjson-c-devel file-devel 
 
     Ubuntu >= 16.4libuuid-devel
-      apt-get install cmake electric-fence libsystemd-dev libssl-dev uuid-dev libasound2-dev libgcrypt20-dev libgnutls-dev libgnutls-dev libjson-c-dev libmagic-dev
+      apt-get install cmake git electric-fence libsystemd-dev libssl-dev uuid-dev libasound2-dev libgcrypt20-dev libgnutls-dev libgnutls-dev libjson-c-dev libmagic-dev
 
     libmicrohttpd with AGL patches http://iot.bzh/download/public/2016/appfw/libmicrohttpd-0.9.49-agl.tgz
     afb-daemon from AGL Gerrit git clone https://gerrit.automotivelinux.org/gerrit/src/app-framework-binder
 
 ```
     # Might want to add following variables into ~/.bashrc
-    # export CC=gcc-5; export CXX=g++-5  # if using gcc5
-    
-    echo 'export LIBPOSTFIX=64'>>~/.bashrc
+    export CC=gcc-5; export CXX=g++-5  # if using gcc5    
     echo 'export DEST=$HOME/opt' >>~/.bashrc
-    echo 'export LD_LIBRARY_PATH=$DEST/lib${LIBPOSTFIX}' >>~/.bashrc
-    echo 'export LIBRARY_PATH=$DEST/lib${LIBPOSTFIX}' >>~/.bashrc
-    echo 'export PKG_CONFIG_PATH=$DEST/lib${LIBPOSTFIX}/pkgconfig' >>~/.bashrc
-    echo 'export PATH=$DEST/bin:$PATH' >>~/.bashrc
+    echo 'export LD_LIBRARY_PATH=$INSTALL_DIR/lib64:$INSTALL_DIR/lib' >>~/.bashrc
+    echo 'export LIBRARY_PATH=$INSTALL_DIR/lib64:$INSTALL_DIR/lib' >>~/.bashrc
+    echo 'export PKG_CONFIG_PATH=$INSTALL_DIR/lib64/pkgconfig:$INSTALL_DIR/lib/pkgconfig' >>~/.bashrc
+    echo 'export PATH=$INSTALL_DIR/bin:$PATH' >>~/.bashrc
     source ~/.bashrc
 
     # install AGL pached version of LibMicroHttpd
     wget http://iot.bzh/download/public/2016/appfw/libmicrohttpd-0.9.49-agl.tgz
     tar -xzf libmicrohttpd-0.9.49-agl.tgz
     cd libmicrohttpd-0.9.49-agl
-    ./configure --prefix=$DEST
+    ./configure --prefix=$INSTALL_DIR
     make
     make install-strip
 
@@ -52,7 +50,7 @@ AFB_daemon dependency on Standard Linux Distributions
 
     # Warning: previous GCC options should be set before initial cmake (clean Build/*)
     cd app-framework-binder; mkdir build; cd build 
-    cmake -DCMAKE_INSTALL_PREFIX=$DEST ..
+    cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR ..
     make
     make install 
 ```
@@ -66,17 +64,16 @@ cd build
 cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR ..
 make
 make install
-ls
 
 # Start the binder
 
 # From Development Tree
-  mkdir $DEST/share/wssocks
-  afb-daemon --verbose --token="" --ldpaths=./build --port=1234 --roothttp=./htdoc --ws-server=unix:$DEST/share/wssocks/alsacore
+  mkdir $INSTALL_DIR/share/wssocks
+  afb-daemon --verbose --token="" --ldpaths=./build --port=1234 --roothttp=./htdocs 
 
 # From $INSTALL_DIR
   mkdir $INSTALL_DIR/share/wssocks
-  afb-daemon --verbose --token="" --ldpaths=$INSTALL_DIR/lib/audio --port=1234 --roothttp=$INSTALL_DIR/htdocs/audio-bindings --ws-server=unix:$INSTALL_DIR/share/wssocks/alsacore
+  afb-daemon --verbose --token="" --ldpaths=$INSTALL_DIR/lib/audio --port=1234 --roothttp=$INSTALL_DIR/htdocs/audio-bindings
 ```
 # replace hd:XX with your own sound card ID ex: "hw:0", "hw:PCH", ...
 Start a browser on http://localhost:1234?devid=hw:XX
