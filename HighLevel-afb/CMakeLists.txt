@@ -24,9 +24,10 @@ PROJECT_TARGET_ADD(audio-afb)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(audio-afb PROPERTIES
-	PREFIX ""
-	LINK_FLAGS ${BINDINGS_LINK_FLAG}
-        OUTPUT_NAME audio-highlevel-binding
+	PREFIX "afb-"
+        LABELS "BINDING"
+	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
+        OUTPUT_NAME ${TARGET_NAME}
     )
 
     # Library dependencies (include updates automatically)

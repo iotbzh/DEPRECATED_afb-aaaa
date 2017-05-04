@@ -25,9 +25,10 @@ PROJECT_TARGET_ADD(hal-intel-hda)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(hal-intel-hda PROPERTIES
-	PREFIX ""
-	LINK_FLAGS ${BINDINGS_LINK_FLAG}
-        OUTPUT_NAME intel-hda-binding
+	PREFIX "afb-"
+        LABELS "BINDING"
+	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
+        OUTPUT_NAME ${TARGET_NAME}
     )
 
     # Library dependencies (include updates automatically)

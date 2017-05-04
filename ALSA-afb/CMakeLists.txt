@@ -17,25 +17,25 @@
 ###########################################################################
 
 # Add target to project dependency list
-PROJECT_TARGET_ADD(alsa-afb)
+PROJECT_TARGET_ADD(alsa-lowlevel)
 
     # Define project Targets
-    ADD_LIBRARY(alsa-afb MODULE Alsa-ApiHat.c  Alsa-SetGet.c  Alsa-Ucm.c)
+    ADD_LIBRARY(alsa-lowlevel MODULE Alsa-ApiHat.c  Alsa-SetGet.c  Alsa-Ucm.c)
 
     # Binder exposes a unique public entry point
-    SET_TARGET_PROPERTIES(alsa-afb PROPERTIES
-	PREFIX ""
-	LINK_FLAGS ${BINDINGS_LINK_FLAG}
-        OUTPUT_NAME alsa-lowlevel-binding
+    SET_TARGET_PROPERTIES(alsa-lowlevel PROPERTIES
+	PREFIX "afb-"
+        LABELS "BINDING"
+	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
+        OUTPUT_NAME ${TARGET_NAME}
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(alsa-afb 
+    TARGET_LINK_LIBRARIES(alsa-lowlevel 
         audio-interface 
         ${link_libraries}
     )
 
     # installation directory
-    INSTALL(TARGETS alsa-afb
+    INSTALL(TARGETS alsa-lowlevel
         LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
-

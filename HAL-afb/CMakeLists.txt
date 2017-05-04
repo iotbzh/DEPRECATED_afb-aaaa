@@ -19,10 +19,5 @@
 
 # Include any directory starting with a Capital letter
 # -----------------------------------------------------
-file(GLOB filelist "[A-Z]*")
-foreach(filename ${filelist})
-  if(EXISTS "${filename}/CMakeLists.txt")
-      add_subdirectory(${filename})
-  endif(EXISTS "${filename}/CMakeLists.txt")
-endforeach()
+PROJECT_SUBDIRS_ADD("*")
 

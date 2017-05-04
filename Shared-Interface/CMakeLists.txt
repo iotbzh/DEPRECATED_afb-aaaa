@@ -23,7 +23,9 @@ PROJECT_TARGET_ADD(audio-interface)
     ADD_LIBRARY(audio-interface STATIC audio-interface.c)
 
     # Library properties
-    SET_TARGET_PROPERTIES(audio-interface PROPERTIES OUTPUT_NAME audiointerface)
+    SET_TARGET_PROPERTIES(audio-interface PROPERTIES
+        OUTPUT_NAME ${TARGET_NAME}
+    )
 
     # Library dependencies
     #TARGET_LINK_LIBRARIES(audio-interface
