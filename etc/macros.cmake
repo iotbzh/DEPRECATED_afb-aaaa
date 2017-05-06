@@ -30,7 +30,23 @@
 macro(PROJECT_TARGET_ADD TARGET_NAME)
 	set(PROJECT_TARGETS ${PROJECT_TARGETS} ${TARGET_NAME} CACHE INTERNAL PROJECT_TARGETS)
 	set(TARGET_NAME ${TARGET_NAME})
+
+	# Cmake does not maintain targets list before 3.7
+	# -------------------------------------------------
+	if(${CMAKE_VERSION} VERSION_LESS 3.7)
+		set(GLOBAL_TARGET_LIST ${PROJECT_TARGETS})
+	else()
+		get_property(GLOBAL_TARGET_LIST GLOBAL PROPERTY GlobalTargetList)
+	endif()
 endmacro(PROJECT_TARGET_ADD)
+
+# Check GCC minimal version version
+if (gcc_minimal_version)
+   message ("-- Check gcc_minimal_version (found gcc version ${CMAKE_C_COMPILER_VERSION})  (found g++ version ${CMAKE_CXX_COMPILER_VERSION})")
+if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS ${gcc_minimal_version} OR CMAKE_C_COMPILER_VERSION VERSION_LESS ${gcc_minimal_version})
+    message(FATAL_ERROR "**** FATAL: Require at least gcc-${gcc_minimal_version} please set CMAKE_C[XX]_COMPILER")
+endif()
+endif(gcc_minimal_version)
 
 macro(defstr name value)
 	add_definitions(-D${name}=${value})
@@ -38,60 +54,66 @@ endmacro(defstr)
 
 # WGT packaging
 macro(project_targets_populate)
+        add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
 	foreach(TARGET ${PROJECT_TARGETS})
-		# Declaration of a custom command that will populate widget tree with the target
-		set(POPULE_WIDGET_TARGET "project_populate_${TARGET}")
-
 		get_target_property(T ${TARGET} LABELS)
-		get_target_property(P ${TARGET} PREFIX)
-		get_target_property(BD ${TARGET} BINARY_DIR)
-		get_target_property(OUT ${TARGET} OUTPUT_NAME)
+		if(T)
+			# Declaration of a custom command that will populate widget tree with the target
+			set(POPULE_WIDGET_TARGET "project_populate_${TARGET}")
 
-		if(NOT P)
-                    if (${T} STREQUAL "BINDING")
-                        set(P "lib")
-                    else()
-                        set(P "")
-                    endif()
-		endif()
+			get_target_property(P ${TARGET} PREFIX)
+			get_target_property(BD ${TARGET} BINARY_DIR)
+			get_target_property(OUT ${TARGET} OUTPUT_NAME)
 
-		if(${T} STREQUAL "BINDING")
-			add_custom_command(OUTPUT ${WIDGET_LIBDIR}/${P}${TARGET}.so
-				DEPENDS ${TARGET}
-				COMMAND mkdir -p ${WIDGET_LIBDIR}
-				COMMAND cp ${BD}/${P}${OUT}.so ${WIDGET_LIBDIR}
-			)
-			add_custom_target(${POPULE_WIDGET_TARGET} ALL DEPENDS ${WIDGET_LIBDIR}/${P}${TARGET}.so)
-		elseif(${T} STREQUAL "EXECUTABLE")
-			add_custom_command(OUTPUT ${WIDGET_BINDIR}/${P}${TARGET}
-				DEPENDS ${TARGET}
-				COMMAND mkdir -p ${WIDGET_BINDIR}
-				COMMAND cp ${BD}/${P}${OUT} ${WIDGET_BINDIR}
-			)
-			add_custom_target(${POPULE_WIDGET_TARGET} ALL DEPENDS ${WIDGET_BINDIR}/${P}${TARGET})
-		elseif(${T} STREQUAL "HTDOCS")
-			add_custom_command(OUTPUT ${WIDGET_HTTPDIR}
-				DEPENDS ${TARGET}
-				COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_HTTPDIR}
+			if(P MATCHES "NOTFOUND$")
+				if (${T} STREQUAL "BINDING")
+					set(P "lib")
+				else()
+					set(P "")
+				endif()
+			endif()
+
+			if(${T} STREQUAL "BINDING")
+				add_custom_command(OUTPUT ${WIDGET_LIBDIR}/${P}${TARGET}.so
+					DEPENDS ${TARGET}
+					COMMAND mkdir -p ${WIDGET_LIBDIR}
+					COMMAND cp ${BD}/${P}${OUT}.so ${WIDGET_LIBDIR}
 				)
-				add_custom_target(${POPULE_WIDGET_TARGET} ALL DEPENDS ${WIDGET_HTTPDIR})
-		elseif(${T} STREQUAL "DATA")
-			add_custom_command(OUTPUT ${WIDGET_DATADIR}
-				DEPENDS ${TARGET}
-				COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_DATADIR}
+				add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_LIBDIR}/${P}${TARGET}.so)
+                                add_dependencies(widget ${POPULE_WIDGET_TARGET})
+			elseif(${T} STREQUAL "EXECUTABLE")
+				add_custom_command(OUTPUT ${WIDGET_BINDIR}/${P}${TARGET}
+					DEPENDS ${TARGET}
+					COMMAND mkdir -p ${WIDGET_BINDIR}
+					COMMAND cp ${BD}/${P}${OUT} ${WIDGET_BINDIR}
 				)
-				add_custom_target(${POPULE_WIDGET_TARGET} ALL DEPENDS ${WIDGET_HTTPDIR})
-		else()
-			if(${CMAKE_BUILD_TYPE} MATCHES "[Dd][Ee][Bb][Uu][Gg]")
-				MESSAGE("** This target, ${TARGET}, will be not be included in the package.")
-			endif(${CMAKE_BUILD_TYPE} MATCHES "[Dd][Ee][Bb][Uu][Gg]")
+				add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_BINDIR}/${P}${TARGET})
+                                add_dependencies(widget ${POPULE_WIDGET_TARGET})
+			elseif(${T} STREQUAL "HTDOCS")
+				add_custom_command(OUTPUT ${WIDGET_HTTPDIR}
+					DEPENDS ${TARGET}
+					COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_HTTPDIR}
+					)
+					add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_HTTPDIR})
+                                        add_dependencies(widget ${POPULE_WIDGET_TARGET})
+			elseif(${T} STREQUAL "DATA")
+				add_custom_command(OUTPUT ${WIDGET_DATADIR}
+					DEPENDS ${TARGET}
+					COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_DATADIR}
+					)
+					add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_HTTPDIR})
+	                                add_dependencies(widget ${POPULE_WIDGET_TARGET})
 		endif(${T} STREQUAL "BINDING")
-		PROJECT_TARGET_ADD(${POPULE_WIDGET_TARGET})
+			PROJECT_TARGET_ADD(${POPULE_WIDGET_TARGET})
+#		elseif(${CMAKE_BUILD_TYPE} MATCHES "[Dd][Ee][Bb][Uu][Gg]")
+#					MESSAGE(AUTHOR_WARNING "This target, ${TARGET}, will be not be included in the package.")
+		endif()
 	endforeach()
 endmacro(project_targets_populate)
 
 macro(project_package_build)
 	if("${PROJECT_TARGETS}" MATCHES "project_populate_")
+
 		if(NOT EXISTS ${WIDGET_DIR}/config.xml.in OR NOT EXISTS ${WIDGET_DIR}/${PROJECT_ICON}.in)
 			configure_file(${PROJECT_WGT_DIR}/config.xml.in ${WIDGET_DIR}/config.xml)
 			file(COPY ${PROJECT_WGT_DIR}/${PROJECT_ICON}.in DESTINATION ${WIDGET_DIR}/${PROJECT_ICON})
@@ -106,7 +128,7 @@ macro(project_package_build)
 		DEPENDS ${PROJECT_TARGETS}
 		COMMAND wgtpkg-pack -f -o ${PROJECT_NAME}.wgt ${WIDGET_DIR}
 		)
-		add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
+		# FULUP move to project_targets_populate add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
 		set(ADDITIONAL_MAKE_CLEAN_FILES, "${PROJECT_NAME}.wgt")
 	else()
 		MESSAGE(FATAL_ERROR "Widget tree empty, please populate it by calling  populate_widget() macro with target you want to include into it.")
@@ -131,30 +153,11 @@ set(CMAKE_BUILD_TYPE Debug CACHE STRING "the type of build")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMP0048 1)
 
-# Compiler selection should append before project definition
-# -----------------------------------------------------------
-foreach (GCC_VERSION "6" "5")
-    execute_process(COMMAND gcc-${GCC_VERSION} -dumpversion RESULT_VARIABLE GCCRC OUTPUT_QUIET ERROR_QUIET)
-    if(GCCRC EQUAL 0)
-        set(CMAKE_C_COMPILER   "gcc-${GCC_VERSION}")
-        set(CMAKE_CXX_COMPILER "g++-${GCC_VERSION}")
-        set(CMAKE_C_VERSION ${GCC_VERSION})
-        message(STATUS "gcc/g++ version-${CMAKE_C_VERSION}.x selected")
-        break()
-    endif(GCCRC EQUAL 0)
-endforeach(GCC_VERSION)
-
 # Include project configuration
 # ------------------------------
-include(${CMAKE_CURRENT_SOURCE_DIR}/etc/config.cmake)
-
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES ${PROJECT_LANGUAGES})
-message(STATUS "")
-message(STATUS "Project=${PROJECT_NAME}/${PROJECT_VERSION}[${PROJECT_PRETTY_NAME} ${PROJECT_DESCRIPTION}]")
-message(STATUS "")
-
 set(PROJECT_WGT_DIR "packaging/wgt" CACHE PATH "Subpath to the widget directory")
-set(PROJECT_LIBDIR  "libs" CACHE PATH "Subpath to libraries")
+set(PROJECT_LIBDIR "libs" CACHE PATH "Subpath to libraries")
 set(PROJECT_RESOURCES "data" CACHE PATH "Subpath to data")
 
 INCLUDE(FindPkgConfig)
@@ -179,12 +182,12 @@ set(CMAKE_C_FLAGS_DEBUG       "-g -O2 -ggdb -Wp,-U_FORTIFY_SOURCE" CACHE STRING 
 set(CMAKE_C_FLAGS_RELEASE     "-O2" CACHE STRING "Flags for releasing")
 set(CMAKE_C_FLAGS_CCOV        "-g -O2 --coverage" CACHE STRING "Flags for coverage test")
 
-set(CMAKE_CXX_FLAGS_PROFILING    "-g -O0 -pg -Wp,-U_FORTIFY_SOURCE")
-set(CMAKE_CXX_FLAGS_DEBUG        "-g -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
-set(CMAKE_CXX_FLAGS_RELEASE      "-g -O2")
-set(CMAKE_CXX_FLAGS_CCOV "-g -O2 --coverage")
+set(CMAKE_CXX_FLAGS_PROFILING "-g -O0 -pg -Wp,-U_FORTIFY_SOURCE")
+set(CMAKE_CXX_FLAGS_DEBUG     "-g -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
+set(CMAKE_CXX_FLAGS_RELEASE   "-g -O2")
+set(CMAKE_CXX_FLAGS_CCOV      "-g -O2 --coverage")
 
-set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/Install" CACHE PATH "The path where to install")
+set(CMAKE_INSTALL_PREFIX      "${CMAKE_SOURCE_DIR}/Install" CACHE PATH "The path where to install")
 
 # (BUG!!!) as PKG_CONFIG_PATH does not work [should be en env variable]
 set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON CACHE BOOLEAN "Flag for using prefix path")
@@ -242,24 +245,17 @@ endif()
 if(EXTRA_DEPENDENCIES_ORDER)
 	set(DEPENDENCIES_TARGET ${PROJECT_NAME}_extra_dependencies)
 	add_custom_target(${DEPENDENCIES_TARGET} ALL
-		DEPENDS ${EXTRA_DEPENDENCY_ORDER} 
+		DEPENDS ${EXTRA_DEPENDENCY_ORDER}
 	)
-endif()
-
-# Cmake does not maintain targets list before 3.7
-# -------------------------------------------------
-if(${CMAKE_VERSION} VERSION_LESS 3.7)
-	set(GLOBAL_TARGET_LIST ${PROJECT_TARGETS})
-else()
-	get_property(GLOBAL_TARGET_LIST GLOBAL PROPERTY GlobalTargetList)
 endif()
 
 # Print developer helper message when everything is done
 # -------------------------------------------------------
-if(CLOSING_MESSAGE AND GLOBAL_TARGET_LIST)
-	add_custom_target(${PROJECT_NAME}_done ALL
-		DEPENDS ${DEPENDENCIES_TARGET} ${GLOBAL_TARGET_LIST}
-		COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${CLOSING_MESSAGE}"
-	)
-endif()
-
+macro(project_closing_msg)
+	if(CLOSING_MESSAGE AND GLOBAL_TARGET_LIST)
+		add_custom_target(${PROJECT_NAME}_done ALL
+			DEPENDS ${DEPENDENCIES_TARGET} ${GLOBAL_TARGET_LIST}
+			COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${CLOSING_MESSAGE}"
+		)
+	endif()
+endmacro()

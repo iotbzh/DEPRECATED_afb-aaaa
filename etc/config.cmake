@@ -35,6 +35,7 @@ set(CMAKE_BUILD_TYPE "DEBUG")
 
 # Compiler selection if needed. Overload the detected compiler.
 # -----------------------------------------------
+set (gcc_minimal_version 4.9)
 #set(CMAKE_C_COMPILER "gcc")
 #set(CMAKE_CXX_COMPILER "g++")
 
@@ -60,7 +61,7 @@ set(CLOSING_MESSAGE "Test with: afb-daemon --ldpaths=. --port=1234 --roothttp=..
 
 # (BUG!!!) as PKG_CONFIG_PATH does not work [should be an env variable]
 # ---------------------------------------------------------------------
-set(CMAKE_INSTALL_PREFIX ${HOME}/opt)
+set(CMAKE_INSTALL_PREFIX  $ENV{HOME}/opt)
 set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
 set(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
 
