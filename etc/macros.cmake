@@ -32,6 +32,10 @@ macro(PROJECT_TARGET_ADD TARGET_NAME)
 	set(TARGET_NAME ${TARGET_NAME})
 endmacro(PROJECT_TARGET_ADD)
 
+macro(PROJECT_PKGDEP_ADD PKG_NAME)
+	set_property(GLOBAL APPEND PROPERTY PROJECT_PKG_DEPS ${PKG_NAME})
+endmacro(PROJECT_PKGDEP_ADD)
+
 # Check GCC minimal version version
 if (gcc_minimal_version)
    message ("-- Check gcc_minimal_version (found gcc version ${CMAKE_C_COMPILER_VERSION})  (found g++ version ${CMAKE_CXX_COMPILER_VERSION})")
@@ -44,14 +48,25 @@ macro(defstr name value)
 	add_definitions(-D${name}=${value})
 endmacro(defstr)
 
-# WGT packaging
+
+
+# Pre-packaging
 macro(project_targets_populate)
-	add_custom_target(MAIN_POPULATE)
+
+        # Default Widget default directory
+        set(PACKAGE_BINDIR  ${PROJECT_PKG_DIR}/bin)
+        set(PACKAGE_ETCDIR  ${PROJECT_PKG_DIR}/etc)
+        set(PACKAGE_LIBDIR  ${PROJECT_PKG_DIR}/lib)
+        set(PACKAGE_HTTPDIR ${PROJECT_PKG_DIR}/htdocs)
+        set(PACKAGE_DATADIR ${PROJECT_PKG_DIR}/data)
+
+	add_custom_target(populate)
+        get_property(PROJECT_TARGETS GLOBAL PROPERTY PROJECT_TARGETS)
 	foreach(TARGET ${PROJECT_TARGETS})
 		get_target_property(T ${TARGET} LABELS)
 		if(T)
 			# Declaration of a custom command that will populate widget tree with the target
-			set(POPULE_WIDGET_TARGET "project_populate_${TARGET}")
+			set(POPULE_PACKAGE_TARGET "project_populate_${TARGET}")
 
 			get_target_property(P ${TARGET} PREFIX)
 			get_target_property(BD ${TARGET} BINARY_DIR)
@@ -66,72 +81,122 @@ macro(project_targets_populate)
 			endif()
 
 			if(${T} STREQUAL "BINDING")
-				add_custom_command(OUTPUT ${WIDGET_LIBDIR}/${P}${TARGET}.so
+				add_custom_command(OUTPUT ${PACKAGE_LIBDIR}/${P}${TARGET}.so
 					DEPENDS ${TARGET}
-					COMMAND mkdir -p ${WIDGET_LIBDIR}
-					COMMAND cp ${BD}/${P}${OUT}.so ${WIDGET_LIBDIR}
+					COMMAND mkdir -p ${PACKAGE_LIBDIR}
+					COMMAND cp ${BD}/${P}${OUT}.so ${PACKAGE_LIBDIR}
 				)
-				add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_LIBDIR}/${P}${TARGET}.so)
-				add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
+				add_custom_target(${POPULE_PACKAGE_TARGET} DEPENDS ${PACKAGE_LIBDIR}/${P}${TARGET}.so)
+				add_dependencies(populate ${POPULE_PACKAGE_TARGET}) 
 			elseif(${T} STREQUAL "EXECUTABLE")
-				add_custom_command(OUTPUT ${WIDGET_BINDIR}/${P}${TARGET}
+				add_custom_command(OUTPUT ${PACKAGE_BINDIR}/${P}${TARGET}
 					DEPENDS ${TARGET}
-					COMMAND mkdir -p ${WIDGET_BINDIR}
-					COMMAND cp ${BD}/${P}${OUT} ${WIDGET_BINDIR}
+					COMMAND mkdir -p ${PACKAGE_BINDIR}
+					COMMAND cp ${BD}/${P}${OUT} ${PACKAGE_BINDIR}
 				)
-				add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_BINDIR}/${P}${TARGET})
-				add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
+				add_custom_target(${POPULE_PACKAGE_TARGET} DEPENDS ${PACKAGE_BINDIR}/${P}${TARGET})
+				add_dependencies(populate ${POPULE_PACKAGE_TARGET}) 
 			elseif(${T} STREQUAL "HTDOCS")
-				add_custom_command(OUTPUT ${WIDGET_HTTPDIR}
+				add_custom_command(OUTPUT ${PACKAGE_HTTPDIR}
 					DEPENDS ${TARGET}
-					COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_HTTPDIR}
+					COMMAND cp -r ${BD}/${P}${OUT} ${PACKAGE_HTTPDIR}
 					)
-					add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_HTTPDIR})
-					add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
+					add_custom_target(${POPULE_PACKAGE_TARGET} DEPENDS ${PACKAGE_HTTPDIR})
+					add_dependencies(populate ${POPULE_PACKAGE_TARGET}) 
 			elseif(${T} STREQUAL "DATA")
-				add_custom_command(OUTPUT ${WIDGET_DATADIR}
+				add_custom_command(OUTPUT ${PACKAGE_DATADIR}
 					DEPENDS ${TARGET}
-					COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_DATADIR}
+					COMMAND cp -r ${BD}/${P}${OUT} ${PACKAGE_DATADIR}
 					)
-					add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_HTTPDIR})
-					add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
+					add_custom_target(${POPULE_PACKAGE_TARGET} DEPENDS ${PACKAGE_HTTPDIR})
+					add_dependencies(populate ${POPULE_PACKAGE_TARGET}) 
 			endif(${T} STREQUAL "BINDING")
-#		elseif(${CMAKE_BUILD_TYPE} MATCHES "[Dd][Ee][Bb][Uu][Gg]")
-#					MESSAGE(WARNING "This target, ${TARGET}, will be not be included in the package.")
+		elseif(${CMAKE_BUILD_TYPE} MATCHES "[Dd][Ee][Bb][Uu][Gg]")
+			MESSAGE(".. Warning: ${TARGET} ignored when packaging.")
 		endif()
 	endforeach()
 endmacro(project_targets_populate)
 
+
+macro(wgt_package_build)
+        if(NOT EXISTS ${WGT_TEMPLATE_DIR}/config.xml.in OR NOT EXISTS ${WGT_TEMPLATE_DIR}/${PROJECT_ICON}.in)
+                MESSAGE(FATAL_ERROR "Missing mandatory files: you need config.xml.in and ${PROJECT_ICON}.in files in ${WGT_TEMPLATE_DIR} folder.")
+        endif()
+
+        # Build widget spec file from template only once (Fulup good idea or should depend on time ????)
+        if(NOT EXISTS ${PROJECT_PKG_DIR}/config.xml.in OR NOT EXISTS ${PROJECT_PKG_DIR}/${PROJECT_ICON}.in)
+                configure_file(${WGT_TEMPLATE_DIR}/config.xml.in ${PROJECT_PKG_DIR}/config.xml)
+                file(COPY ${WGT_TEMPLATE_DIR}/${PROJECT_ICON}.in DESTINATION ${PROJECT_PKG_DIR}/${PROJECT_ICON})
+        endif(NOT EXISTS ${PROJECT_PKG_DIR}/config.xml.in OR NOT EXISTS ${PROJECT_PKG_DIR}/${PROJECT_ICON}.in)
+
+        # Fulup ??? copy any extra file in wgt/etc into populate package before building the widget
+        file(GLOB PROJECT_CONF_FILES "${WGT_TEMPLATE_DIR}/etc/*")
+        if(${PROJECT_CONF_FILES})
+                file(COPY "${WGT_TEMPLATE_DIR}/etc/*" DESTINATION ${PROJECT_PKG_DIR}/etc/)
+        endif(${PROJECT_CONF_FILES})
+
+        add_custom_command(OUTPUT ${PROJECT_NAME}.wgt
+                DEPENDS ${PROJECT_TARGETS}
+                COMMAND wgtpkg-pack -f -o ${PROJECT_NAME}.wgt ${PROJECT_PKG_DIR}
+        )
+
+        add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
+        add_dependencies(widget populate)
+        set(ADDITIONAL_MAKE_CLEAN_FILES, "${PROJECT_NAME}.wgt")
+
+        if(PACKAGE_MESSAGE)
+        add_custom_command(TARGET widget
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${PACKAGE_MESSAGE}")
+        endif()
+endmacro(wgt_package_build)
+
+macro(rpm_package_build)
+        if(NOT EXISTS ${RPM_TEMPLATE_DIR}/config.rpm.in)
+                MESSAGE(FATAL_ERROR "Missing mandatory files: you needconfig.rpm.in in ${RPM_TEMPLATE_DIR} folder.")
+        endif()
+     
+        # extract PROJECT_PKG_DEPS and replace ; by , for RPM spec file
+        get_property(PROJECT_PKG_DEPS GLOBAL PROPERTY PROJECT_PKG_DEPS)
+        foreach (PKFCONF ${PROJECT_PKG_DEPS})
+          set(RPM_PKG_DEPS "${RPM_PKG_DEPS}, pkgconfig(${PKFCONF})")
+        endforeach()
+
+        # build rpm spec file from template
+        configure_file(${RPM_TEMPLATE_DIR}/config.rpm.in ${PROJECT_PKG_DIR}/config.rpm)
+
+        add_custom_command(OUTPUT ${PROJECT_NAME}.rpm
+                DEPENDS ${PROJECT_TARGETS}
+                COMMAND rpmbuild -ba  ${PROJECT_PKG_DIR}/config.rpm
+        )
+
+        add_custom_target(rpm DEPENDS ${PROJECT_NAME}.rpm)
+        add_dependencies(rpm populate)
+        set(ADDITIONAL_MAKE_CLEAN_FILES, "${PROJECT_NAME}.rpm")
+
+        if(PACKAGE_MESSAGE)
+        add_custom_command(TARGET rpm
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${PACKAGE_MESSAGE}")
+        endif()
+endmacro(rpm_package_build)
+
 macro(project_package_build)
-		if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_WGT_DIR}/config.xml.in OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_WGT_DIR}/${PROJECT_ICON}.in)
-			MESSAGE(FATAL_ERROR "Missing mandatory files: you need config.xml.in and ${PROJECT_ICON}.in files in ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_WGT_DIR} folder.")
-		endif()
 
-		if(NOT EXISTS ${WIDGET_DIR}/config.xml.in OR NOT EXISTS ${WIDGET_DIR}/${PROJECT_ICON}.in)
-			configure_file(${PROJECT_WGT_DIR}/config.xml.in ${WIDGET_DIR}/config.xml)
-			file(COPY ${PROJECT_WGT_DIR}/${PROJECT_ICON}.in DESTINATION ${WIDGET_DIR}/${PROJECT_ICON})
-		endif(NOT EXISTS ${WIDGET_DIR}/config.xml.in OR NOT EXISTS ${WIDGET_DIR}/${PROJECT_ICON}.in)
+    if(EXISTS ${RPM_TEMPLATE_DIR})
+        rpm_package_build()
+    endif()
 
-		file(GLOB PROJECT_CONF_FILES "${PROJECT_WGT_DIR}/etc/*")
-		if(${PROJECT_CONF_FILES})
-			file(COPY "${PROJECT_WGT_DIR}/etc/*" DESTINATION ${WIDGET_ETCDIR}/)
-		endif(${PROJECT_CONF_FILES})
+    if(EXISTS ${WGT_TEMPLATE_DIR})
+        wgt_package_build()
+    endif()
 
-		add_custom_command(OUTPUT ${PROJECT_NAME}.wgt
-			DEPENDS ${PROJECT_TARGETS}
-			COMMAND wgtpkg-pack -f -o ${PROJECT_NAME}.wgt ${WIDGET_DIR}
-		)
+    if(EXISTS ${DEB_TEMPLATE_DIR})
+        deb_package_build()
+    endif()
 
-		add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
-		add_dependencies(widget MAIN_POPULATE)
-		set(ADDITIONAL_MAKE_CLEAN_FILES, "${PROJECT_NAME}.wgt")
-
-		if(WIDGET_MESSAGE)
-		add_custom_command(TARGET widget
-			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${WIDGET_MESSAGE}")
-		endif()
 endmacro(project_package_build)
+
 
 macro(project_subdirs_add)
 	if(${ARGV0})
@@ -154,9 +219,9 @@ set(CMP0048 1)
 # Include project configuration
 # ------------------------------
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES ${PROJECT_LANGUAGES})
-set(PROJECT_WGT_DIR "packaging/wgt" CACHE PATH "Subpath to the widget directory")
-set(PROJECT_LIBDIR "libs" CACHE PATH "Subpath to libraries")
-set(PROJECT_RESOURCES "data" CACHE PATH "Subpath to data")
+set(PROJECT_PKG_DIR    "pkgs" CACHE PATH "Subpath to packages")
+set(PROJECT_LIB_DIR    "libs" CACHE PATH "Subpath to libraries")
+set(PROJECT_RESOURCES "data"  CACHE PATH "Subpath to data")
 
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckIncludeFiles)
@@ -197,6 +262,8 @@ foreach (PKG_CONFIG ${PKG_REQUIRED_LIST})
 	INCLUDE_DIRECTORIES(${${PKG_CONFIG}_INCLUDE_DIRS})
 	list (APPEND link_libraries ${${PKG_CONFIG}_LIBRARIES})
 	add_compile_options (${${PKG_CONFIG}_CFLAGS})
+
+        PROJECT_PKGDEP_ADD(${PKG_CONFIG})
 endforeach(PKG_CONFIG)
 
 # Optional LibEfence Malloc debug library
@@ -219,19 +286,12 @@ else()
 	set(BINDINGS_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 endif()
 
-# Define a default package directory
-if(WIDGET_PREFIX)
-	set(WIDGET_DIR ${WIDGET_PREFIX}/package)
-else()
-	set(WIDGET_DIR ${CMAKE_CURRENT_BINARY_DIR}/package)
-endif()
+# Define a default widget directory
+set (PKG_TEMPLATE_PREFIX ${CMAKE_SOURCE_DIR}/etc CACHE PATH "Default Package Templates Directory")
+set(WGT_TEMPLATE_DIR ${PKG_TEMPLATE_PREFIX}/wgt)
+set(RPM_TEMPLATE_DIR ${PKG_TEMPLATE_PREFIX}/rpm)
+set(DEB_TEMPLATE_DIR ${PKG_TEMPLATE_PREFIX}/deb)
 
-# and their subsequent subdir
-set(WIDGET_BINDIR ${WIDGET_DIR}/bin)
-set(WIDGET_ETCDIR ${WIDGET_DIR}/etc)
-set(WIDGET_LIBDIR ${WIDGET_DIR}/lib)
-set(WIDGET_HTTPDIR ${WIDGET_DIR}/htdocs)
-set(WIDGET_DATADIR ${WIDGET_DIR}/data)
 
 # Default Linkflag
 if(NOT BINDINGS_LINK_FLAG)

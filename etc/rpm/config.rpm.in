@@ -17,25 +17,27 @@
 ###########################################################################
 
 
+Name:    @PROJECT_NAME@
+Version: @PROJECT_VERSION@
+Release: 1
+License: @PROJECT_LICENCE@
+Summary: @PROJECT_DESCRIPTION@
+Url:     @PROJECT_URL@
 
-##################################################
-# HTML Testing Files
-##################################################
-PROJECT_TARGET_ADD(html-simple-test)
+Provides: @PROJECT_NAME@
+Prefix: /opt/@PROJECT_NAME@
+BuildRequires: pkg-config @RPM_PKG_DEPS@
 
-    add_custom_command(OUTPUT htdocs
-	DEPENDS ${TARGET_NAME}
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMAND cp "*.html"  PATTERN "*.js" PATTERN "*.jpg" ${CMAKE_CURRENT_BINARY_DIR}
-    )
+BuildRoot:@CMAKE_CURRENT_BINARY_DIR@
 
-    add_custom_target(${TARGET_NAME} ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR})
+%description 
+@PROJECT_DESCRIPTION@
 
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	LABELS "HTDOCS"
-	OUTPUT_NAME htdocs
-    )
+%prep
 
-    # use only under native Linux when using "make install"
-    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR} DESTINATION . FILES_MATCHING PATTERN "*.html"  PATTERN "*.js" PATTERN "*.jpg")
+%build
+(mkdir -p build; cd build; cmake ..; make)
+
+%install
+(cd build; make populate DESTDIR=%{buildroot})
 
