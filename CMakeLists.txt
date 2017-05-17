@@ -25,3 +25,4 @@ project_subdirs_add("[A-Z]*")
 
 project_targets_populate()
 project_package_build()
+project_closing_msg()

@@ -28,16 +28,8 @@
 # Generic useful macro
 # -----------------------
 macro(PROJECT_TARGET_ADD TARGET_NAME)
-	set(PROJECT_TARGETS ${PROJECT_TARGETS} ${TARGET_NAME} CACHE INTERNAL PROJECT_TARGETS)
+	set_property(GLOBAL APPEND PROPERTY PROJECT_TARGETS ${TARGET_NAME})
 	set(TARGET_NAME ${TARGET_NAME})
-
-	# Cmake does not maintain targets list before 3.7
-	# -------------------------------------------------
-	if(${CMAKE_VERSION} VERSION_LESS 3.7)
-		set(GLOBAL_TARGET_LIST ${PROJECT_TARGETS})
-	else()
-		get_property(GLOBAL_TARGET_LIST GLOBAL PROPERTY GlobalTargetList)
-	endif()
 endmacro(PROJECT_TARGET_ADD)
 
 # Check GCC minimal version version
@@ -54,7 +46,7 @@ endmacro(defstr)
 
 # WGT packaging
 macro(project_targets_populate)
-        add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
+	add_custom_target(MAIN_POPULATE)
 	foreach(TARGET ${PROJECT_TARGETS})
 		get_target_property(T ${TARGET} LABELS)
 		if(T)
@@ -80,7 +72,7 @@ macro(project_targets_populate)
 					COMMAND cp ${BD}/${P}${OUT}.so ${WIDGET_LIBDIR}
 				)
 				add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_LIBDIR}/${P}${TARGET}.so)
-                                add_dependencies(widget ${POPULE_WIDGET_TARGET})
+				add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
 			elseif(${T} STREQUAL "EXECUTABLE")
 				add_custom_command(OUTPUT ${WIDGET_BINDIR}/${P}${TARGET}
 					DEPENDS ${TARGET}
@@ -88,31 +80,32 @@ macro(project_targets_populate)
 					COMMAND cp ${BD}/${P}${OUT} ${WIDGET_BINDIR}
 				)
 				add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_BINDIR}/${P}${TARGET})
-                                add_dependencies(widget ${POPULE_WIDGET_TARGET})
+				add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
 			elseif(${T} STREQUAL "HTDOCS")
 				add_custom_command(OUTPUT ${WIDGET_HTTPDIR}
 					DEPENDS ${TARGET}
 					COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_HTTPDIR}
 					)
 					add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_HTTPDIR})
-                                        add_dependencies(widget ${POPULE_WIDGET_TARGET})
+					add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
 			elseif(${T} STREQUAL "DATA")
 				add_custom_command(OUTPUT ${WIDGET_DATADIR}
 					DEPENDS ${TARGET}
 					COMMAND cp -r ${BD}/${P}${OUT} ${WIDGET_DATADIR}
 					)
 					add_custom_target(${POPULE_WIDGET_TARGET} DEPENDS ${WIDGET_HTTPDIR})
-	                                add_dependencies(widget ${POPULE_WIDGET_TARGET})
-		endif(${T} STREQUAL "BINDING")
-			PROJECT_TARGET_ADD(${POPULE_WIDGET_TARGET})
+					add_dependencies(MAIN_POPULATE ${POPULE_WIDGET_TARGET}) 
+			endif(${T} STREQUAL "BINDING")
 #		elseif(${CMAKE_BUILD_TYPE} MATCHES "[Dd][Ee][Bb][Uu][Gg]")
-#					MESSAGE(AUTHOR_WARNING "This target, ${TARGET}, will be not be included in the package.")
+#					MESSAGE(WARNING "This target, ${TARGET}, will be not be included in the package.")
 		endif()
 	endforeach()
 endmacro(project_targets_populate)
 
 macro(project_package_build)
-	if("${PROJECT_TARGETS}" MATCHES "project_populate_")
+		if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_WGT_DIR}/config.xml.in OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_WGT_DIR}/${PROJECT_ICON}.in)
+			MESSAGE(FATAL_ERROR "Missing mandatory files: you need config.xml.in and ${PROJECT_ICON}.in files in ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_WGT_DIR} folder.")
+		endif()
 
 		if(NOT EXISTS ${WIDGET_DIR}/config.xml.in OR NOT EXISTS ${WIDGET_DIR}/${PROJECT_ICON}.in)
 			configure_file(${PROJECT_WGT_DIR}/config.xml.in ${WIDGET_DIR}/config.xml)
@@ -125,14 +118,19 @@ macro(project_package_build)
 		endif(${PROJECT_CONF_FILES})
 
 		add_custom_command(OUTPUT ${PROJECT_NAME}.wgt
-		DEPENDS ${PROJECT_TARGETS}
-		COMMAND wgtpkg-pack -f -o ${PROJECT_NAME}.wgt ${WIDGET_DIR}
+			DEPENDS ${PROJECT_TARGETS}
+			COMMAND wgtpkg-pack -f -o ${PROJECT_NAME}.wgt ${WIDGET_DIR}
 		)
-		# FULUP move to project_targets_populate add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
+
+		add_custom_target(widget DEPENDS ${PROJECT_NAME}.wgt)
+		add_dependencies(widget MAIN_POPULATE)
 		set(ADDITIONAL_MAKE_CLEAN_FILES, "${PROJECT_NAME}.wgt")
-	else()
-		MESSAGE(FATAL_ERROR "Widget tree empty, please populate it by calling  populate_widget() macro with target you want to include into it.")
-	endif("${PROJECT_TARGETS}" MATCHES "project_populate_")
+
+		if(WIDGET_MESSAGE)
+		add_custom_command(TARGET widget
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${WIDGET_MESSAGE}")
+		endif()
 endmacro(project_package_build)
 
 macro(project_subdirs_add)
@@ -182,10 +180,10 @@ set(CMAKE_C_FLAGS_DEBUG       "-g -O2 -ggdb -Wp,-U_FORTIFY_SOURCE" CACHE STRING 
 set(CMAKE_C_FLAGS_RELEASE     "-O2" CACHE STRING "Flags for releasing")
 set(CMAKE_C_FLAGS_CCOV        "-g -O2 --coverage" CACHE STRING "Flags for coverage test")
 
-set(CMAKE_CXX_FLAGS_PROFILING "-g -O0 -pg -Wp,-U_FORTIFY_SOURCE")
-set(CMAKE_CXX_FLAGS_DEBUG     "-g -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
-set(CMAKE_CXX_FLAGS_RELEASE   "-g -O2")
-set(CMAKE_CXX_FLAGS_CCOV      "-g -O2 --coverage")
+set(CMAKE_CXX_FLAGS_PROFILING    "-g -O0 -pg -Wp,-U_FORTIFY_SOURCE")
+set(CMAKE_CXX_FLAGS_DEBUG        "-g -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
+set(CMAKE_CXX_FLAGS_RELEASE      "-g -O2")
+set(CMAKE_CXX_FLAGS_CCOV "-g -O2 --coverage")
 
 set(CMAKE_INSTALL_PREFIX      "${CMAKE_SOURCE_DIR}/Install" CACHE PATH "The path where to install")
 
@@ -249,13 +247,15 @@ if(EXTRA_DEPENDENCIES_ORDER)
 	)
 endif()
 
-# Print developer helper message when everything is done
+# Print developer helper message when build is done
 # -------------------------------------------------------
 macro(project_closing_msg)
-	if(CLOSING_MESSAGE AND GLOBAL_TARGET_LIST)
-		add_custom_target(${PROJECT_NAME}_done ALL
-			DEPENDS ${DEPENDENCIES_TARGET} ${GLOBAL_TARGET_LIST}
+        get_property(PROJECT_TARGETS GLOBAL PROPERTY PROJECT_TARGETS)
+	if(CLOSING_MESSAGE AND PROJECT_TARGETS)
+		add_custom_target(${PROJECT_NAME}_build_done ALL
 			COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "++ ${CLOSING_MESSAGE}"
 		)
+		 add_dependencies(${PROJECT_NAME}_build_done
+		 	${DEPENDENCIES_TARGET} ${PROJECT_TARGETS})
 	endif()
 endmacro()
