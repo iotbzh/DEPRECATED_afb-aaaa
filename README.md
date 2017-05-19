@@ -19,12 +19,12 @@ AFB_daemon dependency on Standard Linux Distributions
     libopenssl-devel libgcrypt-devel libgnutls-devel (optional but requested by libmicrohttpd for https)
 
     OpenSuse >=42.2 
-      zypper in gcc5 gdb gcc5-c++ cit make ElectricFence systemd-devel libopenssl-devel  libuuid-devel alsa-devel libgcrypt-devel libgnutls-devel libjson-c-devel file-devel 
+      zypper in gcc5 gdb gcc5-c++ git make ElectricFence systemd-devel libopenssl-devel  libuuid-devel alsa-devel libgcrypt-devel libgnutls-devel libjson-c-devel file-devel 
 
-    Ubuntu >= 16.4libuuid-devel
+    Ubuntu >= 16.4 libuuid-devel
       apt-get install cmake git electric-fence libsystemd-dev libssl-dev uuid-dev libasound2-dev libgcrypt20-dev libgnutls-dev libgnutls-dev libjson-c-dev libmagic-dev
 
-    libmicrohttpd with AGL patches http://iot.bzh/download/public/2016/appfw/libmicrohttpd-0.9.49-agl.tgz
+    libmicrohttpd>=0.9.54 (as today OpenSuse-42.2 or Ubuntu-.16.4 ship older versions)
     afb-daemon from AGL Gerrit git clone https://gerrit.automotivelinux.org/gerrit/src/app-framework-binder
 
 ```
@@ -42,14 +42,14 @@ AFB_daemon dependency on Standard Linux Distributions
     source ~/.bashrc
 
     # install AGL pached version of LibMicroHttpd
-    wget http://iot.bzh/download/public/2016/appfw/libmicrohttpd-0.9.49-agl.tgz
-    tar -xzf libmicrohttpd-0.9.49-agl.tgz
-    cd libmicrohttpd-0.9.49-agl
+    wget https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.54.tar.gz
+    tar -xzf libmicrohttpd-0.9.54.tgz
+    cd libmicrohttpd-0.9.54
     ./configure --prefix=$INSTALL_PREFIX
     make
     make install-strip
 
-    # retreive last AFB_daemon from AGL
+    # retrieve last AFB_daemon from AGL
     git clone https://gerrit.automotivelinux.org/gerrit/src/app-framework-binder
 
     # Warning: previous GCC options should be set before initial cmake (clean Build/*)
