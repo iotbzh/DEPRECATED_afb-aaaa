@@ -53,7 +53,7 @@ PUBLIC void audioLogicSetVol(struct afb_req request) {
 
     const char *vol = afb_req_value(request, "vol");
     if (vol == NULL) {
-        afb_req_fail_f(request, "argument-missing", "vol=+-%[0,100] missing");
+        afb_req_fail_f(request, "argument-missing", "vol=+-%%[0,100] missing");
         goto OnExit;
     }
 
@@ -66,7 +66,7 @@ PUBLIC void audioLogicSetVol(struct afb_req request) {
             break;
 
         default:
-            afb_req_fail_f(request, "value-invalid", "volume should be (+-%[0-100]xxx) vol=%s", vol);
+            afb_req_fail_f(request, "value-invalid", "volume should be (+-%%[0-100]xxx) vol=%s", vol);
             goto OnExit;
     }
 
@@ -106,7 +106,7 @@ PUBLIC void audioLogicMonitor(struct afb_req request) {
     // get client context
     AudioLogicCtxT *ctx = afb_req_context_get(request);
     if (!ctx) {
-        afb_req_fail_f(request, "ctx-notfound", "No Client Context HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        afb_req_fail_f(request, "ctx-notfound", "No Client Context HAL/getcontrol devid=[%s] name=[%s]", ctx->devid, ctx->shortname);
         goto OnExit;
     }
 
@@ -154,14 +154,14 @@ STATIC void audioLogicOpenCB2(void *handle, int iserror, struct json_object *res
         // get client context
     AudioLogicCtxT *ctx = afb_req_context_get(request);
     if (!ctx) {
-        afb_req_fail_f(request, "ctx-notfound", "No Client Context HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        afb_req_fail_f(request, "ctx-notfound", "No Client Context HAL/getcontrol devid=[%s] name=[%s]", ctx->devid, ctx->shortname);
         goto OnExit;
     }
     
     // Get response from object
     json_object_object_get_ex(result, "response", &response);
     if (!response) {
-        afb_req_fail_f(request, "response-notfound", "No Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        afb_req_fail_f(request, "response-notfound", "No Controls return from HAL/getcontrol devid=[%s] name=[%s]", ctx->devid, ctx->shortname);
         goto OnExit;
     }
 
@@ -169,13 +169,13 @@ STATIC void audioLogicOpenCB2(void *handle, int iserror, struct json_object *res
     struct json_object *ctls;
     json_object_object_get_ex(response, "ctls", &ctls);
     if (!ctls) {
-        afb_req_fail_f(request, "ctls-notfound", "No Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        afb_req_fail_f(request, "ctls-notfound", "No Controls return from HAL/getcontrol devid=[%s] name=[%s]", ctx->devid, ctx->shortname);
         goto OnExit;
     }
 
     // make sure return controls have a valid type
     if (json_object_get_type(ctls) != json_type_array) {
-        afb_req_fail_f(request, "ctls-notarray", "Invalid Controls return from HAL/getcontrol devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        afb_req_fail_f(request, "ctls-notarray", "Invalid Controls return from HAL/getcontrol devid=[%s] name=[%s]", ctx->devid, ctx->shortname);
         goto OnExit;
     }
 
@@ -187,7 +187,7 @@ STATIC void audioLogicOpenCB2(void *handle, int iserror, struct json_object *res
 
         ctl = json_object_array_get_idx(ctls, idx);
         if (json_object_array_length(ctl) != 2) {
-            afb_req_fail_f(request, "ctl-invalid", "Invalid Control return from HAL/getcontrol devid=[%] name=[%s] ctl=%s"
+            afb_req_fail_f(request, "ctl-invalid", "Invalid Control return from HAL/getcontrol devid=[%s] name=[%s] ctl=%s"
                     , ctx->devid, ctx->shortname, json_object_get_string(ctl));
             goto OnExit;
         }
@@ -266,7 +266,7 @@ STATIC void audioLogicOpenCB1(void *handle, int iserror, struct json_object *res
 
     // sound card was find let's store keycontrols into client session
     if (!ctx->halapi) {
-        afb_req_fail_f(request, "hal-notfound", "No HAL found devid=[%] name=[%s]", ctx->devid, ctx->shortname);
+        afb_req_fail_f(request, "hal-notfound", "No HAL found devid=[%s] name=[%s]", ctx->devid, ctx->shortname);
         goto OnExit;
     }
 
