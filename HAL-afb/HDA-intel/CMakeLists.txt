@@ -35,6 +35,7 @@ PROJECT_TARGET_ADD(hal-intel-hda)
     TARGET_LINK_LIBRARIES(hal-intel-hda 
         hal-interface
         audio-interface
+        ${link_libraries}
     )
 
     # installation directory
