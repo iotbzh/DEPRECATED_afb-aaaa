@@ -1,0 +1,8 @@
+/usr/local/htdocs/AudioBinding.js
+/usr/local/htdocs/index.html
+/usr/local/htdocs/audio-logic.html
+/usr/local/htdocs/alsa-core.html
+/usr/local/htdocs/AFB-websock.js
+/usr/lib/audio-agent/afb-alsa-lowlevel.so
+/usr/lib/audio-agent/afb-audio-afb.so
+/usr/lib/audio-agent/afb-hal-intel-hda.so
