@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="audio-agent" version="0.1">
+  <name>audio-agent</name>
+  <icon src="icon.png"/>
+  <content src="" type=""/>
+  <description>Expose ALSA Sound Low+High Level APIs through AGL Framework</description>
+  <author>Fulup, Ar Foll &lt;fulup@iot.bzh&gt;</author>
+  <license>APL2.0</license>
+</widget>
+
+

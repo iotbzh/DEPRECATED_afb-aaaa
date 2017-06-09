@@ -1,0 +1,26 @@
+Priority: optional
+Maintainer: unknown <unknown@debian.org>
+Source: audio-agent
+Build-Depends: debhelper (>= 5),	
+ libmicrohttpd-dev ,
+ cmake,
+ libsystemd-dev,
+ libssl-dev,
+ gcc,
+ g++,
+ libjson-c-dev,
+ electric-fence,
+ uuid-dev,
+ libasound2-dev,
+ libgcrypt20-dev,
+ libmagic-dev,
+ app-framework-binder-bin, 
+ app-framework-binder-dev
+Standards-Version: 3.8.2
+Homepage: https://github.com/iotbzh/audio-bindings
+
+Package: audio-agent
+Section: libs
+Architecture: any
+Depends: electric-fence
+Description: audio-agent

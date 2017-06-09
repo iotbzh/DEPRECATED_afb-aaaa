@@ -18,10 +18,10 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/etc/config.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/etc/macros.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/default/cmake/common.cmake)
 
-project_subdirs_add("[A-Z]*")
+project_subdirs_add("[a-zA-Z]*")
 
 project_targets_populate()
 project_package_build()

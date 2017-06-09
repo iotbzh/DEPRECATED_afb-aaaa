@@ -25,11 +25,12 @@ PROJECT_TARGET_ADD(html-simple-test)
 
     add_custom_command(OUTPUT htdocs
 	DEPENDS ${TARGET_NAME}
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMAND cp "*.html"  PATTERN "*.js" PATTERN "*.jpg" ${CMAKE_CURRENT_BINARY_DIR}
+	COMMAND mkdir -p htdocs
+	COMMAND touch htdocs
+	COMMAND cp -f ${CMAKE_CURRENT_SOURCE_DIR}/*.html ${CMAKE_CURRENT_SOURCE_DIR}/*.js htdocs
     )
 
-    add_custom_target(${TARGET_NAME} ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR})
+    add_custom_target(${TARGET_NAME} ALL DEPENDS htdocs)
 
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	LABELS "HTDOCS"
