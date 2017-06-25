@@ -18,8 +18,6 @@
 #define _GNU_SOURCE  // needed for vasprintf
 
 #include <json-c/json.h>
-#include <afb/afb-binding.h>
-#include <afb/afb-service-itf.h>
 #include <semaphore.h>
 #include <string.h>
 

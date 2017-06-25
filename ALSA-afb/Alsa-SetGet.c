@@ -925,7 +925,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         
         // reach MAX_SND_CARD event registration
         if (idxFree == -1) {
-            afb_req_fail_f (request, "register-toomany", "Cannot register new event Maxcard==%devent name=%s", idx);
+            afb_req_fail_f (request, "register-toomany", "Cannot register new event Maxcard==%d", idx);
             goto OnErrorExit;            
         } 
         
@@ -967,7 +967,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     // subscribe to binder event    
     err = afb_req_subscribe(request, evtHandle->afbevt);
     if (err != 0) {
-        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", queryValues.devid, err);
+        afb_req_fail_f (request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", queryValues.devid);
         goto OnErrorExit;
     }
 
