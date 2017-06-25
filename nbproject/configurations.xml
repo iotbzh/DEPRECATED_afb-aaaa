@@ -2,6 +2,23 @@
 <configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
+      <df name="ALSA-afb">
+        <in>Alsa-ApiHat.c</in>
+        <in>Alsa-SetGet.c</in>
+        <in>Alsa-Ucm.c</in>
+      </df>
+      <df name="HAL-afb">
+        <df name="HAL-interface">
+          <in>hal-interface.c</in>
+        </df>
+        <df name="HDA-intel">
+          <in>IntelHdaHAL.c</in>
+        </df>
+      </df>
+      <df name="HighLevel-afb">
+        <in>HighLevelApiConf.c</in>
+        <in>HighLevelBinding.c</in>
+      </df>
       <df name="MostVolume">
         <df name="external">
           <in>ConnectionInfo.cpp</in>
@@ -19,6 +36,9 @@
         <in>DeviceValue.cpp</in>
         <in>Mediator.cpp</in>
         <in>libmostvolume.cpp</in>
+      </df>
+      <df name="Shared-Interface">
+        <in>audio-interface.c</in>
       </df>
     </df>
     <logicalFolder name="ExternalFiles"
@@ -41,8 +61,11 @@
         <dependencyChecking>false</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+      </flagsDictionary>
       <codeAssistance>
-        <buildAnalyzer>false</buildAnalyzer>
+        <includeAdditional>true</includeAdditional>
       </codeAssistance>
       <makefileType>
         <makeTool>
@@ -57,40 +80,151 @@
           <preBuildFirst>true</preBuildFirst>
         </preBuild>
       </makefileType>
-      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="0">
+      <item path="ALSA-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>ALSA-afb</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
       </item>
-      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="0">
+      <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
       </item>
-      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="0">
+      <item path="ALSA-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-interface.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
       </item>
       <item path="MostVolume/external/ConnectionInfo.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
       </item>
-      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="0">
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
       </item>
-      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
       </item>
       <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
       </item>
-      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
+      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <folder path="0/HAL-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-interface">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HDA-intel">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/HDA-intel</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HDA-intel</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HighLevel-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Shared-Interface">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Shared-Interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
     </conf>
   </confs>
 </configurationDescriptor>

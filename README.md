@@ -6,6 +6,12 @@ http://equalarea.com/paul/alsa-audio.html
 http://mpd.wikia.com/wiki/Alsa
 http://alsa.opensrc.org/How_to_use_softvol_to_control_the_master_volume
 
+Cloning Audio-Binding from Git
+-------------------------------
+    git clone https://github.com/iotbzh/audio-bindings
+    cd  audio-bindings
+    git submodule update --recursive --init
+
 AFB_daemon dependency on Standard Linux Distributions
 -------------------------------------------------------
     # handle dependencies > (OpenSuse-42.2, Fedora-25, Ubuntu 16.04.2LTS)
@@ -43,7 +49,7 @@ AFB_daemon dependency on Standard Linux Distributions
 
     # install AGL pached version of LibMicroHttpd
     wget https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.54.tar.gz
-    tar -xzf libmicrohttpd-0.9.54.tgz
+    tar -xzf libmicrohttpd-0.9.54.tar.gz
     cd libmicrohttpd-0.9.54
     ./configure --prefix=$INSTALL_PREFIX
     make

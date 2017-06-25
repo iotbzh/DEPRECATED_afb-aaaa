@@ -54,48 +54,6 @@ OnErrorExit:
 }
 
 
-// This function should be part of Generic AGL Framework
-PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl) {
-    json_object* response = NULL;
-    int status = 0;
-    sem_t semid;
-
-    // Nested procedure are allow in GNU and allow us to keep caller stack valid
-
-    void callback(void *handle, int iserror, struct json_object *result) {
-
-        // Process Basic Error
-        if (!cbCheckResponse(request, iserror, result)) {
-            status = -1;
-            goto OnExitCB;
-        }
-
-        // Get response from object
-        json_object_object_get_ex(result, "response", &response);
-        if (!response) {
-            afb_req_fail_f(request, "response-notfound", "No Controls return from alsa/getcontrol result=[%s]", json_object_get_string(result));
-            goto OnExitCB;
-        }
-
-OnExitCB:
-        sem_post(&semid);
-    }
-
-    // Create an exclusive semaphore
-    status = sem_init(&semid, 0, 0);
-    if (status < 0) {
-        afb_req_fail_f(request, "error:seminit", "Fail to allocate semaphore err=[%s]", strerror(status));
-        goto OnExit;
-    }
-
-    // Call service and wait for call back to finish before moving any further
-    afb_service_call(srvitf, api, verb, queryurl, callback, NULL);
-    sem_wait(&semid);
-
-OnExit:
-    return (response);
-}
-
 PUBLIC void pingtest(struct afb_req request) {
     json_object *query = afb_req_json(request);
     afb_req_success(request, query, NULL);

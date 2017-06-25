@@ -18,20 +18,28 @@
 
 # Project Info
 # ------------------
-set(PROJECT_NAME audio-agent)
+set(PROJECT_NAME unicens-agent)
 set(PROJECT_VERSION "0.1")
 set(PROJECT_PRETTY_NAME "Audio Agent")
-set(PROJECT_DESCRIPTION "Expose ALSA Sound Low+High Level APIs through AGL Framework")
-set(PROJECT_URL "https://github.com/iotbzh/auto-bindings")
+set(PROJECT_DESCRIPTION "Expose Alsa through AGL AppFw")
+set(PROJECT_URL "https://github.com/iotbzh/audio-bindings")
 set(PROJECT_ICON "icon.png")
 set(PROJECT_AUTHOR "Fulup, Ar Foll")
 set(PROJECT_AUTHOR_MAIL "fulup@iot.bzh")
-set(PROJECT_LICENCE "APL2.0")
+set(PROJECT_LICENCE "Apache-V2")
 set(PROJECT_LANGUAGES,"C")
+
+# Where are stored default templates files from submodule or subtree app-templates in your project tree
+# relative to the root project directory
+set(PROJECT_APP_TEMPLATES_DIR "conf.d/app-templates")
 
 # Compilation Mode (DEBUG, RELEASE)
 # ----------------------------------
 set(CMAKE_BUILD_TYPE "DEBUG")
+
+# Static constante definition
+# -----------------------------
+add_compile_options(-DMAX_SND_CARD=16)
 
 # Compiler selection if needed. Overload the detected compiler.
 # -----------------------------------------------
@@ -43,25 +51,28 @@ set (gcc_minimal_version 4.9)
 # -----------------------------
 set (PKG_REQUIRED_LIST
 	alsa
-	libsystemd
+	libsystemd>=222
+        libmicrohttpd>=0.9.54
 	afb-daemon
+	json-c
 )
 
-# Static constante definition
-# -----------------------------
-add_compile_options(-DMAX_SND_CARD=16)
-
 # LANG Specific compile flags set for all build types
-set(CMAKE_C_FLAGS "")
-set(CMAKE_CXX_FLAGS "")
+# set(CMAKE_C_FLAGS "")
+# set(CMAKE_CXX_FLAGS "")
+
+# Define CONTROL_CDEV_NAME should match MOST driver values
+# ---------------------------------------------------------
+  add_compile_options(-DCONTROL_CDEV_TX="/dev/inic-usb-ctx")
+  add_compile_options(-DCONTROL_CDEV_RX="/dev/inic-usb-crx")
 
 # Print a helper message when every thing is finished
 # ----------------------------------------------------
-set(CLOSING_MESSAGE "Test with: afb-daemon --ldpaths=. --port=1234 --roothttp=../htdocs --tracereq=common --token='' --verbose")
+set(CLOSING_MESSAGE "Test with: afb-daemon --ldpaths=. --port=1234 --workdir=.. --roothttp=./htdocs --tracereq=common --token='' --verbose")
 
 # (BUG!!!) as PKG_CONFIG_PATH does not work [should be an env variable]
 # ---------------------------------------------------------------------
-set(CMAKE_INSTALL_PREFIX  $ENV{HOME}/opt)
+set(INSTALL_PREFIX $ENV{HOME}/opt)
 set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
 set(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
 
@@ -104,7 +115,7 @@ set(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
 # - application/vnd.agl.qml.hybrid
 # - application/vnd.agl.html.hybrid
 #
-# set(WIDGET_TYPE MimeType)
+set(WIDGET_TYPE application/vnd.agl.service)
 
 # Optional force binding Linking flag
 # ------------------------------------

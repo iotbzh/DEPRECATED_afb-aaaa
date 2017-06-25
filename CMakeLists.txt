@@ -1,7 +1,7 @@
 ###########################################################################
 # Copyright 2015, 2016, 2017 IoT.bzh
 #
-# author: Romain Forlot <romain.forlot@iot.bzh>
+# author: Fulup Ar Foll <rfulup@iot.bzh>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/etc/config.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/etc/macros.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/app-templates/cmake/common.cmake)
 
-project_subdirs_add("[A-Z]*")
+project_subdirs_add("[^_]*")
 
 project_targets_populate()
 project_package_build()
