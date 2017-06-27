@@ -103,7 +103,7 @@ PUBLIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest)
             case json_type_object:
                 // numid+values formated as {id:xxx, val:[aa,bb...,nn]}
                 if (!json_object_object_get_ex (ctlRequest[idx].jToken,"id", &jId) || !json_object_object_get_ex (ctlRequest[idx].jToken,"val",&jVal)) {
-                    NOTICE (afbIface,"Invalid Json=%s missing 'id'|'val'", json_object_get_string(ctlRequest[idx].jToken));
+                    NOTICE("Invalid Json=%s missing 'id'|'val'", json_object_get_string(ctlRequest[idx].jToken));
                     ctlRequest[idx].used=-1;
                 } else {
                     ctlRequest[idx].numId   =json_object_get_int(jId);
@@ -117,8 +117,7 @@ PUBLIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest)
     }
 }
 
-PUBLIC  int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues) {
-
+PUBLIC  int alsaCheckQuery (afb_req request, queryValuesT *queryValues) {
     queryValues->devid = afb_req_value(request, "devid");
     if (queryValues->devid == NULL) goto OnErrorExit;
     const char *numids;
@@ -384,14 +383,14 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     int err;
 
     if ((err = snd_ctl_open(&handle, rqtSndId, 0)) < 0) {
-        INFO (afbIface, "SndCard [%s] Not Found", rqtSndId);
+        INFO ("SndCard [%s] Not Found", rqtSndId);
         return NULL;
     }
 
     snd_ctl_card_info_alloca(&cardinfo);
     if ((err = snd_ctl_card_info(handle, cardinfo)) < 0) {
         snd_ctl_close(handle);
-        WARNING (afbIface, "SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
+        WARNING ("SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
         return NULL;
     }
 
@@ -403,13 +402,13 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     name =  snd_ctl_card_info_get_name(cardinfo);
     json_object_object_add (ctlDev, "name", json_object_new_string (name));
 
-    if (afbIface->verbosity > 1) {
+    if (AFB_GET_VERBOSITY > 1) {
         json_object_object_add (ctlDev, "devid", json_object_new_string(rqtSndId));
         driver= snd_ctl_card_info_get_driver(cardinfo);
         json_object_object_add (ctlDev, "driver"  , json_object_new_string(driver));
         info  = strdup(snd_ctl_card_info_get_longname (cardinfo));
         json_object_object_add (ctlDev, "info" , json_object_new_string (info));
-        INFO (afbIface, "AJG: Soundcard Devid=%-5s devid=%-7s Name=%s\n", rqtSndId, devid, info);
+        INFO ("AJG: Soundcard Devid=%-5s devid=%-7s Name=%s\n", rqtSndId, devid, info);
     }
 
     // free card handle and return info
@@ -418,7 +417,7 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
 }
 
 // Loop on every potential Sound card and register active one
-PUBLIC void alsaGetInfo (struct afb_req request) {
+PUBLIC void alsaGetInfo (afb_req request) {
     int  card;
     json_object *ctlDev, *ctlDevs;
     char devid[32];
@@ -491,13 +490,13 @@ STATIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     snd_ctl_elem_info_alloca(&elemInfo);
     snd_ctl_elem_info_set_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (snd_ctl_elem_info(ctlDev, elemInfo) < 0) {
-        NOTICE (afbIface, "Fail to load ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
+        NOTICE( "Fail to load ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
         goto OnErrorExit;
     }
     
     snd_ctl_elem_info_get_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (!snd_ctl_elem_info_is_writable(elemInfo)) {
-        NOTICE (afbIface, "Not Writable ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
+        NOTICE( "Not Writable ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
         goto OnErrorExit;
     }
     
@@ -521,7 +520,7 @@ STATIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 
 
     if (count == 0 || count < length) {
-        NOTICE (afbIface, "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), length, count);
+        NOTICE( "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), length, count);
         goto OnErrorExit;
     }
 
@@ -543,7 +542,7 @@ STATIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     
     err = snd_ctl_elem_write(ctlDev, elemData);
     if (err < 0) {
-        NOTICE (afbIface, "Fail to write ALSA NUMID=%d Values=[%s] Error=%s", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), snd_strerror(err));
+        NOTICE( "Fail to write ALSA NUMID=%d Values=[%s] Error=%s", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), snd_strerror(err));
         goto OnErrorExit;
     }
     
@@ -682,7 +681,7 @@ STATIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 }
 
 // assign multiple control to the same value
-PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
+PUBLIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
     ctlRequestT *ctlRequest;
     const char *warmsg=NULL;
     int err=0, status=0;
@@ -737,7 +736,7 @@ PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
         } else {
             int numid = snd_ctl_elem_list_get_numid(ctlList, ctlIndex); 
             if (numid < 0) {
-                NOTICE (afbIface,"snd_ctl_elem_list_get_numid index=%d fail", ctlIndex);
+                NOTICE("snd_ctl_elem_list_get_numid index=%d fail", ctlIndex);
                 continue;
             }
             // check if current control was requested in query numids list
@@ -806,11 +805,11 @@ PUBLIC void alsaSetGetCtls (struct afb_req request, ActionSetGetT action) {
         return;        
 }
 
-PUBLIC void alsaGetCtls (struct afb_req request) {
+PUBLIC void alsaGetCtls (afb_req request) {
     alsaSetGetCtls (request, ACTION_GET);
 }
     
-PUBLIC void alsaSetCtls (struct afb_req request) {
+PUBLIC void alsaSetCtls (afb_req request) {
     alsaSetGetCtls (request, ACTION_SET);
 }
 
@@ -830,7 +829,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
     snd_ctl_elem_id_t *elemId;
     
     if ((revents & EPOLLHUP) != 0) {
-        NOTICE (afbIface, "SndCtl hanghup [car disconnected]");
+        NOTICE( "SndCtl hanghup [car disconnected]");
         goto ExitOnSucess;
     }
     
@@ -869,7 +868,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
             json_object_object_add(ctlEventJ, "devname",json_object_new_string (devname));
         }
         if (ctlRequest.jValues) (json_object_object_add(ctlEventJ, "values"  ,ctlRequest.jValues));
-        DEBUG(afbIface, "sndCtlEventCB=%s", json_object_get_string(ctlEventJ));
+        DEBUG( "sndCtlEventCB=%s", json_object_get_string(ctlEventJ));
         afb_event_push(evtHandle->afbevt, ctlEventJ);
 
     }
@@ -878,12 +877,12 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         return 0;
     
     OnErrorExit:
-        WARNING (afbIface, "sndCtlEventCB: ignored unsupported event type");
+        WARNING ("sndCtlEventCB: ignored unsupported event type");
 	return (0);    
 }
 
 // Subscribe to every Alsa CtlEvent send by a given board
-PUBLIC void alsaSubcribe (struct afb_req request) {
+PUBLIC void alsaSubcribe (afb_req request) {
     static sndHandleT sndHandles[MAX_SND_CARD];
     evtHandleT *evtHandle;
     snd_ctl_t  *ctlDev;
@@ -947,14 +946,14 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
         snd_ctl_poll_descriptors(evtHandle->ctlDev, &evtHandle->pfds, 1);
 
         // register sound event to binder main loop
-        err = sd_event_add_io(afb_daemon_get_event_loop(afbIface->daemon), &evtHandle->src, evtHandle->pfds.fd, EPOLLIN, sndCtlEventCB, evtHandle);
+        err = sd_event_add_io(afb_daemon_get_event_loop(), &evtHandle->src, evtHandle->pfds.fd, EPOLLIN, sndCtlEventCB, evtHandle);
         if (err < 0) {
             afb_req_fail_f (request, "register-mainloop", "Cannot hook events to mainloop devid=%s err=%d", queryValues.devid, err);
             goto OnErrorExit;
         }
 
         // create binder event attached to devid name
-        evtHandle->afbevt = afb_daemon_make_event (afbIface->daemon, queryValues.devid);
+        evtHandle->afbevt = afb_daemon_make_event (queryValues.devid);
         if (!afb_event_is_valid (evtHandle->afbevt)) {
             afb_req_fail_f (request, "register-event", "Cannot register new binder event name=%s", queryValues.devid);
             goto OnErrorExit; 
@@ -982,7 +981,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
 }
 
 // Subscribe to every Alsa CtlEvent send by a given board
-PUBLIC void alsaGetCardId (struct afb_req request) {
+PUBLIC void alsaGetCardId (afb_req request) {
     char devid [10];
     const char *devname, *shortname, *longname;
     int card, err, index, idx;
@@ -1047,7 +1046,7 @@ PUBLIC void alsaGetCardId (struct afb_req request) {
 }
 
 // Register loaded HAL with board Name and API prefix
-PUBLIC void alsaRegisterHal (struct afb_req request) {
+PUBLIC void alsaRegisterHal (afb_req request) {
     static int index=0;
     const char *shortname, *apiPrefix;
     

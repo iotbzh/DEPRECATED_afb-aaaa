@@ -21,7 +21,6 @@
 
 #include "audio-interface.h"
 
-
 typedef enum {
     ACTION_SET,
     ACTION_GET

@@ -19,12 +19,16 @@
  *   http://www.tldp.org/HOWTO/Alsa-sound-6.html 
  */
 
-#ifndef AUDIOCOMMON_H
-#define AUDIOCOMMON_H
+#ifndef AUDIO_INTERF_H
+#define AUDIO_INTERF_H
+
+#define AFB_BINDING_VERSION 2
 
 #include <json-c/json.h>
-#define AFB_BINDING_VERSION 2
 #include <afb/afb-binding.h>
+
+// Waiting for official macro from José
+#define AFB_GET_VERBOSITY afb_get_verbosity_v2()
 
 #ifndef PUBLIC
   #define PUBLIC
@@ -64,5 +68,5 @@ typedef enum {
 PUBLIC int cbCheckResponse(struct afb_req request, int iserror, struct json_object *result) ;
 PUBLIC void pingtest(struct afb_req request);
 
-#endif /* AUDIOCOMMON_H */
+#endif /* AUDIO_INTERF_H */
 

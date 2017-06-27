@@ -18,25 +18,22 @@
 #include "hal-interface.h"
 #include "audio-interface.h" 
 
-// Force a hard dependency to ShareHallLib
-PUBLIC char* SharedHalLibVersion;
-
 // Init is call after all binding are loaded
-STATIC int IntelHalInit (const struct afb_binding_interface *itf, struct afb_service service) {
-    DEBUG (itf, "IntelHalBinding Initialised");
+STATIC int IntelHalInit (void) {
+    DEBUG ("IntelHalBinding Initialised");
     
     return 0; // 0=OK 
 }
 
-STATIC void MasterOnOff (void * handle) {
-    static powerStatus=0;
+STATIC void MasterOnOff (alsaHalCtlMapT *control, void* handle) {
+    static int powerStatus=0;
     
     if (! powerStatus) {
         powerStatus = 1;
-        DEBUG (itf, "Power Set to On");
+        DEBUG ("Power Set to On");
     } else {
         powerStatus  = 0;
-        DEBUG (itf, "Power Set to Off");        
+        DEBUG ("Power Set to Off");        
     }
 }
 
@@ -57,7 +54,7 @@ STATIC alsaHalMapT  alsaHalMap[]= {
   { .alsa={.control=PCM_Playback_Volume   ,.numid=27, .name="Play-Vol"     , .values=2,.minval=0,.maxval= 255,.step=0}, .info= "PCM Playback Volume" },
   { .alsa={.control=PCM_Playback_Switch   ,.numid=17, .name="Play-Switch"  , .values=1,.minval=0,.maxval= 1  ,.step=0}, .info= "Master Playback Switch" },
   { .alsa={.control=Capture_Volume        ,.numid=12, .name="Capt-vol"     , .values=2,.minval=0,.maxval= 31 ,.step=0}, .info= "Capture Volume" },
-  { .alsa={.control=Master_OnOff_Switch   ,.numid=1000, .name="Power-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}} /* marker for end of the array */
+  { .alsa={.control=Master_OnOff_Switch   ,.numid=99, .name="Power-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}, .info= "OnOff Global Switch"},
   { .alsa={.numid=0}, .cb={.callback=NULL, .handle=NULL}} /* marker for end of the array */
 } ;
 
@@ -72,10 +69,15 @@ STATIC alsaHalMapT  alsaHalMap[]= {
  *    http://localhost:1234/api/alsacore/getcardid?devid=hw:xxx
  *   
  ***********************************************************************************/
+
+// API prefix should be unique for each snd card
+PUBLIC const char sndCardApiPrefix[] = "intel-hda";
+
+// HAL sound card controls mapping
 PUBLIC alsaHalSndCardT alsaHalSndCard  = {
     .name  = "HDA Intel PCH",
     .info  = "Hardware Abstraction Layer for IntelHDA sound card",
     .ctls  = alsaHalMap,
-    .prefix="intel-hda",
     .initCB=IntelHalInit, // if NULL no initcallback
 };
+

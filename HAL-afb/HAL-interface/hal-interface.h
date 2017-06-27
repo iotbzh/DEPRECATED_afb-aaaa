@@ -19,6 +19,8 @@
 #define SHAREHALLIB_H
 
 #include <stdio.h>
+#include <alsa/asoundlib.h>
+
 #include "audio-interface.h"
 
 typedef struct {
@@ -37,8 +39,11 @@ typedef struct {
 // avoid compiler warning [Jose does not like typedef :) ]
 typedef struct afb_service alsaHalServiceT;
 
+// static value for HAL sound card API prefix
+extern const char sndCardApiPrefix[];
+
 typedef struct {
-   struct json_object* (*callback)(alsaHalServiceT service, int control, int value, alsaHalCtlMapT *map, void* handle);
+   struct json_object* (*callback)(alsaHalCtlMapT *control, void* handle);
    void* handle;        
 } alsaHalCbMapT;
 
@@ -48,17 +53,16 @@ typedef struct {
     char* info;
 } alsaHalMapT;
 
-typedef struct  {
-    const char  *prefix;
+
+typedef const struct  {
     const char  *name;
     const char  *info;
     alsaHalMapT *ctls;
-    int (*initCB) (const struct afb_binding_interface *itf, struct afb_service service);
+    int (*initCB) (void);
     
 } alsaHalSndCardT;
 
 PUBLIC alsaHalSndCardT alsaHalSndCard;
-PUBLIC char* SharedHalLibVersion;
 
 #endif /* SHAREHALLIB_H */
 

@@ -28,54 +28,31 @@
 
 #include "Alsa-ApiHat.h"
 
-PUBLIC const struct afb_binding_interface *afbIface;   
-
 /*
  * array of the verbs exported to afb-daemon
  */
-static const struct afb_verb_desc_v1 binding_verbs[] = {
-  /* VERB'S NAME            SESSION MANAGEMENT          FUNCTION TO CALL         SHORT DESCRIPTION */
-  { .name= "ping"   ,    .session= AFB_SESSION_NONE, .callback= pingtest,        .info= "Ping Binding" },
-  { .name= "getinfo",    .session= AFB_SESSION_NONE, .callback= alsaGetInfo,     .info= "List All/One Sound Cards Info" },
-  { .name= "getctls",    .session= AFB_SESSION_NONE, .callback= alsaGetCtls,     .info= "Get Controls from selected sndcard" },
-  { .name= "setctls",    .session= AFB_SESSION_NONE, .callback= alsaSetCtls,     .info= "Set Controls from selected sndcard" },
-  { .name= "subscribe",  .session= AFB_SESSION_NONE, .callback= alsaSubcribe,    .info= "Subscribe to events from selected sndcard" },
-  { .name= "getcardid",  .session= AFB_SESSION_NONE, .callback= alsaGetCardId,   .info= "Get CardId from its short/long name" },
-  { .name= "registerHal",.session= AFB_SESSION_NONE, .callback= alsaRegisterHal, .info= "Register Hal CardName/ApiPrefix" },
-  { .name= "ucmquery",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseQuery,.info= "Use Case Query" },
-  { .name= "ucmset",     .session= AFB_SESSION_NONE, .callback= alsaUseCaseSet,  .info= "Use Case Set" },
-  { .name= "ucmget",     .session= AFB_SESSION_NONE, .callback= alsaUseCaseGet,  .info= "Use Case Get" },
-  { .name= "ucmreset",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseReset,.info= "Use Case Reset to Default" },
-  { .name= "ucmclose",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseClose,.info= "Use Case Close Manager" },
-  { .name= "addctl",     .session= AFB_SESSION_NONE, .callback= alsaAddCustomCtl   ,.info= "Add User Custom Sound Control" },
-  { .name= NULL } /* marker for end of the array */
+static const struct afb_verb_v2 binding_verbs[] = {
+  /* VERB'S NAME          FUNCTION TO CALL  */
+  { .verb= "ping"   ,     .callback= pingtest },
+  { .verb= "getinfo",     .callback= alsaGetInfo},
+  { .verb= "getctls",     .callback= alsaGetCtls},
+  { .verb= "setctls",     .callback= alsaSetCtls},
+  { .verb= "subscribe",   .callback= alsaSubcribe},
+  { .verb= "getcardid",   .callback= alsaGetCardId},
+  { .verb= "registerHal", .callback= alsaRegisterHal},
+  { .verb= "ucmquery",    .callback= alsaUseCaseQuery},
+  { .verb= "ucmset",      .callback= alsaUseCaseSet},
+  { .verb= "ucmget",      .callback= alsaUseCaseGet},
+  { .verb= "ucmreset",    .callback= alsaUseCaseReset},
+  { .verb= "ucmclose",    .callback= alsaUseCaseClose},
+  { .verb= "addctl",      .callback= alsaAddCustomCtl},
+  { .verb= NULL } /* marker for end of the array */
 };
 
 /*
  * description of the binding for afb-daemon
  */
-static const struct afb_binding binding_description = {
-  /* description conforms to VERSION 1 */
-  .type= AFB_BINDING_VERSION_1,
-  .v1= {
-    .prefix= "alsacore",
-    .info= "Low Level Interface to Alsa Sound Lib",
-    .verbs = binding_verbs
-  }
+const struct afb_binding_v2 afbBindingV2 = {
+    .api     = "alsacore",
+    .verbs   = binding_verbs,
 };
-
-extern int afbBindingV1ServiceInit(struct afb_service service) {
-   // this is call when after all bindings are loaded
-   // alsaLibInit (service);  // AlsaBinding check for sound card at installation time   
-   return (0); 
-};
-
-/*
- * activation function for registering the binding called by afb-daemon
- */
-const struct afb_binding *afbBindingV1Register(const struct afb_binding_interface *itf) {
-    afbIface= itf;
-    
-    return &binding_description;	/* returns the description of the binding */
-}
-
