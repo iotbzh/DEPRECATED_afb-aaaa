@@ -896,7 +896,7 @@ PUBLIC void alsaSubcribe (struct afb_req request) {
     if (err) goto OnErrorExit;
 
 
-   // open control interface for devid
+    // open control interface for devid
     err = snd_ctl_open(&ctlDev, queryValues.devid, SND_CTL_READONLY);
     if (err < 0) {
         ctlDev=NULL;

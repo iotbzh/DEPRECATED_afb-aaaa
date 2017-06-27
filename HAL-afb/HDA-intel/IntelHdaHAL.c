@@ -28,6 +28,18 @@ STATIC int IntelHalInit (const struct afb_binding_interface *itf, struct afb_ser
     return 0; // 0=OK 
 }
 
+STATIC void MasterOnOff (void * handle) {
+    static powerStatus=0;
+    
+    if (! powerStatus) {
+        powerStatus = 1;
+        DEBUG (itf, "Power Set to On");
+    } else {
+        powerStatus  = 0;
+        DEBUG (itf, "Power Set to Off");        
+    }
+}
+
 /******************************************************************************************
  * alsaCtlsMap link hight level sound control with low level Alsa numid ctls. 
  * 
@@ -41,10 +53,11 @@ STATIC int IntelHalInit (const struct afb_binding_interface *itf, struct afb_ser
  *  .cb={.handle=xxxx, .callback=(json_object)MyCtlFunction(struct afb_service service, int controle, int value, const struct alsaHalCtlMapS *map)};
  ********************************************************************************************/
 STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .alsa={.control=Master_Playback_Volume,.numid=16,.group=OUTVOL,.values=1,.minval=0,.maxval= 87 ,.step=0,.acl=RW}, .info= "Master Playback Volume" },
-  { .alsa={.control=PCM_Playback_Volume   ,.numid=27,.group=PCMVOL,.values=2,.minval=0,.maxval= 255,.step=0,.acl=RW}, .info= "PCM Playback Volume" },
-  { .alsa={.control=PCM_Playback_Switch   ,.numid=17,.group=SWITCH,.values=1,.minval=0,.maxval= 1  ,.step=0,.acl=RW}, .info= "Master Playback Switch" },
-  { .alsa={.control=Capture_Volume        ,.numid=12,.group=INVOL ,.values=2,.minval=0,.maxval= 31 ,.step=0,.acl=RW}, .info= "Capture Volume" },
+  { .alsa={.control=Master_Playback_Volume,.numid=16, .name="Master-Vol"   , .values=1,.minval=0,.maxval= 87 ,.step=0}, .info= "Master Playback Volume" },
+  { .alsa={.control=PCM_Playback_Volume   ,.numid=27, .name="Play-Vol"     , .values=2,.minval=0,.maxval= 255,.step=0}, .info= "PCM Playback Volume" },
+  { .alsa={.control=PCM_Playback_Switch   ,.numid=17, .name="Play-Switch"  , .values=1,.minval=0,.maxval= 1  ,.step=0}, .info= "Master Playback Switch" },
+  { .alsa={.control=Capture_Volume        ,.numid=12, .name="Capt-vol"     , .values=2,.minval=0,.maxval= 31 ,.step=0}, .info= "Capture Volume" },
+  { .alsa={.control=Master_OnOff_Switch   ,.numid=1000, .name="Power-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}} /* marker for end of the array */
   { .alsa={.numid=0}, .cb={.callback=NULL, .handle=NULL}} /* marker for end of the array */
 } ;
 

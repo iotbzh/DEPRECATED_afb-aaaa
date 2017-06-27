@@ -35,5 +35,4 @@ PROJECT_TARGET_ADD(audio-interface)
     # Define target includes
     TARGET_INCLUDE_DIRECTORIES(audio-interface 
         PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-
+)

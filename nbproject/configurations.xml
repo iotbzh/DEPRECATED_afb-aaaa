@@ -3,6 +3,7 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
       <df name="ALSA-afb">
+        <in>Alsa-AddCtl.c</in>
         <in>Alsa-ApiHat.c</in>
         <in>Alsa-SetGet.c</in>
         <in>Alsa-Ucm.c</in>
@@ -62,7 +63,8 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
       </flagsDictionary>
       <codeAssistance>
         <includeAdditional>true</includeAdditional>
@@ -76,52 +78,39 @@
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>build</preBuildCommandWorkingDir>
-          <preBuildCommand>cmake -Wno-dev -DCXX=g++-5 -DCC=gcc-5 ..</preBuildCommand>
+          <preBuildCommand>cmake ..</preBuildCommand>
           <preBuildFirst>true</preBuildFirst>
         </preBuild>
       </makefileType>
+      <item path="ALSA-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="0">
+        <cTool flags="0">
+        </cTool>
+      </item>
       <item path="ALSA-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
-          <incDir>
-            <pElem>ALSA-afb</pElem>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>build/ALSA-afb</pElem>
-          </incDir>
         </cTool>
       </item>
       <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/ALSA-afb</pElem>
-          </incDir>
         </cTool>
       </item>
       <item path="ALSA-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/ALSA-afb</pElem>
-          </incDir>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-interface.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>Shared-Interface</pElem>
             <pElem>../../../opt/include</pElem>
@@ -130,7 +119,7 @@
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
@@ -177,6 +166,23 @@
         <cTool flags="0">
         </cTool>
       </item>
+      <folder path="0/ALSA-afb">
+        <cTool>
+          <incDir>
+            <pElem>/usr/include/alsa</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>alsa_lowlevel_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
       <folder path="0/HAL-afb">
         <cTool>
           <incDir>
@@ -217,12 +223,17 @@
       <folder path="0/Shared-Interface">
         <cTool>
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/alsa</pElem>
             <pElem>../../../opt/include</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
             <pElem>build/Shared-Interface</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
     </conf>

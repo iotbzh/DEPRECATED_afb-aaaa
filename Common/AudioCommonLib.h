@@ -23,8 +23,8 @@
 #define AUDIOCOMMON_H
 
 #include <json-c/json.h>
-#define AFB_BINDING_VERSION 2
 #include <afb/afb-binding.h>
+#include <afb/afb-service-itf.h>
 
 #ifndef PUBLIC
   #define PUBLIC
@@ -53,7 +53,6 @@ typedef enum {
 
    // HighLevel Audio Control List
    Master_Playback_Volume,
-   Master_OnOff_Switch,
    PCM_Playback_Volume,
    PCM_Playback_Switch,
    Capture_Volume,
@@ -62,6 +61,7 @@ typedef enum {
 } halCtlsEnumT;
 
 PUBLIC int cbCheckResponse(struct afb_req request, int iserror, struct json_object *result) ;
+PUBLIC json_object* afb_service_call_sync(struct afb_service srvitf, struct afb_req request, char* api, char* verb, struct json_object* queryurl);
 PUBLIC void pingtest(struct afb_req request);
 
 #endif /* AUDIOCOMMON_H */

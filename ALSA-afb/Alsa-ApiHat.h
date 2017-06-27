@@ -53,6 +53,7 @@ PUBLIC void alsaUseCaseSet(struct afb_req request);
 PUBLIC void alsaUseCaseGet(struct afb_req request); 
 PUBLIC void alsaUseCaseClose(struct afb_req request); 
 PUBLIC void alsaUseCaseReset(struct afb_req request); 
+PUBLIC void alsaAddCustomCtl(struct afb_req request); 
 
 
 

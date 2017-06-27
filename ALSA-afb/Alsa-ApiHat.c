@@ -47,6 +47,7 @@ static const struct afb_verb_desc_v1 binding_verbs[] = {
   { .name= "ucmget",     .session= AFB_SESSION_NONE, .callback= alsaUseCaseGet,  .info= "Use Case Get" },
   { .name= "ucmreset",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseReset,.info= "Use Case Reset to Default" },
   { .name= "ucmclose",   .session= AFB_SESSION_NONE, .callback= alsaUseCaseClose,.info= "Use Case Close Manager" },
+  { .name= "addctl",     .session= AFB_SESSION_NONE, .callback= alsaAddCustomCtl   ,.info= "Add User Custom Sound Control" },
   { .name= NULL } /* marker for end of the array */
 };
 

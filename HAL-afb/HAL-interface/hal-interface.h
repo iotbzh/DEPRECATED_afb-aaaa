@@ -23,12 +23,14 @@
 
 typedef struct {
      halCtlsEnumT control;
+     char* name;
      int numid;
      halGroupEnumT group;
      int values;
      int minval;
      int maxval;
      int step;
+     snd_ctl_elem_type_t type;
      halAclEnumT acl;
 } alsaHalCtlMapT;
 

@@ -16,26 +16,28 @@
 # limitations under the License.
 ###########################################################################
 
+
 # Add target to project dependency list
-PROJECT_TARGET_ADD(audio-afb)
+PROJECT_TARGET_ADD(audio)
 
     # Define project Targets
-    ADD_LIBRARY(audio-afb MODULE HighLevelApiConf.c HighLevelBinding.c)
+    ADD_LIBRARY(audio MODULE HighLevelApiConf.c  HighLevelBinding.c)
 
     # Binder exposes a unique public entry point
-    SET_TARGET_PROPERTIES(audio-afb PROPERTIES
+    SET_TARGET_PROPERTIES(audio PROPERTIES
 	PREFIX "afb-"
         LABELS "BINDING"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME ${TARGET_NAME}
+
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(audio-afb 
-        audio-interface
+    TARGET_LINK_LIBRARIES(audio 
+        audio-inter
         ${link_libraries}
     )
 
     # installation directory
-    INSTALL(TARGETS audio-afb
+    INSTALL(TARGETS audio
         LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

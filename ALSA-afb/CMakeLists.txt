@@ -20,7 +20,7 @@
 PROJECT_TARGET_ADD(alsa-lowlevel)
 
     # Define project Targets
-    ADD_LIBRARY(alsa-lowlevel MODULE Alsa-ApiHat.c  Alsa-SetGet.c  Alsa-Ucm.c)
+    ADD_LIBRARY(alsa-lowlevel MODULE Alsa-ApiHat.c  Alsa-SetGet.c  Alsa-Ucm.c Alsa-AddCtl.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(alsa-lowlevel PROPERTIES

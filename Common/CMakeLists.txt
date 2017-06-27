@@ -16,32 +16,16 @@
 # limitations under the License.
 ###########################################################################
 
+PROJECT(audio-common C)
 
+INCLUDE_DIRECTORIES(${include_dirs})
 
 ##################################################
-# HTML Testing Files
+# AudioCommon is a local static Library
 ##################################################
-PROJECT_TARGET_ADD(www_test)
+ADD_LIBRARY(audiocommon STATIC AudioCommonLib.c)
+SET_TARGET_PROPERTIES(audiocommon PROPERTIES OUTPUT_NAME audiocommon)
+SET(link_libraries ${libefence_LIBRARIES} ${json-c_LIBRARIES})
+TARGET_LINK_LIBRARIES(audiocommon ${link_libraries})
 
-    file(GLOB SOURCE_FILES "*.html" "*.js" "*.jpg")
-
-    add_custom_target(${TARGET_NAME} 
-       DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-    ) 
-
-    add_custom_command(
-       DEPENDS  ${SOURCE_FILES}
-       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-       COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-       COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-       COMMAND cp -r ${SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-    )
-
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	LABELS "HTDOCS"
-	OUTPUT_NAME ${TARGET_NAME}
-    )
-
-    # use only under native Linux when using "make install"
-    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR} DESTINATION . FILES_MATCHING PATTERN "*.html"  PATTERN "*.js" PATTERN "*.jpg")
 
