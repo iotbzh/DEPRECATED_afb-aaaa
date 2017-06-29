@@ -1,0 +1,72 @@
+# Dmixer mixe multiple audio channel into one
+pcm.SoftMixer { 
+    type dmix 
+    ipc_key 1024
+    ipc_key_add_uid false
+    ipc_perm 0666	# mixing for all users
+
+    # Define target effective sound card (cannot be a plugin)
+    slave { 
+        pcm "hw:v1340"  #Jabra Solmate 
+        period_time 0 
+        period_size 1024 
+        buffer_size 8192
+        rate 44100
+    }
+
+    # DMIX can only map two channels
+    bindings { 
+        0 0 
+        1 1 
+    } 
+} 
+
+pcm.music {
+    type        softvol
+    slave.pcm   "SoftMixer"
+    control {
+        name    "MasterMusic"
+        card    0
+    }
+
+    # Make this plugin visible from aplay -L
+    hint {
+      show on
+      description "Music"
+    }    
+}
+
+pcm.navi {
+    type           softvol
+    slave {
+        pcm         "SoftMixer" 
+    }
+    control {
+        name        "MasterNavi"
+        card        0
+    }
+    hint {
+      show on
+      description "Navi"
+   }
+}
+
+pcm.notif {
+    type           softvol
+    slave {
+        pcm         "SoftMixer" 
+    }
+    control {
+        name        "MasterNotif" 
+        card        0
+    }
+    hint {
+      show on
+      description "Notif"
+    }
+}
+
+pcm.!default {
+    type            plug
+    slave.pcm       "SoftMixer"   #make use of Softvol
+}
