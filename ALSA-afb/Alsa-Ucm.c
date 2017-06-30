@@ -143,7 +143,7 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
         json_object_object_add (ucmJ, "verb", json_object_new_string(verbList[idx]));
         if (verbList[idx+1]) json_object_object_add (ucmJ, "info", json_object_new_string(verbList[idx+1]));
         
-        DEBUG (afbIface, "Verb[%d] Action=%s Info=%s", idx, verbList[idx], verbList[idx+1]);
+        AFB_DEBUG ("Verb[%d] Action=%s Info=%s", idx, verbList[idx], verbList[idx+1]);
 
         snprintf (identifier, sizeof(identifier), "_devices/%s", verbList[idx]);
         devCount = snd_use_case_get_list (ucmHandle, identifier, &devList);
@@ -152,7 +152,7 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
             
             for (int jdx=0; jdx < devCount; jdx+=2) {
                 json_object *devJ = json_object_new_object();
-                DEBUG (afbIface, "device[%d] Action=%s Info=%s", jdx, devList[jdx], devList[jdx+1]);
+                AFB_DEBUG ("device[%d] Action=%s Info=%s", jdx, devList[jdx], devList[jdx+1]);
                 json_object_object_add (devJ, "dev", json_object_new_string(devList[jdx]));
                 if (devList[jdx+1]) json_object_object_add (devJ, "info", json_object_new_string(devList[jdx+1]));                
                 json_object_array_add (devsJ, devJ);
@@ -168,7 +168,7 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
             
             for (int jdx=0; jdx < modCount; jdx+=2) {
                 json_object *modJ = json_object_new_object();
-                DEBUG (afbIface, "modifier[%d] Action=%s Info=%s", jdx, modList[jdx], modList[jdx+1]);
+                AFB_DEBUG ("modifier[%d] Action=%s Info=%s", jdx, modList[jdx], modList[jdx+1]);
                 json_object_object_add (modJ, "mod", json_object_new_string(modList[jdx]));
                 if (modList[jdx+1]) json_object_object_add (modJ, "info", json_object_new_string(modList[jdx+1]));                
                 json_object_array_add (modsJ, modJ);
@@ -184,7 +184,7 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
             
             for (int jdx=0; jdx < tqCount; jdx+=2) {
                 json_object *tqJ = json_object_new_object();
-                DEBUG (afbIface, "toneqa[%d] Action=%s Info=%s", jdx, tqList[jdx], tqList[jdx+1]);
+                AFB_DEBUG ("toneqa[%d] Action=%s Info=%s", jdx, tqList[jdx], tqList[jdx+1]);
                 json_object_object_add (tqJ, "tq", json_object_new_string(tqList[jdx]));
                 if (tqList[jdx+1]) json_object_object_add (tqJ, "info", json_object_new_string(tqList[jdx+1]));                
                 json_object_array_add (tqsJ, tqJ);
@@ -214,14 +214,14 @@ STATIC json_object *ucmGetValue (ucmHandleT *ucmHandle, const char *verb, const 
     if (!verb) verb="";
     
     if (!label) {
-        NOTICE (afbIface, "ucmGetValue cardname=[%s] value label missing", ucmHandle->cardName);
+        AFB_NOTICE ("ucmGetValue cardname=[%s] value label missing", ucmHandle->cardName);
         goto OnErrorExit;        
     }
     
     snprintf (identifier, sizeof(identifier), "%s/%s/%s", label, mod, verb);
     err = snd_use_case_get (ucmHandle->ucm, identifier, (const char**)&value); // Note: value casting is a known "FEATURE" of AlsaUCM API
     if (err) {
-        DEBUG (afbIface, "ucmGetValue cardname=[%s] identifier=[%s] error=%s", ucmHandle->cardName, identifier, snd_strerror (err));
+        AFB_DEBUG ("ucmGetValue cardname=[%s] identifier=[%s] error=%s", ucmHandle->cardName, identifier, snd_strerror (err));
         goto OnErrorExit;
     }
     

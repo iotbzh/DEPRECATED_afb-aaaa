@@ -19,6 +19,9 @@
 #ifndef ALSALIBMAPPING_H
 #define ALSALIBMAPPING_H
 
+
+#include <alsa/asoundlib.h>
+#include <systemd/sd-event.h>
 #include "audio-interface.h"
 
 typedef enum {
@@ -34,17 +37,24 @@ typedef struct {
   int count;
 } queryValuesT;
 
+// use to store crl numid user request
+typedef struct {
+    unsigned int numId;
+    json_object *jToken;
+    json_object *jValues;
+    int used;
+} ctlRequestT;
+
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
 PUBLIC int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues);
 
 // AlseCoreSetGet exports
+PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, int quiet);
 PUBLIC void alsaGetInfo (struct afb_req request);
 PUBLIC void alsaGetCtls(struct afb_req request);
 PUBLIC void alsaSetCtls(struct afb_req request);
-PUBLIC void alsaSubcribe (struct afb_req request);
-PUBLIC void alsaGetCardId (struct afb_req request);
-PUBLIC void alsaRegisterHal (struct afb_req request);
+
 
 // AlsaUseCase exports
 PUBLIC void alsaUseCaseQuery(struct afb_req request); 
@@ -52,9 +62,12 @@ PUBLIC void alsaUseCaseSet(struct afb_req request);
 PUBLIC void alsaUseCaseGet(struct afb_req request); 
 PUBLIC void alsaUseCaseClose(struct afb_req request); 
 PUBLIC void alsaUseCaseReset(struct afb_req request); 
-PUBLIC void alsaAddCustomCtl(struct afb_req request); 
+PUBLIC void alsaAddCustomCtls(struct afb_req request); 
 
-
+// AlsaRegEvt
+PUBLIC void alsaEvtSubcribe (struct afb_req request);
+PUBLIC void alsaGetCardId (struct afb_req request);
+PUBLIC void alsaRegisterHal (struct afb_req request);
 
 #endif /* ALSALIBMAPPING_H */
 

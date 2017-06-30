@@ -16,14 +16,15 @@
 # limitations under the License.
 ###########################################################################
 
+
 # Add target to project dependency list
-PROJECT_TARGET_ADD(alsa-lowlevel)
+PROJECT_TARGET_ADD(hal-scalett-usb)
 
     # Define project Targets
-    ADD_LIBRARY(alsa-lowlevel MODULE Alsa-ApiHat.c  Alsa-SetGet.c  Alsa-Ucm.c Alsa-AddCtl.c Alsa-RegEvt.c)
+    ADD_LIBRARY(hal-scalett-usb MODULE ScarlettUsbHAL.c)
 
     # Binder exposes a unique public entry point
-    SET_TARGET_PROPERTIES(alsa-lowlevel PROPERTIES
+    SET_TARGET_PROPERTIES(hal-scalett-usb PROPERTIES
 	PREFIX "afb-"
         LABELS "BINDING"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
@@ -31,11 +32,11 @@ PROJECT_TARGET_ADD(alsa-lowlevel)
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(alsa-lowlevel 
-        audio-interface 
-        ${link_libraries}
+    TARGET_LINK_LIBRARIES(hal-scalett-usb 
+        hal-interface
+        audio-interface
     )
 
     # installation directory
-    INSTALL(TARGETS alsa-lowlevel
+    INSTALL(TARGETS hal-scalett-usb
         LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

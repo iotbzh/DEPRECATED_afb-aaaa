@@ -39,9 +39,6 @@ typedef struct {
 // avoid compiler warning [Jose does not like typedef :) ]
 typedef struct afb_service alsaHalServiceT;
 
-// static value for HAL sound card API prefix
-extern const char sndCardApiPrefix[];
-
 typedef struct {
    struct json_object* (*callback)(alsaHalCtlMapT *control, void* handle);
    void* handle;        
@@ -57,12 +54,13 @@ typedef struct {
 typedef const struct  {
     const char  *name;
     const char  *info;
-    alsaHalMapT *ctls;
-    int (*initCB) (void);
-    
+    alsaHalMapT *ctls;    
 } alsaHalSndCardT;
 
-PUBLIC alsaHalSndCardT alsaHalSndCard;
+extern afb_verb_v2 halServiceApi[];
+PUBLIC void halServiceEvent(const char *evtname, struct json_object *object);
+PUBLIC int  halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard);
+
 
 #endif /* SHAREHALLIB_H */
 

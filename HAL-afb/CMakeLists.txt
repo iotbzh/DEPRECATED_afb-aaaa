@@ -19,5 +19,5 @@
 
 # Include any directory starting with a Capital letter
 # -----------------------------------------------------
-PROJECT_SUBDIRS_ADD("*")
+PROJECT_SUBDIRS_ADD(${PROJECT_SRC_DIR_PATTERN})
 

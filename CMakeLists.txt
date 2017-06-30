@@ -15,14 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###########################################################################
-
 CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/config.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/app-templates/cmake/common.cmake)
-
-project_subdirs_add("[^_]*")
-
-project_targets_populate()
-project_package_build()
-project_closing_msg()
+# Do not change this file, config is located into conf.d
+include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/cmake/config.cmake)

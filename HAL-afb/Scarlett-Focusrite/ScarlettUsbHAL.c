@@ -51,8 +51,8 @@ STATIC alsaHalMapT  alsaHalMap[]= {
 
 // HAL sound card mapping info
 STATIC alsaHalSndCardT alsaHalSndCard  = {
-    .name  = "HDA Intel PCH", //  WARNING: name MUST match with 'aplay -l'
-    .info  = "Hardware Abstraction Layer for IntelHDA sound card",
+    .name  = "Scarlett 18i8 USB", //  WARNING: name MUST match with 'aplay -l'
+    .info  = "Hardware Abstraction Layer for Scarlett Focusrite USB professional music sound card",
     .ctls  = alsaHalMap,
 };
 
@@ -67,7 +67,7 @@ STATIC int sndServiceInit () {
 
 // API prefix should be unique for each snd card
 PUBLIC const struct afb_binding_v2 afbBindingV2 = {
-    .api     = "intel-hda",
+    .api     = "scarlett-usb",
     .init    = sndServiceInit,
     .verbs   = halServiceApi,
     .onevent = halServiceEvent,

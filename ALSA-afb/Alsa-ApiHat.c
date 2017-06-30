@@ -31,13 +31,13 @@
 /*
  * array of the verbs exported to afb-daemon
  */
-static const struct afb_verb_v2 binding_verbs[] = {
+static const struct afb_verb_v2 api_verbs[] = {
   /* VERB'S NAME          FUNCTION TO CALL  */
   { .verb= "ping"   ,     .callback= pingtest },
   { .verb= "getinfo",     .callback= alsaGetInfo},
   { .verb= "getctls",     .callback= alsaGetCtls},
   { .verb= "setctls",     .callback= alsaSetCtls},
-  { .verb= "subscribe",   .callback= alsaSubcribe},
+  { .verb= "subscribe",   .callback= alsaEvtSubcribe},
   { .verb= "getcardid",   .callback= alsaGetCardId},
   { .verb= "registerHal", .callback= alsaRegisterHal},
   { .verb= "ucmquery",    .callback= alsaUseCaseQuery},
@@ -45,7 +45,7 @@ static const struct afb_verb_v2 binding_verbs[] = {
   { .verb= "ucmget",      .callback= alsaUseCaseGet},
   { .verb= "ucmreset",    .callback= alsaUseCaseReset},
   { .verb= "ucmclose",    .callback= alsaUseCaseClose},
-  { .verb= "addctl",      .callback= alsaAddCustomCtl},
+  { .verb= "addcustomctl",.callback= alsaAddCustomCtls},
   { .verb= NULL } /* marker for end of the array */
 };
 
@@ -54,5 +54,5 @@ static const struct afb_verb_v2 binding_verbs[] = {
  */
 const struct afb_binding_v2 afbBindingV2 = {
     .api     = "alsacore",
-    .verbs   = binding_verbs,
+    .verbs   = api_verbs,
 };

@@ -29,13 +29,17 @@ set(PROJECT_AUTHOR_MAIL "fulup@iot.bzh")
 set(PROJECT_LICENCE "Apache-V2")
 set(PROJECT_LANGUAGES,"C")
 
+
 # Where are stored default templates files from submodule or subtree app-templates in your project tree
 # relative to the root project directory
 set(PROJECT_APP_TEMPLATES_DIR "conf.d/app-templates")
 
-# Compilation Mode (DEBUG, RELEASE)
+# Use any directory that does not start with _ as valid source rep
+set(PROJECT_SRC_DIR_PATTERN "[^_]*")
+
+# Compilation Mode (AFB_DEBUG, RELEASE)
 # ----------------------------------
-set(CMAKE_BUILD_TYPE "DEBUG")
+set(CMAKE_BUILD_TYPE "AFB_DEBUG")
 
 # Static constante definition
 # -----------------------------
@@ -61,6 +65,9 @@ set (PKG_REQUIRED_LIST
 # set(CMAKE_C_FLAGS "")
 # set(CMAKE_CXX_FLAGS "")
 
+# Do not optimise when debugging
+set(CMAKE_C_FLAGS_DEBUG "-g -ggdb -Wp,-U_FORTIFY_SOURCE")
+
 # Define CONTROL_CDEV_NAME should match MOST driver values
 # ---------------------------------------------------------
   add_compile_options(-DCONTROL_CDEV_TX="/dev/inic-usb-ctx")
@@ -68,7 +75,7 @@ set (PKG_REQUIRED_LIST
 
 # Print a helper message when every thing is finished
 # ----------------------------------------------------
-set(CLOSING_MESSAGE "Test with: afb-daemon --ldpaths=. --port=1234 --workdir=.. --roothttp=./htdocs --tracereq=common --token='' --verbose")
+set(CLOSING_MESSAGE "Debug in ./buid: afb-daemon --port=1234 --ldpaths=. --workdir=. --roothttp=../htdocs --tracereq=common --token='' --verbose")
 
 # (BUG!!!) as PKG_CONFIG_PATH does not work [should be an env variable]
 # ---------------------------------------------------------------------
@@ -120,3 +127,8 @@ set(WIDGET_TYPE application/vnd.agl.service)
 # Optional force binding Linking flag
 # ------------------------------------
 # set(BINDINGS_LINK_FLAG LinkOptions )
+
+# This include is mandatory and MUST happens at the end
+# of this file, else you expose you to unexpected behavior
+# -----------------------------------------------------------
+include(${PROJECT_APP_TEMPLATES_DIR}/cmake/common.cmake)

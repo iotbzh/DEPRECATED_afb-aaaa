@@ -5,6 +5,7 @@
       <df name="ALSA-afb">
         <in>Alsa-AddCtl.c</in>
         <in>Alsa-ApiHat.c</in>
+        <in>Alsa-RegEvt.c</in>
         <in>Alsa-SetGet.c</in>
         <in>Alsa-Ucm.c</in>
       </df>
@@ -17,6 +18,9 @@
         </df>
         <df name="HDA-intel">
           <in>IntelHdaHAL.c</in>
+        </df>
+        <df name="Scarlett-Focusrite">
+          <in>ScarlettUsbHAL.c</in>
         </df>
       </df>
       <df name="HighLevel-afb">
@@ -67,7 +71,8 @@
       </toolsSet>
       <flagsDictionary>
         <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
-        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
       </flagsDictionary>
       <codeAssistance>
         <includeAdditional>true</includeAdditional>
@@ -100,6 +105,14 @@
           </incDir>
         </cTool>
       </item>
+      <item path="ALSA-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
       <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
           <incDir>
@@ -124,15 +137,22 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="2">
           <incDir>
             <pElem>Shared-Interface</pElem>
             <pElem>../../../opt/include</pElem>
@@ -141,7 +161,7 @@
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="2">
           <incDir>
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
@@ -214,11 +234,7 @@
       <folder path="0/HAL-afb">
         <cTool>
           <incDir>
-            <pElem>/usr/include/alsa</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include/afb</pElem>
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
@@ -230,6 +246,10 @@
       <folder path="0/HAL-afb/HAL-interface">
         <cTool>
           <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
@@ -237,11 +257,23 @@
       <folder path="0/HAL-afb/HDA-intel">
         <cTool>
           <incDir>
+            <pElem>HAL-afb/HDA-intel</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HDA-intel</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>hal_intel_hda_EXPORTS</Elem>
-          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Scarlett-Focusrite">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
+          </incDir>
         </cTool>
       </folder>
       <folder path="0/HighLevel-afb">

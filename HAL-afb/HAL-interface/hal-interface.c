@@ -37,30 +37,10 @@ typedef struct {
 } shareHallMap_T;
 
 static shareHallMap_T *shareHallMap;
+static alsaHalMapT *halCtls; 
 
 // Force specific HAL to depend on ShareHalLib
 PUBLIC char* SharedHalLibVersion="1.0";
-
-// This callback when api/alsacore/subscribe returns
-STATIC void alsaSubcribeCB(void *handle, int iserror, struct json_object *result) {
-    afb_req request = afb_req_unstore(handle);
-    struct json_object *x, *resp = NULL;
-    const char *info = NULL;
-
-    if (result) {
-        INFO( "result=[%s]\n", json_object_to_json_string(result));
-        if (json_object_object_get_ex(result, "request", &x) && json_object_object_get_ex(x, "info", &x))
-            info = json_object_get_string(x);
-        if (!json_object_object_get_ex(result, "response", &resp)) resp = NULL;
-    }
-
-    // push message respond
-    if (iserror) afb_req_fail_f(request, "Fail", info);
-    else afb_req_success(request, resp, info);
-
-    // free calling request
-    afb_req_unref(request);
-}
 
 // Subscribe to AudioBinding events
 STATIC void halSubscribe(afb_req request) {
@@ -125,7 +105,6 @@ STATIC int NormaliseValue(const alsaHalCtlMapT *halCtls, int valuein) {
 // receive controls for LowLevel remap them to hight level before returning them
 
 STATIC void halGetControlCB(void *handle, int iserror, struct json_object *result) {
-    alsaHalMapT *halCtls = alsaHalSndCard.ctls;
     struct json_object *response;
 
     // retrieve request and check for errors
@@ -218,8 +197,8 @@ STATIC void halGetCtls(afb_req request) {
         ctl = json_object_array_get_idx(ctlsin, idx);
         control = (halCtlsEnumT) json_object_get_int(ctl);
         if (control >= EndHalCrlTag || control <= StartHalCrlTag) {
-            afb_req_fail_f(request, "ctl-invalid", "Invalid Control devid=%s sndcard=%s ctl=[%s] should be [%d-%d]"
-                    , json_object_get_string(devid), alsaHalSndCard.name, json_object_get_string(ctl), StartHalCrlTag, EndHalCrlTag);
+            afb_req_fail_f(request, "ctl-invalid", "Invalid Control devid=%s ctl=[%s] should be [%d-%d]"
+                    , json_object_get_string(devid), json_object_get_string(ctl), StartHalCrlTag, EndHalCrlTag);
             goto OnExit;
         }
 
@@ -241,60 +220,69 @@ OnExit:
 
 
 // This receive all event this binding subscribe to 
-PUBLIC void afbServiceEvent(const char *evtname, struct json_object *object) {
+PUBLIC void halServiceEvent(const char *evtname, struct json_object *object) {
 
-    NOTICE("afbBindingV1ServiceEvent evtname=%s [msg=%s]", evtname, json_object_to_json_string(object));
+    AFB_NOTICE("afbBindingV1ServiceEvent evtname=%s [msg=%s]", evtname, json_object_to_json_string(object));
 }
 
 // this is call when after all bindings are loaded
-STATIC int afbServiceInit() {
-    int rc=0, err;
-    struct json_object *queryurl, *jResponse;
-    alsaHalMapT *halCtls = alsaHalSndCard.ctls; // Get sndcard specific HAL control mapping
+PUBLIC int halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard) {
+    int ok, err;
+    struct json_object *queryurl, *responseJ, *devidJ, *tmpJ;
+    halCtls = alsaHalSndCard->ctls; // Get sndcard specific HAL control mapping
     
-    if (alsaHalSndCard.initCB) {
-        rc= (alsaHalSndCard.initCB)();
-        if (rc != 0) goto OnErrorExit;
-    }
-
     err= afb_daemon_require_api("alsacore", 1);
+    if (err) {
+        AFB_ERROR ("AlsaCore missing cannot use AlsaHAL");
+        goto OnErrorExit;        
+    }
     
     // register HAL with Alsa Low Level Binder
     queryurl = json_object_new_object();
-    json_object_object_add(queryurl, "prefix", json_object_new_string(sndCardApiPrefix));
-    json_object_object_add(queryurl, "name", json_object_new_string(alsaHalSndCard.name));
+    json_object_object_add(queryurl, "prefix", json_object_new_string(apiPrefix));
+    json_object_object_add(queryurl, "sndname", json_object_new_string(alsaHalSndCard->name));
     
-    afb_service_call_sync("alsacore", "registerHal", queryurl, &jResponse);
-    err= afb_service_call_sync ("alsacore", "registerHal", queryurl, &jResponse);
-    if (err) {
-        ERROR ("Fail to register HAL to ALSA lowlevel binding");
+    ok= afb_service_call_sync ("alsacore", "registerHal", queryurl, &responseJ);
+    json_object_put(queryurl);
+    if (!ok) {
+        NOTICE ("Fail to register HAL to ALSA lowlevel binding Response=[%s]", json_object_to_json_string(responseJ));
         goto OnErrorExit;
     }
-    json_object_put(queryurl);
-   
+    
+    // extract sound devid from HAL registration
+    if (!json_object_object_get_ex(responseJ, "response", &tmpJ) || !json_object_object_get_ex(tmpJ, "devid", &devidJ)) {
+        AFB_ERROR ("Ooops: Internal error no devid return from HAL registration Response=[%s]", json_object_to_json_string(responseJ));
+        goto OnErrorExit;
+    }
+        
     // for each Non Alsa Control callback create a custom control
     for (int idx = 0; halCtls[idx].alsa.numid != 0; idx++) {
         if (halCtls[idx].cb.callback != NULL) {
             queryurl = json_object_new_object();
-            if (halCtls[idx].alsa.name)   json_object_object_add(queryurl, "name"  , json_object_new_string(halCtls[idx].alsa.name));
-            if (halCtls[idx].alsa.numid)  json_object_object_add(queryurl, "numid" , json_object_new_int(halCtls[idx].alsa.numid));
-            if (halCtls[idx].alsa.minval) json_object_object_add(queryurl, "minval", json_object_new_int(halCtls[idx].alsa.minval));
-            if (halCtls[idx].alsa.maxval) json_object_object_add(queryurl, "maxval", json_object_new_int(halCtls[idx].alsa.maxval));
-            if (halCtls[idx].alsa.step)   json_object_object_add(queryurl, "step"  , json_object_new_int(halCtls[idx].alsa.step));
-            if (halCtls[idx].alsa.type)   json_object_object_add(queryurl, "type"  , json_object_new_int(halCtls[idx].alsa.type));
+            json_object_object_add(queryurl, "devid",devidJ);
+            tmpJ = json_object_new_object();
+            if (halCtls[idx].alsa.name)   json_object_object_add(tmpJ, "name"  , json_object_new_string(halCtls[idx].alsa.name));
+            if (halCtls[idx].alsa.numid)  json_object_object_add(tmpJ, "numid" , json_object_new_int(halCtls[idx].alsa.numid));
+            if (halCtls[idx].alsa.minval) json_object_object_add(tmpJ, "minval", json_object_new_int(halCtls[idx].alsa.minval));
+            if (halCtls[idx].alsa.maxval) json_object_object_add(tmpJ, "maxval", json_object_new_int(halCtls[idx].alsa.maxval));
+            if (halCtls[idx].alsa.step)   json_object_object_add(tmpJ, "step"  , json_object_new_int(halCtls[idx].alsa.step));
+            if (halCtls[idx].alsa.type)   json_object_object_add(tmpJ, "type"  , json_object_new_int(halCtls[idx].alsa.type));
+            json_object_object_add(queryurl, "ctls",tmpJ);
             
-            err= afb_service_call_sync ("alsacore", "addUserCtl", queryurl, &jResponse);
-            if (err) {
-                ERROR ("Fail to register Callback for ctrl=[%s]", halCtls[idx].alsa.name);
+            AFB_NOTICE("QUERY=%s",  json_object_to_json_string(queryurl));
+            
+            ok= afb_service_call_sync ("alsacore", "addcustomctl", queryurl, &responseJ);
+            if (!ok) {
+                AFB_ERROR ("Fail to add Customer Sound Control for ctrl=[%s] Response=[%s]", halCtls[idx].alsa.name, json_object_to_json_string(responseJ));
                 goto OnErrorExit;
-            }            
+            }
         }
     }
     
     // finally register for alsa lowlevel event
-    err= afb_service_call_sync ("alsacore", "subscribe", queryurl, &jResponse);
+    err= afb_service_call_sync ("alsacore", "subscribe", queryurl, &responseJ);
     if (err) {
-        ERROR ("Fail subscribing to ALSA lowlevel events");
+        AFB_ERROR ("Fail subscribing to ALSA lowlevel events");
         goto OnErrorExit;
     }
     
@@ -305,24 +293,12 @@ STATIC int afbServiceInit() {
 };
 
 // Every HAL export the same API & Interface Mapping from SndCard to AudioLogic is done through alsaHalSndCardT
-STATIC afb_verb_v2 halSharedApi[] = {
+PUBLIC afb_verb_v2 halServiceApi[] = {
     /* VERB'S NAME          FUNCTION TO CALL         SHORT DESCRIPTION */
     { .verb = "ping",      .callback = pingtest},
     { .verb = "getctls",   .callback = halGetCtls},
     { .verb = "setvol",    .callback = halSetVol},
     { .verb = "getvol",    .callback = halGetVol},
     { .verb = "subscribe", .callback = halSubscribe},
-    { .verb = "monitor",   .callback = halMonitor},
     { .verb = NULL} /* marker for end of the array */
-};
-
-
-PUBLIC const struct afb_binding_v2 afbBindingV2 = {
-    .api = sndCardApiPrefix,
-    .specification = NULL,
-    .verbs = halSharedApi,
-    .preinit = NULL,
-    .init = afbServiceInit,
-    .onevent = afbServiceEvent,
-    .noconcurrency = 0
 };

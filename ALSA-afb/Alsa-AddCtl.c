@@ -67,7 +67,7 @@ STATIC int addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ) 
     // set info event ID and get value
     snd_ctl_elem_info_alloca(&elemInfo);
     snd_ctl_elem_info_set_name (elemInfo, ctlName);  // map ctlInfo to ctlId elemInfo is updated !!!
-    snd_ctl_elem_info_set_numid(elemInfo, ctlNumid);  // map ctlInfo to ctlId elemInfo is updated !!!
+    snd_ctl_elem_info_set_numid(elemInfo, ctlNumid); // map ctlInfo to ctlId elemInfo is updated !!!
     
     if (snd_ctl_elem_info(ctlDev, elemInfo) >= 0) {
         afb_req_fail_f (request, "ctl-already-exist", "crl=%s name/numid not unique", json_object_to_json_string(ctlJ));
@@ -101,10 +101,58 @@ STATIC int addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ) 
             afb_req_fail_f (request, "ctl-invalid-type", "crl=%s invalid/unknown type", json_object_to_json_string(ctlJ));
             goto OnErrorExit;                
         }
-
-    
+   
     return 0;
     
     OnErrorExit:
         return -1;
+}
+
+PUBLIC void alsaAddCustomCtls(afb_req request) {
+    int err;
+    json_object *ctlsJ;
+    enum json_type;
+    snd_ctl_t  *ctlDev=NULL;
+    const char *devid;
+
+    devid = afb_req_value(request, "devid");
+    if (devid == NULL) {
+        afb_req_fail_f (request, "devid-missing", "devid MUST be defined for alsaAddCustomCtls");
+        goto OnErrorExit;
+    }
+    
+    // open control interface for devid
+    err = snd_ctl_open(&ctlDev, devid, SND_CTL_READONLY);
+    if (err < 0) {
+        afb_req_fail_f (request, "devid-unknown", "SndCard devid=[%s] Not Found err=%s", devid, snd_strerror(err));
+        goto OnErrorExit;
+    }
+    
+    // extract sound controls and parse json
+    ctlsJ = json_tokener_parse (afb_req_value(request, "ctls"));
+    if (!ctlsJ) {
+        afb_req_fail_f (request, "ctls-missing", "ctls MUST be defined as a JSON array for alsaAddCustomCtls");
+        goto OnErrorExit;
+    }
+     
+    switch (json_object_get_type(ctlsJ)) { 
+        case json_type_object:
+             addOneSndCtl(request, ctlDev, ctlsJ);
+             break;
+        
+        case json_type_array:
+            for (int idx= 1; idx < json_object_array_length (ctlsJ); idx++) {
+                json_object *ctlJ = json_object_array_get_idx (ctlsJ, idx);
+                addOneSndCtl(request, ctlDev, ctlJ) ;
+            }
+            break;
+            
+        default:
+            afb_req_fail_f (request, "ctls-invalid","ctls=%s not valid JSON array", json_object_to_json_string(ctlsJ));
+            goto OnErrorExit;
+    }
+            
+    OnErrorExit:
+        if (ctlDev) snd_ctl_close(ctlDev);   
+        return;
 }

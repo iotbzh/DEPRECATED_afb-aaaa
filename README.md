@@ -84,11 +84,22 @@ make install
 # From $INSTALL_PREFIX
   mkdir $INSTALL_PREFIX/share/wssocks
   afb-daemon --verbose --token="" --ldpaths=$INSTALL_PREFIX/lib/audio --port=1234 --roothttp=$INSTALL_PREFIX/htdocs/audio-bindings
-```
-# replace hd:XX with your own sound card ID ex: "hw:0", "hw:PCH", ...
-Start a browser on http://localhost:1234?devid=hw:XX
 
-Start AlsaMixer and change volume you should see event in your browser
+# Debug with GDB 
+ In order your debugger to find bindings(sharelib) symbols ldpath and workdir should match with GDB solib-search-path
+ --workdir=. #default value: in this case solib-search-path is not requirer
+ --workdir=.. --ldpath=build in this case set (solib-search-path=build) should be used
+
+ To debug from desktop directly within './build' directory use following commands
+```
+ cd ./build
+ gdb afb-daemon --args afb-daemon --ldpaths=. --port=1234 --workdir=. --roothttp=../htdocs --tracereq=common --token='' --verbose
+```
+
+# replace hd:XX with your own sound card ID ex: "hw:0", "hw:PCH", ...
+```
+- Start a browser on http://localhost:1234?devid=hw:XX
+- Start AlsaMixer and change volume you should see event in your browser
 ```
 alsamixer -D hw:0
 ```
