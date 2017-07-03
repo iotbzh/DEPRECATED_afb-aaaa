@@ -310,7 +310,7 @@ PUBLIC void alsaUseCaseGet (struct afb_req request) {
     if (json_object_array_length (jWarnings) > 0) {
        json_object *jTmp =  json_object_new_object ();
        json_object_object_add (jTmp, "no-context", jWarnings);
-       warnings= json_object_to_json_string (jTmp);
+       warnings= json_object_get_string (jTmp);
     }
     afb_req_success (request, jResponse, warnings);
     

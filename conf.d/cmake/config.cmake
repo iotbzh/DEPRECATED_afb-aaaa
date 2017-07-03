@@ -56,7 +56,7 @@ set (gcc_minimal_version 4.9)
 set (PKG_REQUIRED_LIST
 	alsa
 	libsystemd>=222
-        libmicrohttpd>=0.9.54
+        libmicrohttpd>=0.9.55
 	afb-daemon
 	json-c
 )

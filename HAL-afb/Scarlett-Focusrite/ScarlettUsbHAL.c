@@ -18,7 +18,7 @@
  * To find out which control your sound card uses
  *  aplay -l  # Check sndcard name name in between []
  *  amixer -D hw:xx controls # get supported controls
- *  amixer -D "hw:3" cget numid=xx  # get control settings
+ *  amixer -D "hw:4" cget numid=xx  # get control settings
  * 
  */
 #define _GNU_SOURCE 
@@ -41,11 +41,11 @@ STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle) {
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
 STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .alsa={.control=Master_Playback_Volume,.numid=16, .name="Master-Vol"   , .values=1,.minval=0,.maxval= 87 ,.step=0}, .info= "Master Playback Volume" },
-  { .alsa={.control=PCM_Playback_Volume   ,.numid=27, .name="Play-Vol"     , .values=2,.minval=0,.maxval= 255,.step=0}, .info= "PCM Playback Volume" },
-  { .alsa={.control=PCM_Playback_Switch   ,.numid=17, .name="Play-Switch"  , .values=1,.minval=0,.maxval= 1  ,.step=0}, .info= "Master Playback Switch" },
-  { .alsa={.control=Capture_Volume        ,.numid=12, .name="Capt-vol"     , .values=2,.minval=0,.maxval= 31 ,.step=0}, .info= "Capture Volume" },
-  { .alsa={.control=Master_OnOff_Switch   ,.numid=99, .name="Power-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}, .info= "OnOff Global Switch"},
+  { .alsa={.control=Master_Playback_Volume,.numid=04, .name="Matrix 03 Mix A Playback Volume"   , .values=1,.minval=0,.maxval= 87 ,.step=0}, .info= "Master Playback Volume" },
+  { .alsa={.control=PCM_Playback_Volume   ,.numid=06, .name="play-vol"     , .values=2,.minval=0,.maxval= 255,.step=0}, .info= "PCM Playback Volume" },
+  { .alsa={.control=PCM_Playback_Switch   ,.numid=05, .name="play-switch"  , .values=1,.minval=0,.maxval= 1  ,.step=0}, .info= "Master Playback Switch" },
+  { .alsa={.control=Capture_Volume        ,.numid=12, .name="capt-vol"     , .values=2,.minval=0,.maxval= 31 ,.step=0}, .info= "Capture Volume" },
+  { .alsa={.control=Master_OnOff_Switch, .name="Power-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}, .info= "OnOff Global Switch"},
   { .alsa={.numid=0}, .cb={.callback=NULL, .handle=NULL}} /* marker for end of the array */
 } ;
 

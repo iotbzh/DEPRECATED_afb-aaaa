@@ -222,13 +222,13 @@ OnExit:
 // This receive all event this binding subscribe to 
 PUBLIC void halServiceEvent(const char *evtname, struct json_object *object) {
 
-    AFB_NOTICE("afbBindingV1ServiceEvent evtname=%s [msg=%s]", evtname, json_object_to_json_string(object));
+    AFB_NOTICE("afbBindingV1ServiceEvent evtname=%s [msg=%s]", evtname, json_object_get_string(object));
 }
 
 // this is call when after all bindings are loaded
 PUBLIC int halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard) {
     int ok, err;
-    struct json_object *queryurl, *responseJ, *devidJ, *tmpJ;
+    struct json_object *queryurl, *responseJ, *devidJ, *ctlsJ, *tmpJ;
     halCtls = alsaHalSndCard->ctls; // Get sndcard specific HAL control mapping
     
     err= afb_daemon_require_api("alsacore", 1);
@@ -245,38 +245,44 @@ PUBLIC int halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCar
     ok= afb_service_call_sync ("alsacore", "registerHal", queryurl, &responseJ);
     json_object_put(queryurl);
     if (!ok) {
-        NOTICE ("Fail to register HAL to ALSA lowlevel binding Response=[%s]", json_object_to_json_string(responseJ));
+        NOTICE ("Fail to register HAL to ALSA lowlevel binding Response=[%s]", json_object_get_string(responseJ));
         goto OnErrorExit;
     }
     
     // extract sound devid from HAL registration
     if (!json_object_object_get_ex(responseJ, "response", &tmpJ) || !json_object_object_get_ex(tmpJ, "devid", &devidJ)) {
-        AFB_ERROR ("Ooops: Internal error no devid return from HAL registration Response=[%s]", json_object_to_json_string(responseJ));
+        AFB_ERROR ("Ooops: Internal error no devid return from HAL registration Response=[%s]", json_object_get_string(responseJ));
         goto OnErrorExit;
     }
+    
+
         
     // for each Non Alsa Control callback create a custom control
+    ctlsJ= json_object_new_array();
     for (int idx = 0; halCtls[idx].alsa.numid != 0; idx++) {
-        if (halCtls[idx].cb.callback != NULL) {
-            queryurl = json_object_new_object();
-            json_object_object_add(queryurl, "devid",devidJ);
-            tmpJ = json_object_new_object();
-            if (halCtls[idx].alsa.name)   json_object_object_add(tmpJ, "name"  , json_object_new_string(halCtls[idx].alsa.name));
-            if (halCtls[idx].alsa.numid)  json_object_object_add(tmpJ, "numid" , json_object_new_int(halCtls[idx].alsa.numid));
-            if (halCtls[idx].alsa.minval) json_object_object_add(tmpJ, "minval", json_object_new_int(halCtls[idx].alsa.minval));
-            if (halCtls[idx].alsa.maxval) json_object_object_add(tmpJ, "maxval", json_object_new_int(halCtls[idx].alsa.maxval));
-            if (halCtls[idx].alsa.step)   json_object_object_add(tmpJ, "step"  , json_object_new_int(halCtls[idx].alsa.step));
-            if (halCtls[idx].alsa.type)   json_object_object_add(tmpJ, "type"  , json_object_new_int(halCtls[idx].alsa.type));
-            json_object_object_add(queryurl, "ctls",tmpJ);
-            
-            AFB_NOTICE("QUERY=%s",  json_object_to_json_string(queryurl));
-            
-            ok= afb_service_call_sync ("alsacore", "addcustomctl", queryurl, &responseJ);
-            if (!ok) {
-                AFB_ERROR ("Fail to add Customer Sound Control for ctrl=[%s] Response=[%s]", halCtls[idx].alsa.name, json_object_to_json_string(responseJ));
-                goto OnErrorExit;
-            }
-        }
+        struct json_object *ctlJ;
+        if (halCtls[idx].alsa.numid != 0 || halCtls[idx].cb.callback != NULL) {
+            ctlJ = json_object_new_object();
+            if (halCtls[idx].alsa.name)   json_object_object_add(ctlJ, "name"  , json_object_new_string(halCtls[idx].alsa.name));
+            if (halCtls[idx].alsa.numid)  json_object_object_add(ctlJ, "numid" , json_object_new_int(halCtls[idx].alsa.numid));
+            if (halCtls[idx].alsa.minval) json_object_object_add(ctlJ, "minval", json_object_new_int(halCtls[idx].alsa.minval));
+            if (halCtls[idx].alsa.maxval) json_object_object_add(ctlJ, "maxval", json_object_new_int(halCtls[idx].alsa.maxval));
+            if (halCtls[idx].alsa.step)   json_object_object_add(ctlJ, "step"  , json_object_new_int(halCtls[idx].alsa.step));
+            if (halCtls[idx].alsa.type)   json_object_object_add(ctlJ, "type"  , json_object_new_int(halCtls[idx].alsa.type));
+            json_object_array_add(ctlsJ, ctlJ);             
+        }           
+    }
+    
+    // Build new queryJ to add HAL custom control if any
+    if (json_object_array_length (ctlsJ) > 0) {
+        queryurl = json_object_new_object();
+        json_object_object_add(queryurl, "devid",devidJ);
+        json_object_object_add(queryurl, "ctls",ctlsJ);
+        ok= afb_service_call_sync ("alsacore", "addcustomctl", queryurl, &responseJ);
+        if (!ok) {
+            AFB_ERROR ("Fail creating HAL Custom ALSA ctls Response=[%s]", json_object_get_string(responseJ));
+            goto OnErrorExit;
+        }    
     }
     
     // finally register for alsa lowlevel event

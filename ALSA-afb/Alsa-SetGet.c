@@ -95,7 +95,7 @@ PUBLIC  int alsaCheckQuery (afb_req request, queryValuesT *queryValues) {
     else if (rqtQuiet && ! sscanf (rqtQuiet, "%d", &queryValues->quiet)) {
         json_object *query = afb_req_json(request);
         
-        afb_req_fail_f (request, "quiet-notinteger","Query=%s Quiet not integer &quiet=%s&", json_object_to_json_string(query), rqtQuiet);
+        afb_req_fail_f (request, "quiet-notinteger","Query=%s Quiet not integer &quiet=%s&", json_object_get_string(query), rqtQuiet);
         goto OnErrorExit;
     };
    
@@ -457,13 +457,13 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     snd_ctl_elem_info_alloca(&elemInfo);
     snd_ctl_elem_info_set_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (snd_ctl_elem_info(ctlDev, elemInfo) < 0) {
-        AFB_NOTICE( "Fail to load ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
+        AFB_NOTICE( "Fail to load ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_get_string(ctlRequest->jValues));
         goto OnErrorExit;
     }
     
     snd_ctl_elem_info_get_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (!snd_ctl_elem_info_is_writable(elemInfo)) {
-        AFB_NOTICE( "Not Writable ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues));
+        AFB_NOTICE( "Not Writable ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_get_string(ctlRequest->jValues));
         goto OnErrorExit;
     }
     
@@ -488,7 +488,7 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 
 
     if (count == 0 || count < length) {
-        AFB_NOTICE( "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), length, count);
+        AFB_NOTICE( "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_get_string(ctlRequest->jValues), length, count);
         goto OnErrorExit;
     }
 
@@ -510,7 +510,7 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     
     err = snd_ctl_elem_write(ctlDev, elemData);
     if (err < 0) {
-        AFB_NOTICE( "Fail to write ALSA NUMID=%d Values=[%s] Error=%s", ctlRequest->numId, json_object_to_json_string(ctlRequest->jValues), snd_strerror(err));
+        AFB_NOTICE( "Fail to write ALSA NUMID=%d Values=[%s] Error=%s", ctlRequest->numId, json_object_get_string(ctlRequest->jValues), snd_strerror(err));
         goto OnErrorExit;
     }
     
@@ -762,7 +762,7 @@ STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
         */
     }
     
-    if (json_object_array_length(warnings)) warmsg=json_object_to_json_string_ext(warnings, JSON_C_TO_STRING_PLAIN);
+    if (json_object_array_length(warnings)) warmsg=json_object_get_string (warnings);
     else json_object_put(warnings);
   
     // send response+warning if any
