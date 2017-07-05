@@ -9,12 +9,31 @@
         <in>Alsa-SetGet.c</in>
         <in>Alsa-Ucm.c</in>
       </df>
+      <df name="build">
+        <df name="CMakeFiles">
+          <df name="3.5.2">
+            <df name="CompilerIdC">
+              <in>CMakeCCompilerId.c</in>
+            </df>
+            <df name="CompilerIdCXX">
+              <in>CMakeCXXCompilerId.cpp</in>
+            </df>
+          </df>
+          <in>feature_tests.c</in>
+          <in>feature_tests.cxx</in>
+        </df>
+      </df>
       <df name="Common">
         <in>AudioCommonLib.c</in>
       </df>
       <df name="HAL-afb">
         <df name="HAL-interface">
           <in>hal-interface.c</in>
+        </df>
+        <df name="HAL-plugin">
+          <in>HalPlugCb.c</in>
+          <in>HalPlugCtl.c</in>
+          <in>HalPlugPcm.c</in>
         </df>
         <df name="HDA-intel">
           <in>IntelHdaHAL.c</in>
@@ -70,7 +89,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-fPIC -fPIC -g"/>
+        <element flagsID="0" commonFlags="-fPIC -fPIC"/>
         <element flagsID="1" commonFlags="-g -fPIC -fPIC -g"/>
         <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
         <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
@@ -81,7 +100,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>build</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <buildCommand>${MAKE} -f Makefile install</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
         </makeTool>
@@ -92,28 +111,17 @@
         </preBuild>
       </makefileType>
       <item path="ALSA-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="2">
           <incDir>
-            <pElem>/usr/include/alsa</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>alsa_lowlevel_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="ALSA-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
         </cTool>
@@ -121,8 +129,7 @@
       <item path="ALSA-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
@@ -131,8 +138,7 @@
       <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
@@ -141,9 +147,9 @@
       <item path="ALSA-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
         </cTool>
@@ -159,6 +165,47 @@
         <cTool flags="2">
         </cTool>
       </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCb.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>PIC</Elem>
+            <Elem>cb_sample_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>PIC</Elem>
+            <Elem>ctl_afbhal_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
         </cTool>
@@ -167,7 +214,7 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="2">
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
@@ -227,6 +274,14 @@
         <cTool flags="2">
         </cTool>
       </item>
+      <folder path="0/ALSA-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
       <folder path="0/Common">
         <cTool>
           <incDir>
@@ -279,17 +334,566 @@
       <folder path="0/HAL-afb/Scarlett-Focusrite">
         <cTool>
           <incDir>
-            <pElem>/usr/include/alsa</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
             <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HighLevel-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Shared-Interface">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Shared-Interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+    </conf>
+    <conf name="Amixer-CTL" type="0">
+      <toolsSet>
+        <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -ggdb -fPIC"/>
+      </flagsDictionary>
+      <codeAssistance>
+        <includeAdditional>true</includeAdditional>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile install</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>build</preBuildCommandWorkingDir>
+          <preBuildCommand>cmake ..</preBuildCommand>
+          <preBuildFirst>true</preBuildFirst>
+        </preBuild>
+      </makefileType>
+      <item path="ALSA-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-interface.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCb.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
           <preprocessorList>
-            <Elem>hal_scalett_usb_EXPORTS</Elem>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
           </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/ConnectionInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <folder path="0/ALSA-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Common">
+        <cTool>
+          <incDir>
+            <pElem>/usr/include/alsa</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Common</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-interface">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HDA-intel">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/HDA-intel</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HDA-intel</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Scarlett-Focusrite">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HighLevel-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Shared-Interface">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Shared-Interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+    </conf>
+    <conf name="Amixer-Set" type="0">
+      <toolsSet>
+        <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="1" commonFlags="-g -ggdb -fPIC -fPIC"/>
+        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="4" commonFlags="-mtune=generic -march=x86-64 -g -ggdb -fPIC"/>
+      </flagsDictionary>
+      <codeAssistance>
+        <includeAdditional>true</includeAdditional>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile install</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>build</preBuildCommandWorkingDir>
+          <preBuildCommand>cmake ..</preBuildCommand>
+          <preBuildFirst>true</preBuildFirst>
+        </preBuild>
+      </makefileType>
+      <item path="ALSA-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ALSA-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-interface.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCb.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>PIC</Elem>
+            <Elem>cb_sample_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/ConnectionInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <folder path="0/ALSA-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Common">
+        <cTool>
+          <incDir>
+            <pElem>/usr/include/alsa</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Common</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-interface">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HDA-intel">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/HDA-intel</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HDA-intel</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Scarlett-Focusrite">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
+          </incDir>
         </cTool>
       </folder>
       <folder path="0/HighLevel-afb">

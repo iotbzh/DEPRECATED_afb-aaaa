@@ -14,188 +14,202 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
+ * Testing:
+ *  1) Copy generated plugin [libasound_module_pcm_afbhal.so] in alsa-lib/ dir visible from LD_LIBRARY_PATH (eg: /usr/lib64/alsa-lib)
+ *  2) Create a ~/.asounrc file base on following template
+ *      ctl.agl_hal {
+ *      type  afbhal
+ *      devid "hw:4"
+ *      cblib "afbhal_cb_sample.so"
+ *      ctls {
+ *          # ctlLabel {numid integer name "Alsa Ctl Name"}
+ *          MasterSwitch { numid 4 name "My_First_Control" }
+ *          MasterVol    { numid 5 name "My_Second_Control" }
+ *          CB_sample    { ctlcb @AfbHalSampleCB name "My_Sample_Callback"} 
+ *      }
+ *      pcm.agl_hal {
+ *          type copy     # Copy PCM
+ *          slave "hw:4"  # Slave name
+ *      }
+ *
+ *  }
+ *  3) Test with
+ *     - amixer -Dagl_hal controls # should list all your controls
+ *     - amixer -Dagl_hal cget numid=1
+ *     - amixer -Dagl_hal cset numid=1 '10,20'
  */
 
 
 #include <stdio.h>
 #include <sys/ioctl.h>
-#include <alsa/asoundlib.h>
-#include <alsa/control_external.h>
-#include <linux/soundcard.h>
-
-typedef struct afbHalPlug {
-	snd_ctl_ext_t ext;
-	char *device;
-	unsigned int num_vol_ctls;
-	unsigned int num_rec_items;
-	unsigned int vol_ctl[SOUND_MIXER_NRDEVICES];
-	unsigned int rec_item[SOUND_MIXER_NRDEVICES];
-} afbHalPlug_t;
-
-static const char *const vol_devices[SOUND_MIXER_NRDEVICES] = {
-	[SOUND_MIXER_VOLUME]   = "Master Playback Volume",
-	[SOUND_MIXER_BASS]     = "Tone Control - Bass",
-	[SOUND_MIXER_TREBLE]   = "Tone Control - Treble",
-	[SOUND_MIXER_SYNTH]    = "Synth Playback Volume",
-	[SOUND_MIXER_PCM]      = "PCM Playback Volume",
-	[SOUND_MIXER_SPEAKER]  = "PC Speaker Playback Volume",
-	[SOUND_MIXER_LINE]     = "Line Playback Volume",
-	[SOUND_MIXER_MIC]      = "Mic Playback Volume",
-	[SOUND_MIXER_CD]       = "CD Playback Volume",
-	[SOUND_MIXER_IMIX]     = "Monitor Mix Playback Volume",
-	[SOUND_MIXER_ALTPCM]   = "Headphone Playback Volume",
-	[SOUND_MIXER_RECLEV]   = "Capture Volume",
-	[SOUND_MIXER_IGAIN]    = "Capture Volume",
-	[SOUND_MIXER_OGAIN]    = "Playback Volume",
-	[SOUND_MIXER_LINE1]    = "Aux Playback Volume",
-	[SOUND_MIXER_LINE2]    = "Aux1 Playback Volume",
-	[SOUND_MIXER_LINE3]    = "Line1 Playback Volume",
-	[SOUND_MIXER_DIGITAL1] = "IEC958 Playback Volume",
-	[SOUND_MIXER_DIGITAL2] = "Digital Playback Volume",
-	[SOUND_MIXER_DIGITAL3] = "Digital1 Playback Volume",
-	[SOUND_MIXER_PHONEIN]  = "Phone Playback Volume",
-	[SOUND_MIXER_PHONEOUT] = "Master Mono Playback Volume",
-	[SOUND_MIXER_VIDEO]    = "Video Playback Volume",
-	[SOUND_MIXER_RADIO]    = "Radio Playback Volume",
-	[SOUND_MIXER_MONITOR]  = "Monitor Playback Volume",
-};
-
-static const char *const rec_devices[SOUND_MIXER_NRDEVICES] = {
-	[SOUND_MIXER_VOLUME]   = "Mix Capture Switch",
-	[SOUND_MIXER_SYNTH]    = "Synth Capture Switch",
-	[SOUND_MIXER_PCM]      = "PCM Capture Switch",
-	[SOUND_MIXER_LINE]     = "Line Capture Switch",
-	[SOUND_MIXER_MIC]      = "Mic Capture Switch",
-	[SOUND_MIXER_CD]       = "CD Capture Switch",
-	[SOUND_MIXER_LINE1]    = "Aux Capture Switch",
-	[SOUND_MIXER_LINE2]    = "Aux1 Capture Switch",
-	[SOUND_MIXER_LINE3]    = "Line1 Capture Switch",
-	[SOUND_MIXER_DIGITAL1] = "IEC958 Capture Switch",
-	[SOUND_MIXER_DIGITAL2] = "Digital Capture Switch",
-	[SOUND_MIXER_DIGITAL3] = "Digital1 Capture Switch",
-	[SOUND_MIXER_PHONEIN]  = "Phone Capture Switch",
-	[SOUND_MIXER_VIDEO]    = "Video Capture Switch",
-	[SOUND_MIXER_RADIO]    = "Radio Capture Switch",
-};	
-
-static const char *const rec_items[SOUND_MIXER_NRDEVICES] = {
-	[SOUND_MIXER_VOLUME]   = "Mix",
-	[SOUND_MIXER_SYNTH]    = "Synth",
-	[SOUND_MIXER_PCM]      = "PCM",
-	[SOUND_MIXER_LINE]     = "Line",
-	[SOUND_MIXER_MIC]      = "Mic",
-	[SOUND_MIXER_CD]       = "CD",
-	[SOUND_MIXER_LINE1]    = "Aux",
-	[SOUND_MIXER_LINE2]    = "Aux1",
-	[SOUND_MIXER_LINE3]    = "Line1",
-	[SOUND_MIXER_DIGITAL1] = "IEC958",
-	[SOUND_MIXER_DIGITAL2] = "Digital",
-	[SOUND_MIXER_DIGITAL3] = "Digital1",
-	[SOUND_MIXER_PHONEIN]  = "Phone",
-	[SOUND_MIXER_VIDEO]    = "Video",
-	[SOUND_MIXER_RADIO]    = "Radio",
-};	
+#include "HalPlug.h"
+#include <dlfcn.h>
 
 
-
-
-static snd_ctl_ext_key_t AfbHalElemFind(snd_ctl_ext_t *ext,
-				       const snd_ctl_elem_id_t *id) {
-       
-	snd_ctl_hal_t *ctlHal = ext->private_data;
-	const char *name;
-	unsigned int i, key, numid;
-
-	numid = snd_ctl_elem_id_get_numid(id);
-	if (numid > 0) {
-		numid--;
-		if (numid < afbHalPlug->num_vol_ctls)
-			return afbHalPlug->vol_ctl[numid];
-		numid -= afbHalPlug->num_vol_ctls;
-		if (afbHalPlug->exclusive_input) {
-			if (!numid)
-				return OSS_KEY_CAPTURE_MUX;
-		} else if (numid < afbHalPlug->num_rec_items)
-			return afbHalPlug->rec_item[numid] |
-				OSS_KEY_CAPTURE_FLAG;
-	}
-
-	name = snd_ctl_elem_id_get_name(id);
-	if (! strcmp(name, "Capture Source")) {
-		if (afbHalPlug->exclusive_input)
-			return OSS_KEY_CAPTURE_MUX;
-		else
-			return SND_CTL_EXT_KEY_NOT_FOUND;
-	}
-	for (i = 0; i < afbHalPlug->num_vol_ctls; i++) {
-		key = afbHalPlug->vol_ctl[i];
-		if (! strcmp(name, vol_devices[key]))
-			return key;
-	}
-	for (i = 0; i < afbHalPlug->num_rec_items; i++) {
-		key = afbHalPlug->rec_item[i];
-		if (! strcmp(name, rec_devices[key]))
-			return key | OSS_KEY_CAPTURE_FLAG;
-	}
-	return SND_CTL_EXT_KEY_NOT_FOUND;
+static snd_ctl_ext_key_t AfbHalElemFind(snd_ctl_ext_t *ext, const snd_ctl_elem_id_t *id) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    snd_ctl_ext_key_t key;
+    
+    int numid = snd_ctl_elem_id_get_numid(id);
+    if (numid > 0) {
+        if (numid > plughandle->ctlsCount) goto OnErrorExit;
+        key= (snd_ctl_ext_key_t) numid -1;
+        goto SucessExit;
+    }
+    
+    const char *ctlName= snd_ctl_elem_id_get_name(id);
+    if (ctlName == NULL)  goto OnErrorExit;
+    
+    for (int idx=0; idx < plughandle->ctlsCount; idx++) {
+        if (! strcmp(ctlName, plughandle->ctls[idx].ctlName)) {
+            key = idx;
+            goto SucessExit;
+        }
+    }
+    
+    SucessExit:
+    return key;
+    
+    OnErrorExit:
+      return -1;
 }
 
-static int AfbHalGetAttrib(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key,
-			     int *type, unsigned int *acc, unsigned int *count) {
-	return 0;
+static int AfbHalGetAttrib(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, int *type, unsigned int *acc, unsigned int *count) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    snd_ctl_elem_info_t  *elemInfo = plughandle->infos[key];
+    snd_ctl_cb_t callback = plughandle->cbs[key];   
+
+    
+    // search for equivalent NUMID in effective sound card
+    if (elemInfo) {
+            *type  = snd_ctl_elem_info_get_type(elemInfo);
+            *count = snd_ctl_elem_info_get_count(elemInfo);
+            *acc   = SND_CTL_EXT_ACCESS_READWRITE; // Future ToBeDone
+            return 0;
+    }
+
+    if (callback) {
+        snd_ctl_get_attrib_t item;
+        
+        int err = callback(plughandle, CTLCB_GET_ATTRIBUTE, key, &item);
+        if (!err) {
+            *type = item.type;
+            *acc  = item.acc;
+            *count= item.count;
+        }
+        return err;
+    }
+    
+    return -1;
 }
 
-static int AfbHalGetInfo(snd_ctl_ext_t *ext ATTRIBUTE_UNUSED,
-				snd_ctl_ext_key_t key ATTRIBUTE_UNUSED,
-				long *imin, long *imax, long *istep) {
-
-	return 0;
+static int AfbHalGetIntInfo(snd_ctl_ext_t *ext,	snd_ctl_ext_key_t key, long *imin, long *imax, long *istep) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    snd_ctl_elem_info_t  *elemInfo = plughandle->infos[key];
+    snd_ctl_cb_t callback = plughandle->cbs[key];   
+    
+    if (elemInfo) {
+    
+        // Should be normalised to make everything 0-100% 
+        *imin = (long)snd_ctl_elem_info_get_min(elemInfo);
+        *imax = (long)snd_ctl_elem_info_get_min(elemInfo);
+        *istep= (long)snd_ctl_elem_info_get_min(elemInfo);
+        return 0;
+    } 
+    
+    if (callback) {
+        snd_ctl_get_int_info_t item;
+        
+        int err = callback(plughandle, CTLCB_GET_INTEGER_INFO, key, &item);
+        if (!err) {
+            *imin = item.imin;
+            *imax = item.imax;
+            *istep= item.istep;
+        }
+        return err;
+    }
+    
+    return -1;
 }
 
-static int AfbHalGetEnumInfo(snd_ctl_ext_t *ext,
-				   snd_ctl_ext_key_t key ATTRIBUTE_UNUSED,
-				   unsigned int *items) {
-
-	return 0;
+static int AfbHalGetEnumInfo(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, unsigned int *items) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    snd_ctl_elem_info_t  *elemInfo = plughandle->infos[key];
+    snd_ctl_cb_t callback = plughandle->cbs[key];
+    
+    if(elemInfo) *items= snd_ctl_elem_info_get_items(elemInfo);
+    if(callback) callback(plughandle, CTLCB_GET_ENUMERATED_INFO, key, items);
+        
+    return 0;
 }
 
-static int AfbHalGetEnumName(snd_ctl_ext_t *ext,
-				   snd_ctl_ext_key_t key ATTRIBUTE_UNUSED,
-				   unsigned int item, char *name,
-				   size_t name_max_len) {
-
-	return 0;
+static int AfbHalGetEnumName(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, unsigned int item, char *name, size_t name_max_len) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    snd_ctl_elem_info_t  *elemInfo = plughandle->infos[key];
+    
+    //name= snd_ctl_elem_info_get_item_name(elemInfo);
+    return 0;
 }
 
 static int AfbHalReadInt(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, long *value) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    snd_ctl_elem_info_t  *elemInfo = plughandle->infos[key];
 
-	return 0;
+    return 0;
 }
 
-static int AfbHalReadEnumerate(snd_ctl_ext_t *ext,
-			       snd_ctl_ext_key_t key ATTRIBUTE_UNUSED,
-			       unsigned int *items) {
+static int AfbHalReadEnumerate(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, unsigned int *items) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
 
-	return 0;
+    return 0;
 }
 
 static int AfbHalWriteInt(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, long *value) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
 
     return 0;
 }
 
-static int AfbHalWriteEnum(snd_ctl_ext_t *ext,
-				snd_ctl_ext_key_t key ATTRIBUTE_UNUSED,
-				unsigned int *items) {
+static int AfbHalWriteEnum(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, unsigned int *items) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
 
     return 0;
 }
 
-static int AfbHalEventRead(snd_ctl_ext_t *ext ATTRIBUTE_UNUSED,
-			  snd_ctl_elem_id_t *id ATTRIBUTE_UNUSED,
-			  unsigned int *event_mask ATTRIBUTE_UNUSED)
-{
-	return -EAGAIN;
+static int AfbHalEventRead(snd_ctl_ext_t *ext, snd_ctl_elem_id_t *id, unsigned int *event_mask) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+ 
+    return -EAGAIN;
+}
+
+static int AfbHalElemList(snd_ctl_ext_t *ext, unsigned int offset, snd_ctl_elem_id_t *id) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+
+    snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
+    snd_ctl_elem_id_set_name(id, plughandle->ctls[offset].ctlName);
+    
+    return 0;
+}
+
+static int AfbHalElemCount(snd_ctl_ext_t *ext) {
+    snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+    int count = plughandle->ctlsCount;
+    return count;
+}
+
+static void AfbHalClose(snd_ctl_ext_t *ext) {
+	snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
+        int err;
+
+        for (int idx=0; idx < plughandle->ctlsCount; idx++) {
+            if (plughandle->ctls[idx].ctlName) free((void*)plughandle->ctls[idx].ctlName);
+        }
+
+        err = snd_ctl_close(plughandle->ctlDev);
+        if (err) SNDERR("Fail Close sndctl: devid=%s err=%s", plughandle->devid, snd_strerror(err)); 
+	
+	if (plughandle->devid) free(plughandle->devid);
+	free(plughandle);
 }
 
 static snd_ctl_ext_callback_t afbHalCBs = {
@@ -204,7 +218,7 @@ static snd_ctl_ext_callback_t afbHalCBs = {
 	.elem_list           = AfbHalElemList,
 	.find_elem           = AfbHalElemFind,
 	.get_attribute       = AfbHalGetAttrib,
-	.get_integer_info    = AfbHalGetInfo,
+	.get_integer_info    = AfbHalGetIntInfo,
 	.get_enumerated_info = AfbHalGetEnumInfo,
 	.get_enumerated_name = AfbHalGetEnumName,
 	.read_integer        = AfbHalReadInt,
@@ -214,54 +228,196 @@ static snd_ctl_ext_callback_t afbHalCBs = {
 	.read_event          = AfbHalEventRead,
 };
 
-
-SND_CTL_PLUGIN_DEFINE_FUNC(afb_hal) {
+SND_CTL_PLUGIN_DEFINE_FUNC(afbhal) {
 
     snd_config_iterator_t it, next;
-    afbHalPlug_t *afbHalPlug;
+    snd_ctl_hal_t *plughandle;
     int err;
-	
-	snd_config_for_each(it, next, conf) {
-		snd_config_t *n = snd_config_iterator_entry(it);
-		const char *id;
-		if (snd_config_get_id(n, &id) < 0)
-			continue;
-		if (strcmp(id, "comment") == 0 || strcmp(id, "type") == 0 || strcmp(id, "hint") == 0)
-			continue;
-		if (strcmp(id, "slave") == 0) {
-			if (snd_config_get_string(n, &device) < 0) {
-				SNDERR("Invalid type for %s", id);
-				return -EINVAL;
-			}
-			continue;
-		}
-		SNDERR("Unknown field %s", id);
-		return -EINVAL;
-	}
+    snd_ctl_cb_t AfbHalInitCB;
+    const char *libname;
+       
+    plughandle = calloc(1, sizeof(snd_ctl_hal_t));
+   
+    snd_config_for_each(it, next, conf) {
+        snd_config_t *node = snd_config_iterator_entry(it);
+        const char *id;
 
-        // Create ALSA control plugin structure
-	afbHalPlug->ext.version = SND_CTL_EXT_VERSION;
-	afbHalPlug->ext.card_idx = 0; /* FIXME */
-	strcpy(afbHalPlug->ext.id, "AFB-HAL-CTL");
-	strcpy(afbHalPlug->ext.driver, "AFB-HAL");
-	strcpy(afbHalPlug->ext.name, "AFB-HAL Control Plugin");
-	strcpy(afbHalPlug->ext.mixername, "AFB-HAL Mixer Plugin");
-	strcpy(afbHalPlug->ext.longname, "Automotive-Linux Sound Abstraction Control Plugin");
-	afbHalPlug->ext.poll_fd      = -1;
-	afbHalPlug->ext.callback     = &afbHalCBs;
-	afbHalPlug->ext.private_data = afbHalPlug;
+        // ignore comment en empty lines
+        if (snd_config_get_id(node, &id) < 0) continue;
+        if (strcmp(id, "comment") == 0 || strcmp(id, "type") == 0 || strcmp(id, "hint") == 0) continue;
+       
+        // devid should point onto a valid sound card
+        if (strcmp(id, "devid") == 0) {
+            const char *devid;
+            if (snd_config_get_string(node, &devid) < 0) {
+                SNDERR("Invalid string type for %s", id);
+                return -EINVAL;
+            }
+            plughandle->devid=strdup(devid);
+                            
+            // open control interface for devid
+            err = snd_ctl_open(&plughandle->ctlDev, plughandle->devid, 0);
+            if (err < 0) {
+                SNDERR("Fail to open control device for devid=%s", plughandle->devid);
+                return -EINVAL;
+            }
+            continue;
+        }
+        
+        if (strcmp(id, "cblib") == 0) {
+            if (snd_config_get_string(node, &libname) < 0) {
+                SNDERR("Invalid libname string for %s", id);
+                return -EINVAL;
+            }
+            
+            plughandle->dlHandle= dlopen(libname, RTLD_NOW);
+            if (!plughandle->dlHandle) {
+                SNDERR("Fail to open callback sharelib=%s error=%s", libname, dlerror());
+                return -EINVAL;                
+            }
+            
+	    AfbHalInitCB = dlsym(plughandle->dlHandle, "AfbHalInitCB");
+            if (!AfbHalInitCB) {
+                SNDERR("Fail find 'AfbHalInitCB' symbol into callbacks sharelib=%s", libname);
+                return -EINVAL;
+            }
+            
+            err = (*AfbHalInitCB)(plughandle,CTLCB_INIT, 0,0);
+            if (err) {
+                SNDERR("Fail AfbHalInitCB err=%d", err);
+                return -EINVAL;
+            }
+            
+            continue;
+        }
+        
+        if (strcmp(id, "ctls") == 0) {
+            const char *ctlConf;
+            snd_config_type_t ctype;
+            snd_config_iterator_t currentCtl, follow;
+            snd_config_t *itemConf;
+            
+            ctype = snd_config_get_type (node);
+            if (ctype != SND_CONFIG_TYPE_COMPOUND) {
+               snd_config_get_string (node, &ctlConf); 
+               SNDERR("Invalid compound type for %s", node);
+               return -EINVAL;
+            }
+            
+            // loop on each ctl within ctls
+            snd_config_for_each (currentCtl, follow, node) {
+                snd_config_t *ctlconfig = snd_config_iterator_entry(currentCtl);
+                snd_ctl_elem_info_t  *elemInfo;
+                const char *ctlLabel, *ctlName;
+                
+                // ignore empty line
+                if (snd_config_get_id(ctlconfig, &ctlLabel) < 0) continue;
+                
+                // each clt should be a valid config compound
+                ctype = snd_config_get_type (ctlconfig);
+                if (ctype != SND_CONFIG_TYPE_COMPOUND) {
+                   snd_config_get_string (node, &ctlConf); 
+                   SNDERR("Invalid ctl config for %s", ctlLabel);
+                   return -EINVAL;
+                }
+                                
+                err=snd_config_search(ctlconfig, "numid", &itemConf);
+                if (!err) {
+                    if (snd_config_get_integer(itemConf, (long*)&plughandle->ctls[plughandle->ctlsCount].ctlNumid) < 0) {
+                    SNDERR("Not Integer: ctl:%s numid should be a valid integer", ctlLabel);
+                    return -EINVAL;
+                    }
+
+                    // Make sure than numid is valid on slave snd card
+                    snd_ctl_elem_info_malloc(&elemInfo);
+                    snd_ctl_elem_info_set_numid(elemInfo, (int)plughandle->ctls[plughandle->ctlsCount].ctlNumid);
+                    plughandle->infos[plughandle->ctlsCount]= elemInfo;
+
+                    err = snd_ctl_elem_info(plughandle->ctlDev, elemInfo);
+                    if (err) {    
+                        SNDERR("Not Found: 'numid=%d' for 'devid=%s'", plughandle->ctls[plughandle->ctlsCount].ctlNumid, plughandle->devid);
+                        return -EINVAL;                                        
+                    }
+                } 
+                
+                err=snd_config_search(ctlconfig, "ctlcb", &itemConf);
+                if (!err) {
+                    const char *funcname;
+                    void *funcaddr;
+                    
+                    if (snd_config_get_string(itemConf, &funcname) < 0) {
+                        SNDERR("Not string: ctl:%s cbname should be a valid string", ctlLabel);
+                        return -EINVAL;
+                    }
+                    
+                    if (funcname[0] != '@') {
+                        SNDERR("Not string: ctl:%s cbname=%s should be prefixed with '@' ", ctlLabel, funcname);
+                        return -EINVAL;
+                    }
+                    
+                    if (!plughandle->dlHandle) {
+                        SNDERR("No CB: ctl:%s cblib:/my/libcallback missing from asoundrc", ctlLabel);
+                        return -EINVAL;
+                    }
+                    
+              	    funcaddr = dlsym(plughandle->dlHandle, &funcname[1]);
+                    if (!funcaddr) {
+                        SNDERR("NotFound CB: ctl:%s cbname='%s' no symbol into %s", ctlLabel, &funcname[1], libname);
+                        return -EINVAL;
+                    }
+                    plughandle->cbs[plughandle->ctlsCount]=funcaddr;
+                }
+                    
+                err=snd_config_search(ctlconfig, "name", &itemConf);
+                if (err) {
+                    SNDERR("Not Found: 'name' mandatory in ctl config");
+                    return -EINVAL;                    
+                }
+                
+                if (snd_config_get_string(itemConf, &ctlName) < 0) {
+                    SNDERR("Not String: ctl:%s 'name' should be a valie string", ctlLabel);
+                    return -EINVAL;
+                }
+                plughandle->ctls[plughandle->ctlsCount].ctlName = strdup(ctlName);
+                
+                // move to next ctl if any
+                plughandle->ctlsCount++;            
+            } // end for each ctl
+            continue;
+        }
+        SNDERR("Unknown field %s", id);
+        return -EINVAL;
+    }        
+
+    
+    
+    // Create ALSA control plugin structure
+    plughandle->ext.version         = SND_CTL_EXT_VERSION;
+    plughandle->ext.card_idx        = 0; /* FIXME */
+    strcpy(plughandle->ext.id       , "AFB-HAL-CTL");
+    strcpy(plughandle->ext.driver   , "AFB-HAL");
+    strcpy(plughandle->ext.name     , "AFB-HAL Control Plugin");
+    strcpy(plughandle->ext.mixername, "AFB-HAL Mixer Plugin");
+    strcpy(plughandle->ext.longname , "Automotive-Linux Sound Abstraction Control Plugin");
+    plughandle->ext.poll_fd         = -1;
+    plughandle->ext.callback        = &afbHalCBs;
+    plughandle->ext.private_data    = (void*)plughandle;
 
 
-	err = snd_ctl_ext_create(&afbHalPlug->ext, name, mode);
-	if (err < 0) goto OnErrorExit;
 
-        // Plugin register controls update handlep before exiting
-	*handlep = afbHalPlug->ext.handle;
-	return 0;
+    err = snd_ctl_ext_create(&plughandle->ext, name, mode);
+    if (err < 0) {
+        SNDERR("Fail Register sndctl for devid=%s", plughandle->devid);
+        goto OnErrorExit;
+    }
+
+    // Plugin register controls update handlep before exiting
+    *handlep = plughandle->ext.handle;
+    return 0;
 
 OnErrorExit: 
-	free(afbHalPlug);
+	free(plughandle);
 	return -1;
 }
 
-SND_CTL_PLUGIN_SYMBOL(afb_hal);
+SND_CTL_PLUGIN_SYMBOL(afbhal);

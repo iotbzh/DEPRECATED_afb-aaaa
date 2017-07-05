@@ -37,9 +37,9 @@ set(PROJECT_APP_TEMPLATES_DIR "conf.d/app-templates")
 # Use any directory that does not start with _ as valid source rep
 set(PROJECT_SRC_DIR_PATTERN "[^_]*")
 
-# Compilation Mode (AFB_DEBUG, RELEASE)
+# Compilation Mode (DEBUG, RELEASE)
 # ----------------------------------
-set(CMAKE_BUILD_TYPE "AFB_DEBUG")
+set(CMAKE_BUILD_TYPE "DEBUG")
 
 # Static constante definition
 # -----------------------------
@@ -79,7 +79,7 @@ set(CLOSING_MESSAGE "Debug in ./buid: afb-daemon --port=1234 --ldpaths=. --workd
 
 # (BUG!!!) as PKG_CONFIG_PATH does not work [should be an env variable]
 # ---------------------------------------------------------------------
-set(INSTALL_PREFIX $ENV{HOME}/opt)
+set(CMAKE_INSTALL_PREFIX $ENV{HOME}/opt)
 set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
 set(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
 

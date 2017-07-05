@@ -16,26 +16,40 @@
 # limitations under the License.
 ###########################################################################
 
+# Needed to remove undefined snd_dlsym_start in plugin share object
+add_compile_options(-DPIC)
 
 # Add target to project dependency list
-PROJECT_TARGET_ADD(hal-ctl-plugin)
+PROJECT_TARGET_ADD(ctl_afbhal)
 
     # Define targets 
-    ADD_LIBRARY(hal-ctl-plugin MODULE HalPlugCtl.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE HalPlugCtl.c)
 
     # Alsa Plugin properties
-    SET_TARGET_PROPERTIES(hal-ctl-plugin PROPERTIES
-	PREFIX "alsa-"
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+	PREFIX "libasound_module_"
         OUTPUT_NAME ${TARGET_NAME}
     )
 
-PROJECT_TARGET_ADD(hal-pcm-plugin)
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+        ${link_libraries}
+    )
+    install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION lib/alsa-lib)
+
+PROJECT_TARGET_ADD(cb_sample)
 
     # Define targets 
-    ADD_LIBRARY(hal-pcm-plugin MODULE HalPlugPcm.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE HalPlugCb.c)
 
     # Alsa Plugin properties
-    SET_TARGET_PROPERTIES(hal-pcm-plugin PROPERTIES
-	PREFIX "alsa-"
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+	PREFIX "afbhal_"
         OUTPUT_NAME ${TARGET_NAME}
     )
+
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+        ${link_libraries}
+    )
+    install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION lib)
