@@ -16,7 +16,10 @@
     
     // default soundcard is "PCH"
     var devid=getParameterByName("devid");
-    if (!devid) devid="hw:0";
+    if (!devid) devid="hw:1";
+    
+    var haldev=getParameterByName("haldev");
+    if (!haldev) haldev="scarlett-usb";
     
     var sndname=getParameterByName("sndname");
     if (!sndname) sndname="PCH";

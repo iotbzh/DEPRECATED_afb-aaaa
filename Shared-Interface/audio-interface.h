@@ -58,12 +58,14 @@ typedef enum {
    // HighLevel Audio Control List
    Master_Playback_Volume,
    Master_OnOff_Switch,
+   Master_Playback_Ramp,
    PCM_Playback_Volume,
    PCM_Playback_Switch,
    Capture_Volume,
 
    EndHalCrlTag // used to compute number of ctls
 } halCtlsEnumT;
+
 
 PUBLIC int cbCheckResponse(struct afb_req request, int iserror, struct json_object *result) ;
 PUBLIC void pingtest(struct afb_req request);

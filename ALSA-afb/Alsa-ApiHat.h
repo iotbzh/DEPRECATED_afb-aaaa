@@ -68,6 +68,7 @@ PUBLIC void alsaAddCustomCtls(struct afb_req request);
 PUBLIC void alsaEvtSubcribe (struct afb_req request);
 PUBLIC void alsaGetCardId (struct afb_req request);
 PUBLIC void alsaRegisterHal (struct afb_req request);
+PUBLIC void alsaActiveHal (struct afb_req request);
 
 #endif /* ALSALIBMAPPING_H */
 

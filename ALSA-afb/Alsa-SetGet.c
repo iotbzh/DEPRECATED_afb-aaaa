@@ -350,14 +350,14 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     int err;
 
     if ((err = snd_ctl_open(&handle, rqtSndId, 0)) < 0) {
-        INFO ("SndCard [%s] Not Found", rqtSndId);
+        AFB_INFO ("SndCard [%s] Not Found", rqtSndId);
         return NULL;
     }
 
     snd_ctl_card_info_alloca(&cardinfo);
     if ((err = snd_ctl_card_info(handle, cardinfo)) < 0) {
         snd_ctl_close(handle);
-        WARNING ("SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
+        AFB_WARNING ("SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
         return NULL;
     }
 
@@ -375,7 +375,7 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
         json_object_object_add (ctlDev, "driver"  , json_object_new_string(driver));
         info  = strdup(snd_ctl_card_info_get_longname (cardinfo));
         json_object_object_add (ctlDev, "info" , json_object_new_string (info));
-        INFO ("AJG: Soundcard Devid=%-5s devid=%-7s Name=%s\n", rqtSndId, devid, info);
+        AFB_INFO ("AJG: Soundcard Devid=%-5s devid=%-7s Name=%s\n", rqtSndId, devid, info);
     }
 
     // free card handle and return info
@@ -461,7 +461,6 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
         goto OnErrorExit;
     }
     
-    snd_ctl_elem_info_get_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (!snd_ctl_elem_info_is_writable(elemInfo)) {
         AFB_NOTICE( "Not Writable ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_get_string(ctlRequest->jValues));
         goto OnErrorExit;
@@ -533,23 +532,22 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     // set info event ID and get value
 
     snd_ctl_elem_info_alloca(&elemInfo);
-    snd_ctl_elem_info_set_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
+    snd_ctl_elem_info_set_id(elemInfo, elemId); 
     if (snd_ctl_elem_info(ctlDev, elemInfo) < 0) goto OnErrorExit;
     count = snd_ctl_elem_info_get_count (elemInfo); 
     if (count == 0) goto OnErrorExit;
     
-    snd_ctl_elem_info_get_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (!snd_ctl_elem_info_is_readable(elemInfo)) goto OnErrorExit;
     elemType = snd_ctl_elem_info_get_type(elemInfo);    
 
     snd_ctl_elem_value_alloca(&elemData);    
-    snd_ctl_elem_value_set_id(elemData, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
+    snd_ctl_elem_value_set_id(elemData, elemId); 
     if (snd_ctl_elem_read(ctlDev, elemData) < 0) goto OnErrorExit;
     
     int numid= snd_ctl_elem_info_get_numid(elemInfo);
 
     ctlRequest->jValues= json_object_new_object();
-    json_object_object_add (ctlRequest->jValues,"id" , json_object_new_int(numid));
+    json_object_object_add (ctlRequest->jValues,"numid" , json_object_new_int(numid));
     if (quiet < 2) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
     if (quiet < 1) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
     if (quiet < 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
@@ -594,7 +592,7 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 
     if (!quiet) {  // in simple mode do not print usable values
         json_object *jsonClassCtl = json_object_new_object();
-        json_object_object_add (jsonClassCtl,"type" , json_object_new_string(snd_ctl_elem_type_name(elemType)));
+        json_object_object_add (jsonClassCtl,"type" , json_object_new_int(elemType));
 		json_object_object_add (jsonClassCtl,"count", json_object_new_int(count));
 
 		switch (elemType) {

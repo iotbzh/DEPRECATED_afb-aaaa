@@ -22,154 +22,92 @@
 #define _GNU_SOURCE  // needed for vasprintf
 
 #include <alsa/asoundlib.h>
+#include <alsa/sound/tlv.h>
 #include <systemd/sd-event.h>
-#include "Alsa-ApiHat.h"
-
 #include <sys/ioctl.h>
 
-typedef struct _snd_ctl_ops {
-        int (*close)(snd_ctl_t *handle);
-        int (*nonblock)(snd_ctl_t *handle, int nonblock);
-        int (*async)(snd_ctl_t *handle, int sig, pid_t pid);
-        int (*subscribe_events)(snd_ctl_t *handle, int subscribe);
-        int (*card_info)(snd_ctl_t *handle, snd_ctl_card_info_t *info);
-        int (*element_list)(snd_ctl_t *handle, snd_ctl_elem_list_t *list);
-        int (*element_info)(snd_ctl_t *handle, snd_ctl_elem_info_t *info);
-        int (*element_add)(snd_ctl_t *handle, snd_ctl_elem_info_t *info);
-        int (*element_replace)(snd_ctl_t *handle, snd_ctl_elem_info_t *info);
-        int (*element_remove)(snd_ctl_t *handle, snd_ctl_elem_id_t *id);
-        int (*element_read)(snd_ctl_t *handle, snd_ctl_elem_value_t *control);
-        int (*element_write)(snd_ctl_t *handle, snd_ctl_elem_value_t *control);
-        int (*element_lock)(snd_ctl_t *handle, snd_ctl_elem_id_t *lock);
-        int (*element_unlock)(snd_ctl_t *handle, snd_ctl_elem_id_t *unlock);
-        int (*element_tlv)(snd_ctl_t *handle, int op_flag, unsigned int numid,
-                           unsigned int *tlv, unsigned int tlv_size);
-        int (*hwdep_next_device)(snd_ctl_t *handle, int *device);
-        int (*hwdep_info)(snd_ctl_t *handle, snd_hwdep_info_t * info);
-        int (*pcm_next_device)(snd_ctl_t *handle, int *device);
-        int (*pcm_info)(snd_ctl_t *handle, snd_pcm_info_t * info);
-        int (*pcm_prefer_subdevice)(snd_ctl_t *handle, int subdev);
-        int (*rawmidi_next_device)(snd_ctl_t *handle, int *device);
-        int (*rawmidi_info)(snd_ctl_t *handle, snd_rawmidi_info_t * info);
-        int (*rawmidi_prefer_subdevice)(snd_ctl_t *handle, int subdev);
-        int (*set_power_state)(snd_ctl_t *handle, unsigned int state);
-        int (*get_power_state)(snd_ctl_t *handle, unsigned int *state);
-        int (*read)(snd_ctl_t *handle, snd_ctl_event_t *event);
-        int (*poll_descriptors_count)(snd_ctl_t *handle);
-        int (*poll_descriptors)(snd_ctl_t *handle, struct pollfd *pfds, unsigned int space);
-        int (*poll_revents)(snd_ctl_t *handle, struct pollfd *pfds, unsigned int nfds, unsigned short *revents);
-} snd_ctl_ops_t;
+#include "Alsa-ApiHat.h"
 
-typedef struct private_snd_ctl {
-        void *open_func;
-        char *name;
-        snd_ctl_type_t type;
-        const snd_ctl_ops_t *ops;
-        void *private_data;
-        int nonblock;
-        int poll_fd;
-        void *async_handlers;
-} private_snd_ctl_t;
-
-typedef struct {
-        int card;
-        int fd;
-        unsigned int protocol;
-} snd_ctl_hw_t;
-
-static int snd_ctl_hw_elem_replace(snd_ctl_t *ctlDev, snd_ctl_elem_info_t *info, snd_ctl_elem_id_t *elemId) {
-        size_t len=snd_ctl_elem_info_sizeof();
-        private_snd_ctl_t *handle= (private_snd_ctl_t*) ctlDev;
-        snd_ctl_hw_t *hw = handle->private_data;
-        
-        NOTICE ("count=%d ITEMNAME=%s writable=%d owner=%d", snd_ctl_elem_info_get_count(info), snd_ctl_elem_info_get_name(info)
-                 , snd_ctl_elem_info_is_writable(info), snd_ctl_elem_info_get_owner(info));
-        snd_ctl_elem_lock(ctlDev, elemId);
-        
-        int err= handle->ops->element_replace (ctlDev, info);
-        NOTICE ("count=%d ITEMNAME=%s writable=%d isowner=%d islocked=%d innactiv=%d", snd_ctl_elem_info_get_count(info), snd_ctl_elem_info_get_name(info)
-                 , snd_ctl_elem_info_is_writable(info), snd_ctl_elem_info_is_owner(info), snd_ctl_elem_info_is_locked(info), snd_ctl_elem_info_is_inactive(info));
-        return err;
+// Performs like a toggle switch for attenuation, because they're bool (ref:user-ctl-element-set.c)
+static const unsigned int *allocate_bool_elem_set_tlv (void) {
+        static const SNDRV_CTL_TLVD_DECLARE_DB_MINMAX(range, -10000, 0);
+        unsigned int *tlv= malloc(sizeof(range));
+        if (tlv == NULL) return NULL;
+        memcpy(tlv, range, sizeof(range));
+        return tlv;
 }
 
-
-STATIC int addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ) {
-    int err, ctlExist;
-    json_object *jTmp;
+STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ) {
+    int err, ctlNumid;
+    json_object *tmpJ;
+    ctlRequestT ctlRequest;
     const char *ctlName;
-    int  ctlNumid, ctlMax, ctlMin, ctlStep, ctlCount, ctlSubDev, ctlSndDev;
+    int  ctlMax, ctlMin, ctlStep, ctlCount, ctlSubDev, ctlSndDev;
     snd_ctl_elem_type_t  ctlType;
-    snd_ctl_elem_id_t    *elemId; 
     snd_ctl_elem_info_t  *elemInfo;
+    snd_ctl_elem_id_t *elemId;
     snd_ctl_elem_value_t *elemValue;
+    const unsigned int *elemTlv=NULL;
     
     // parse json ctl object
-    json_object_object_get_ex (ctlJ, "name" , &jTmp);
-    if (!jTmp) {
-        afb_req_fail_f (request, "ctl-invalid", "crl=%s name missing", json_object_get_string(ctlJ));
+    json_object_object_get_ex (ctlJ, "name" , &tmpJ);
+    ctlName  = json_object_get_string(tmpJ);
+    
+    json_object_object_get_ex (ctlJ, "numid" , &tmpJ);
+    ctlNumid  = json_object_get_int(tmpJ);
+    
+    if (!ctlNumid && !ctlName) {
+        afb_req_fail_f (request, "ctl-invalid", "crl=%s name or numid missing", json_object_get_string(ctlJ));
         goto OnErrorExit;
-    }    
-    ctlName  = json_object_get_string(jTmp);
-    
-    // default value when not present => 0
-    json_object_object_get_ex (ctlJ, "numid" , &jTmp);
-    ctlNumid = json_object_get_int(jTmp);
-        
-    // default for json_object_get_int is zero
-    json_object_object_get_ex (ctlJ, "min" , &jTmp);
-    ctlMin = json_object_get_int(jTmp);
-
-    json_object_object_get_ex (ctlJ, "max" , &jTmp);
-    if (!jTmp) ctlMax=1;
-    else ctlMax = json_object_get_int(jTmp);
-    
-    json_object_object_get_ex (ctlJ, "step" , &jTmp);
-    if (!jTmp) ctlStep=1;
-    else ctlStep = json_object_get_int(jTmp);
-    
-    json_object_object_get_ex (ctlJ, "count" , &jTmp);
-    if (!jTmp) ctlCount=2;
-    else ctlCount = json_object_get_int(jTmp);
-
-    json_object_object_get_ex (ctlJ, "snddev" , &jTmp);
-    ctlSndDev = json_object_get_int(jTmp);
-   
-    json_object_object_get_ex (ctlJ, "subdev" , &jTmp);
-    ctlSubDev = json_object_get_int(jTmp);
-   
-    json_object_object_get_ex (ctlJ, "type" , &jTmp);
-    if (!jTmp) ctlType=SND_CTL_ELEM_TYPE_BOOLEAN;
-    else ctlType = json_object_get_int(jTmp);
-    
-    // Add requested ID into elemInfo
-    snd_ctl_elem_info_alloca(&elemInfo);
-    snd_ctl_elem_id_alloca(&elemId);
-    snd_ctl_elem_id_set_numid (elemId, ctlNumid);
-    snd_ctl_elem_id_set_name (elemId, ctlName);
-    snd_ctl_elem_id_set_interface(elemId, SND_CTL_ELEM_IFACE_HWDEP);
-    snd_ctl_elem_id_set_device(elemId, ctlSndDev);
-    snd_ctl_elem_id_set_subdevice(elemId, ctlSubDev);
+    }
     
     // Assert that this ctls is not used
-    snd_ctl_elem_info_set_id (elemInfo, elemId);
-    ctlExist= !snd_ctl_elem_info(ctlDev, elemInfo);
-    if (ctlExist) {
-        NOTICE ("1:ctl exist ctlName=%s NUMID=%d NAME=%s", ctlName, snd_ctl_elem_info_get_numid(elemInfo), snd_ctl_elem_info_get_name(elemInfo));
-        snd_ctl_elem_id_set_name (elemId, ctlName);
-        snd_ctl_elem_info_set_name (elemInfo, ctlName);
-        err= snd_ctl_hw_elem_replace (ctlDev, elemInfo, elemId);
-        if (err) {
-            NOTICE ("Fail changing ctlname error=%s", snd_strerror(err));
-        }
-        NOTICE ("2:ctl exist ctlName=%s NUMID=%d NAME=%s", ctlName, snd_ctl_elem_info_get_numid(elemInfo), snd_ctl_elem_info_get_name(elemInfo));
-    }    
+    snd_ctl_elem_info_alloca(&elemInfo);
+    if (ctlName) snd_ctl_elem_info_set_name (elemInfo, ctlName);
+    if (ctlNumid)snd_ctl_elem_info_set_numid(elemInfo, ctlNumid);
+    snd_ctl_elem_info_set_interface (elemInfo, SND_CTL_ELEM_IFACE_MIXER);
+    err = snd_ctl_elem_info(ctlDev, elemInfo);
+    if (!err) {
+        AFB_NOTICE ("ctlName=%s numid=%d already exit", snd_ctl_elem_info_get_name(elemInfo), snd_ctl_elem_info_get_numid(elemInfo));
+        snd_ctl_elem_id_alloca(&elemId);    
+        snd_ctl_elem_info_get_id(elemInfo, elemId);        
+        goto OnSucessExit;
+    }
+    
+    // default for json_object_get_int is zero
+    json_object_object_get_ex (ctlJ, "min" , &tmpJ);
+    ctlMin = json_object_get_int(tmpJ);
 
-    // try to normalise ctl name
+    json_object_object_get_ex (ctlJ, "max" , &tmpJ);
+    if (!tmpJ) ctlMax=1;
+    else ctlMax = json_object_get_int(tmpJ);
+    
+    json_object_object_get_ex (ctlJ, "step" , &tmpJ);
+    if (!tmpJ) ctlStep=1;
+    else ctlStep = json_object_get_int(tmpJ);
+    
+    json_object_object_get_ex (ctlJ, "count" , &tmpJ);
+    if (!tmpJ) ctlCount=2;
+    else ctlCount = json_object_get_int(tmpJ);
+
+    json_object_object_get_ex (ctlJ, "snddev" , &tmpJ);
+    ctlSndDev = json_object_get_int(tmpJ);
+   
+    json_object_object_get_ex (ctlJ, "subdev" , &tmpJ);
+    ctlSubDev = json_object_get_int(tmpJ);
+   
+    json_object_object_get_ex (ctlJ, "type" , &tmpJ);
+    if (!tmpJ) ctlType=SND_CTL_ELEM_TYPE_BOOLEAN;
+    else ctlType = json_object_get_int(tmpJ);
+    
+    // Add requested ID into elemInfo
+    snd_ctl_elem_info_set_device(elemInfo, ctlSndDev);
+    snd_ctl_elem_info_set_subdevice(elemInfo, ctlSubDev);
+
+    // prepare value set
     snd_ctl_elem_value_alloca(&elemValue);
-    snd_ctl_elem_id_set_name (elemId, ctlName);
-    snd_ctl_elem_value_set_id(elemValue, elemId);
-        
-    if (!ctlExist) switch (ctlType) {
+    
+    switch (ctlType) {
         case SND_CTL_ELEM_TYPE_BOOLEAN:
             err = snd_ctl_add_boolean_elem_set(ctlDev, elemInfo, 1, ctlCount);
             if (err) {
@@ -177,45 +115,79 @@ STATIC int addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ) 
                 goto OnErrorExit;                
             }            
 
+            elemTlv = allocate_bool_elem_set_tlv();
+                    
             // Provide FALSE as default value
             for (int idx=0; idx < ctlCount; idx ++) {
-                snd_ctl_elem_value_set_boolean (elemValue, idx, 0);
-            }            
+                snd_ctl_elem_value_set_boolean (elemValue, idx, 1);
+            }           
             break;
             
         case SND_CTL_ELEM_TYPE_INTEGER:
+            err = snd_ctl_add_integer_elem_set (ctlDev, elemInfo, 1, ctlCount, ctlMin, ctlMax, ctlStep);
+            if (err) {
+                afb_req_fail_f (request, "ctl-invalid-bool", "devid=%s crl=%s invalid boolean data", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
+                goto OnErrorExit;                
+            }            
+
+            // Provide 0 as default value
+            for (int idx=0; idx < ctlCount; idx ++) {
+                snd_ctl_elem_value_set_integer (elemValue, idx, 0);
+            }            
             break;
             
         case SND_CTL_ELEM_TYPE_INTEGER64:
+            err = snd_ctl_add_integer64_elem_set (ctlDev, elemInfo, 1, ctlCount, ctlMin, ctlMax, ctlStep);
+            if (err) {
+                afb_req_fail_f (request, "ctl-invalid-bool", "devid=%s crl=%s invalid boolean data", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
+                goto OnErrorExit;                
+            }            
+
+            // Provide 0 as default value
+            for (int idx=0; idx < ctlCount; idx ++) {
+                snd_ctl_elem_value_set_integer64 (elemValue, idx, 0);
+            }            
             break;
             
-        case SND_CTL_ELEM_TYPE_ENUMERATED:
-            break;
-            
+        case SND_CTL_ELEM_TYPE_ENUMERATED:            
         case SND_CTL_ELEM_TYPE_BYTES:
-            break;
-            
         default:
             afb_req_fail_f (request, "ctl-invalid-type", "crl=%s invalid/unknown type", json_object_get_string(ctlJ));
             goto OnErrorExit;                
     }
 
+    // write default values in newly created control
+    snd_ctl_elem_id_alloca(&elemId);    
+    snd_ctl_elem_info_get_id(elemInfo, elemId);
+    snd_ctl_elem_value_set_id(elemValue, elemId);
     err =  snd_ctl_elem_write (ctlDev, elemValue);
     if (err < 0) {
-        afb_req_fail_f (request, "ctl-write-fail", "crl=%s fail to write data data", json_object_get_string(ctlJ));
+        afb_req_fail_f (request, "ctl-write-fail", "crl=%s numid=%d fail to write data error=%s", json_object_get_string(ctlJ), snd_ctl_elem_info_get_numid(elemInfo), snd_strerror(err));
         goto OnErrorExit;                
     }            
     
-   
-    return 0;
+    // write a default null TLV (if usefull should be implemented for every ctl type) 
+    if (elemTlv) {
+        err=snd_ctl_elem_tlv_write (ctlDev, elemId, elemTlv);
+        if (err < 0) {
+            afb_req_fail_f (request, "TLV-write-fail", "crl=%s numid=%d fail to write data error=%s", json_object_get_string(ctlJ), snd_ctl_elem_info_get_numid(elemInfo), snd_strerror(err));
+            goto OnErrorExit;                
+        }
+    }    
+
+    // return newly created as a JSON object
+    OnSucessExit:
+        alsaGetSingleCtl (ctlDev, elemId, &ctlRequest, 0);
+        if (ctlRequest.used < 0) goto OnErrorExit;   
+        return ctlRequest.jValues;
     
     OnErrorExit:
-        return -1;
+        return NULL;
 }
 
 PUBLIC void alsaAddCustomCtls(afb_req request) {
     int err;
-    json_object *ctlsJ;
+    json_object *ctlsJ, *ctlsValues, *ctlValues;
     enum json_type;
     snd_ctl_t  *ctlDev=NULL;
     const char *devid;
@@ -242,13 +214,16 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
      
     switch (json_object_get_type(ctlsJ)) { 
         case json_type_object:
-             addOneSndCtl(request, ctlDev, ctlsJ);
+             ctlsValues= addOneSndCtl(request, ctlDev, ctlsJ);
+             
              break;
         
         case json_type_array:
+            ctlsValues= json_object_new_array();
             for (int idx= 0; idx < json_object_array_length (ctlsJ); idx++) {
                 json_object *ctlJ = json_object_array_get_idx (ctlsJ, idx);
-                addOneSndCtl(request, ctlDev, ctlJ) ;
+                ctlValues= addOneSndCtl(request, ctlDev, ctlJ) ;
+                if (ctlValues) json_object_array_add (ctlsValues, ctlValues);
             }
             break;
             
@@ -256,6 +231,9 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
             afb_req_fail_f (request, "ctls-invalid","ctls=%s not valid JSON array", json_object_get_string(ctlsJ));
             goto OnErrorExit;
     }
+    
+    // get ctl as a json response
+    afb_req_success(request, ctlsValues, NULL);
             
     OnErrorExit:
         if (ctlDev) snd_ctl_close(ctlDev);   

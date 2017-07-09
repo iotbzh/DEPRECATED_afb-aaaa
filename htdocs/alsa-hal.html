@@ -1,0 +1,34 @@
+<html>
+<head>
+    <title>Basic Audio Hardware Abstraction Layer Test</title>
+    
+    <script type="text/javascript" src="AFB-websock.js"></script>
+    <script type="text/javascript" src="AudioBinding.js"></script>
+    
+<b> references</b>
+    <ol> 
+        <li>http://localhost:1234/alsa-core.html?haldev=scarlett-usb</li>
+    </ol>
+
+<body onload="init();">
+    <h1>Hello world test</h1>
+    <button id="connected" onclick="init()">Binder WS Fail</button></li>
+    <br>
+    <ol>
+    <li><button onclick="callbinder('alsacore','hallist')">List Existing HAL</button></li>
+    
+    <li><button onclick="callbinder(haldev,'listctls')">List Active HAL Controls </button></li>
+    <br>    
+    <li><button onclick="callbinder(haldev,'getctls', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
+    <li><button onclick="callbinder(haldev,'getctls', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
+    <li><button onclick="callbinder(haldev,'getctls', [4,5])">Get [4,5]</button></li>
+    <br>
+    </ol>
+    
+    <div id="main" style="visibility:hidden">
+    <ol>
+    <li>Question <div id="question"></div>
+    <li>Response <div id="output"></div>
+    <li>Events: <div id="outevt"></div>
+    </ol>
+    </div>    

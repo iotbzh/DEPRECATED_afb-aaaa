@@ -275,17 +275,17 @@ PUBLIC void alsaUseCaseGet (struct afb_req request) {
     
     enum json_type jtype= json_object_get_type(jLabels);
     switch (jtype) {
-        json_object *jTmp;
+        json_object *tmpJ;
         
         case json_type_array:
             labelCount = json_object_array_length (jLabels);
             break;
             
         case json_type_string:
-            jTmp = json_object_new_array ();
+            tmpJ = json_object_new_array ();
             labelCount = 1;
-            json_object_array_add (jTmp, jLabels);
-            jLabels=jTmp;
+            json_object_array_add (tmpJ, jLabels);
+            jLabels=tmpJ;
             break;
         
         default:           
@@ -308,9 +308,9 @@ PUBLIC void alsaUseCaseGet (struct afb_req request) {
     
     // use info section to notified not found values label
     if (json_object_array_length (jWarnings) > 0) {
-       json_object *jTmp =  json_object_new_object ();
-       json_object_object_add (jTmp, "no-context", jWarnings);
-       warnings= json_object_get_string (jTmp);
+       json_object *tmpJ =  json_object_new_object ();
+       json_object_object_add (tmpJ, "no-context", jWarnings);
+       warnings= json_object_get_string (tmpJ);
     }
     afb_req_success (request, jResponse, warnings);
     

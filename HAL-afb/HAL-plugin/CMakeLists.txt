@@ -16,7 +16,7 @@
 # limitations under the License.
 ###########################################################################
 
-# Needed to remove undefined snd_dlsym_start in plugin share object
+# Activate ALSA  dynamic build build mode get resolve "snd_dlsym_start"
 add_compile_options(-DPIC)
 
 # Add target to project dependency list

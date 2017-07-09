@@ -17,36 +17,34 @@
  * 
  * To find out which control your sound card uses
  *  aplay -l  # Check sndcard name name in between []
- *  amixer -D hw:xx controls # get supported controls
- *  amixer -D "hw:4" cget numid=xx  # get control settings
+ *  amixer -D hw:USB controls # get supported controls
+ *  amixer -Dhw:USB cget name=Power-Switch
  * 
  */
 #define _GNU_SOURCE 
 #include "hal-interface.h"
 #include "audio-interface.h" 
 
-STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle) {
-    static int powerStatus=0;
+STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle, struct json_object *valJ) {
+    struct json_object *reponseJ;
     
-    if (! powerStatus) {
-        powerStatus = 1;
-        AFB_DEBUG ("Power Set to On");
-    } else {
-        powerStatus  = 0;
-        AFB_DEBUG ("Power Set to Off");        
-    }
+    AFB_INFO ("Power Set value=%s", json_object_get_string(valJ));
     
-    return NULL;
+    reponseJ=json_object_new_object();
+    json_object_object_add (reponseJ, "Callback", json_object_new_string("Hello From HAL"));
+    
+    return reponseJ;
 }
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
 STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .alsa={.control=Master_Playback_Volume,.numid=04, .name="Matrix 03 Mix A Playback Volume"   , .values=1,.minval=0,.maxval= 87 ,.step=0}, .info= "Master Playback Volume" },
-  { .alsa={.control=PCM_Playback_Volume   ,.numid=06, .name="play-vol"     , .values=2,.minval=0,.maxval= 255,.step=0}, .info= "PCM Playback Volume" },
-  { .alsa={.control=PCM_Playback_Switch   ,.numid=05, .name="play-switch"  , .values=1,.minval=0,.maxval= 1  ,.step=0}, .info= "Master Playback Switch" },
-  { .alsa={.control=Capture_Volume        ,.numid=12, .name="capt-vol"     , .values=2,.minval=0,.maxval= 31 ,.step=0}, .info= "Capture Volume" },
-  { .alsa={.control=Master_OnOff_Switch, .name="Power-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}, .info= "OnOff Global Switch"},
-  { .alsa={.numid=0}, .cb={.callback=NULL, .handle=NULL}} /* marker for end of the array */
+  { .tag=Master_Playback_Volume, .  ctl={.numid=04 } },
+  { .tag=PCM_Playback_Volume     , .ctl={.numid=06 } },
+  { .tag=PCM_Playback_Switch     , .ctl={.numid=05 } },
+  { .tag=Capture_Volume          , .ctl={.numid=12 } },
+  { .tag=Master_OnOff_Switch     , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .name="AGL-Power-Switch"},  .cb={.callback=MasterOnOff, .handle=NULL}},
+  { .tag=Master_Playback_Ramp    , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=2, .name="AGL-Volume-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}},
+  { .tag=EndHalCrlTag}  /* marker for end of the array */
 } ;
 
 // HAL sound card mapping info

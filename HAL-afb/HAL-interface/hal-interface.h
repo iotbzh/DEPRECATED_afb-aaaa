@@ -24,14 +24,13 @@
 #include "audio-interface.h"
 
 typedef struct {
-     halCtlsEnumT control;
      char* name;
      int numid;
-     halGroupEnumT group;
      int values;
      int minval;
      int maxval;
      int step;
+     int count;
      snd_ctl_elem_type_t type;
      halAclEnumT acl;
 } alsaHalCtlMapT;
@@ -40,19 +39,21 @@ typedef struct {
 typedef struct afb_service alsaHalServiceT;
 
 typedef struct {
-   struct json_object* (*callback)(alsaHalCtlMapT *control, void* handle);
+   struct json_object* (*callback)(alsaHalCtlMapT *control, void* handle,  struct json_object *valuesJ);
    void* handle;        
 } alsaHalCbMapT;
 
 typedef struct {
-    alsaHalCtlMapT alsa;
+    halCtlsEnumT tag;
+    const char *label;
+    alsaHalCtlMapT ctl;
     alsaHalCbMapT cb;
     char* info;
 } alsaHalMapT;
 
 
 typedef const struct  {
-    const char  *name;
+    char  *name;
     const char  *info;
     alsaHalMapT *ctls;    
 } alsaHalSndCardT;

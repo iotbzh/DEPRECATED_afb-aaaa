@@ -104,7 +104,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         return 0;
     
     OnErrorExit:
-        WARNING ("sndCtlEventCB: ignored unsupported event type");
+        AFB_WARNING ("sndCtlEventCB: ignored unsupported event type");
 	return (0);    
 }
 
@@ -112,7 +112,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
 PUBLIC void alsaEvtSubcribe (afb_req request) {
     static sndHandleT sndHandles[MAX_SND_CARD];
     evtHandleT *evtHandle;
-    snd_ctl_t  *ctlDev;
+    snd_ctl_t  *ctlDev=NULL;
     int err, idx, cardId, idxFree=-1;
     snd_ctl_card_info_t *cardinfo;
     queryValuesT queryValues;
@@ -125,7 +125,6 @@ PUBLIC void alsaEvtSubcribe (afb_req request) {
     // open control interface for devid
     err = snd_ctl_open(&ctlDev, queryValues.devid, SND_CTL_READONLY);
     if (err < 0) {
-        ctlDev=NULL;
         afb_req_fail_f (request, "devid-unknown", "SndCard devid=%s Not Found err=%s", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
@@ -212,7 +211,7 @@ PUBLIC void alsaGetCardId (afb_req request) {
     char devid [10];
     const char *devname, *shortname, *longname;
     int card, err, index, idx;
-    json_object *respJson;
+    json_object *responseJ;
     snd_ctl_t   *ctlDev;
     snd_ctl_card_info_t *cardinfo;
     
@@ -252,25 +251,43 @@ PUBLIC void alsaGetCardId (afb_req request) {
     }
     
     // proxy ctlevent as a binder event        
-    respJson = json_object_new_object();
-    json_object_object_add(respJson, "index"     ,json_object_new_int (index));
-    json_object_object_add(respJson, "devid"     ,json_object_new_string (devid));
-    json_object_object_add(respJson, "shortname" ,json_object_new_string (shortname));
-    json_object_object_add(respJson, "longname"  ,json_object_new_string (longname));
+    responseJ = json_object_new_object();
+    json_object_object_add(responseJ, "index"     ,json_object_new_int (index));
+    json_object_object_add(responseJ, "devid"     ,json_object_new_string (devid));
+    json_object_object_add(responseJ, "shortname" ,json_object_new_string (shortname));
+    json_object_object_add(responseJ, "longname"  ,json_object_new_string (longname));
         
     // search for a HAL binder card mapping name to api prefix
-    for (idx=0; idx < MAX_SND_CARD; idx++) {
-       if (!strcmp (cardRegistry[idx]->shortname, shortname)) break;
+    for (idx=0; (idx < MAX_SND_CARD && cardRegistry[idx]); idx++) {
+        if (!strcmp (cardRegistry[idx]->shortname, shortname)) {
+            json_object_object_add(responseJ, "halapi",json_object_new_string (cardRegistry[idx]->apiprefix));
+            break;
+        }
     }
-    // if a match if found, then we have an HAL for this board let's return its value
-    if (idx < MAX_SND_CARD) json_object_object_add(respJson, "halapi",json_object_new_string (cardRegistry[idx]->apiprefix));
-    
-    afb_req_success(request, respJson, NULL);    
+  
+    afb_req_success(request, responseJ, NULL);
     return;
     
   OnErrorExit:
         return;  
 }
+
+// Return list of active resgistrated HAL with corresponding sndcard
+PUBLIC void alsaActiveHal (afb_req request) {
+    json_object *responseJ = json_object_new_array();
+    
+    for (int idx=0; idx < MAX_SND_CARD; idx++) {
+        if (!cardRegistry[idx]) break;
+        
+        json_object *haldevJ = json_object_new_object();
+        json_object_object_add(haldevJ, "api", json_object_new_string(cardRegistry[idx]->apiprefix));
+        json_object_object_add(haldevJ, "devid", json_object_new_string(cardRegistry[idx]->shortname));
+        json_object_array_add (responseJ, haldevJ);
+    }
+    
+    afb_req_success(request, responseJ, NULL);
+}
+
 
 // Register loaded HAL with board Name and API prefix
 PUBLIC void alsaRegisterHal (afb_req request) {
@@ -293,14 +310,16 @@ PUBLIC void alsaRegisterHal (afb_req request) {
         afb_req_fail_f (request, "alsahal-toomany", "Fail to register sndname=[%s]", shortname);
         goto OnErrorExit;        
     }
-    
+
+    // alsaGetCardId should be check to register only valid card    
     cardRegistry[index]= malloc (sizeof(cardRegistry));
     cardRegistry[index]->apiprefix=strdup(apiPrefix);
     cardRegistry[index]->shortname=strdup(shortname);
     index++;cardRegistry[index]=NULL;
- 
-    // If OK return sound card Alsa ID+Info
+
     alsaGetCardId(request);
+
+    // If OK return sound card Alsa ID+Info
     return;
     
   OnErrorExit:
