@@ -16,23 +16,27 @@
 # limitations under the License.
 ###########################################################################
 
+
 # Add target to project dependency list
-PROJECT_TARGET_ADD(audio-interface)
+PROJECT_TARGET_ADD(hal-unicens-usb)
 
-    # Define targets 
-    ADD_LIBRARY(${TARGET_NAME} STATIC audio-interface.c)
+    # Define project Targets
+    ADD_LIBRARY(${TARGET_NAME} MODULE UnicensHAL.c UnicensVol.c)
 
-    # Library properties
+    # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+	PREFIX "afb-"
+        LABELS "BINDING"
+	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME ${TARGET_NAME}
     )
 
-    # Library dependencies
-    #TARGET_LINK_LIBRARIES(${TARGET_NAME}
-    #  empty
-    #)
-   
-    # Define target includes
-    TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME} 
-        PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+        hal-interface
+        audio-interface
+    )
+
+    # installation directory
+    INSTALL(TARGETS ${TARGET_NAME}
+        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

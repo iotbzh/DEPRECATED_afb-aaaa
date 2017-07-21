@@ -36,8 +36,10 @@ typedef struct {
 } sndHandleT;
 
 typedef struct {
+    char *devid;
     char *apiprefix;
-    char *shortname;    
+    char *shortname;
+    char *longname;
 }cardRegistryT;
 
 cardRegistryT *cardRegistry[MAX_SND_CARD+1];
@@ -111,7 +113,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
 // Subscribe to every Alsa CtlEvent send by a given board
 PUBLIC void alsaEvtSubcribe (afb_req request) {
     static sndHandleT sndHandles[MAX_SND_CARD];
-    evtHandleT *evtHandle;
+    evtHandleT *evtHandle=NULL;
     snd_ctl_t  *ctlDev=NULL;
     int err, idx, cardId, idxFree=-1;
     snd_ctl_card_info_t *cardinfo;
@@ -207,7 +209,7 @@ PUBLIC void alsaEvtSubcribe (afb_req request) {
 }
 
 // Subscribe to every Alsa CtlEvent send by a given board
-PUBLIC void alsaGetCardId (afb_req request) {
+STATIC json_object *alsaProbeCardId (afb_req request) {
     char devid [10];
     const char *devname, *shortname, *longname;
     int card, err, index, idx;
@@ -265,11 +267,17 @@ PUBLIC void alsaGetCardId (afb_req request) {
         }
     }
   
-    afb_req_success(request, responseJ, NULL);
-    return;
+    return responseJ;
     
-  OnErrorExit:
-        return;  
+    OnErrorExit:
+        return NULL;  
+}
+
+// Make alsaProbeCardId compatible with AFB request
+PUBLIC void alsaGetCardId (afb_req request) {
+    
+    json_object *responseJ = alsaProbeCardId (request);
+    if (responseJ) afb_req_success(request, responseJ, NULL);
 }
 
 // Return list of active resgistrated HAL with corresponding sndcard
@@ -281,7 +289,9 @@ PUBLIC void alsaActiveHal (afb_req request) {
         
         json_object *haldevJ = json_object_new_object();
         json_object_object_add(haldevJ, "api", json_object_new_string(cardRegistry[idx]->apiprefix));
-        json_object_object_add(haldevJ, "devid", json_object_new_string(cardRegistry[idx]->shortname));
+        if (cardRegistry[idx]->devid)    json_object_object_add(haldevJ, "devid", json_object_new_string(cardRegistry[idx]->devid));
+        if (cardRegistry[idx]->shortname)json_object_object_add(haldevJ, "shortname", json_object_new_string(cardRegistry[idx]->shortname));
+        if (cardRegistry[idx]->longname) json_object_object_add(haldevJ, "longname", json_object_new_string(cardRegistry[idx]->longname));
         json_object_array_add (responseJ, haldevJ);
     }
     
@@ -292,6 +302,7 @@ PUBLIC void alsaActiveHal (afb_req request) {
 // Register loaded HAL with board Name and API prefix
 PUBLIC void alsaRegisterHal (afb_req request) {
     static int index=0;
+    json_object *responseJ;
     const char *shortname, *apiPrefix;
     
     apiPrefix = afb_req_value(request, "prefix");
@@ -310,15 +321,32 @@ PUBLIC void alsaRegisterHal (afb_req request) {
         afb_req_fail_f (request, "alsahal-toomany", "Fail to register sndname=[%s]", shortname);
         goto OnErrorExit;        
     }
-
+   
     // alsaGetCardId should be check to register only valid card    
-    cardRegistry[index]= malloc (sizeof(cardRegistry));
-    cardRegistry[index]->apiprefix=strdup(apiPrefix);
-    cardRegistry[index]->shortname=strdup(shortname);
-    index++;cardRegistry[index]=NULL;
-
-    alsaGetCardId(request);
-
+    responseJ= alsaProbeCardId(request);
+    if (responseJ) {
+        json_object *tmpJ;
+        int done;
+        
+        cardRegistry[index]= malloc (sizeof(cardRegistry));
+        cardRegistry[index]->apiprefix=strdup(apiPrefix);
+        cardRegistry[index]->shortname=strdup(shortname);
+        
+        done= json_object_object_get_ex (responseJ, "devid" , &tmpJ);
+        if (done) cardRegistry[index]->devid = strdup (json_object_get_string(tmpJ));
+        else cardRegistry[index]->devid=NULL;
+        
+        done = json_object_object_get_ex (responseJ, "longname" , &tmpJ);
+        if (done) cardRegistry[index]->longname = strdup (json_object_get_string(tmpJ));
+        else cardRegistry[index]->longname=NULL;
+        
+        // make sure register close with a null value
+        index++;
+        cardRegistry[index]=NULL;
+        
+        afb_req_success(request, responseJ, NULL); 
+    }
+    
     // If OK return sound card Alsa ID+Info
     return;
     

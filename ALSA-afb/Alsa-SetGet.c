@@ -448,7 +448,7 @@ STATIC json_object *getControlAcl (snd_ctl_elem_info_t *info) {
 PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest) {
     snd_ctl_elem_value_t *elemData;
     snd_ctl_elem_info_t  *elemInfo;
-    int count, length, err, valueIsArray;
+    int count, length, err, valueIsArray=0;
 
     // let's make sure we are processing the right control    
     if (ctlRequest->numId != snd_ctl_elem_id_get_numid (elemId)) goto OnErrorExit;

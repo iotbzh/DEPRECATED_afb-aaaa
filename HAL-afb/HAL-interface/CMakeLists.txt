@@ -21,17 +21,17 @@
 PROJECT_TARGET_ADD(hal-interface)
 
     # Define targets 
-    ADD_LIBRARY(hal-interface STATIC hal-interface.c)
+    ADD_LIBRARY(${TARGET_NAME} STATIC hal-interface.c)
 
     # Library properties
-    SET_TARGET_PROPERTIES(hal-interface PROPERTIES OUTPUT_NAME halinterface)
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES OUTPUT_NAME halinterface)
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(hal-interface
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
         audio-interface
     )
  
     # Define target includes
-    TARGET_INCLUDE_DIRECTORIES(hal-interface 
+    TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME}
         PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}
     )

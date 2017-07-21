@@ -48,7 +48,7 @@
 
 static snd_ctl_ext_key_t AfbHalElemFind(snd_ctl_ext_t *ext, const snd_ctl_elem_id_t *id) {
     snd_ctl_hal_t *plughandle = (snd_ctl_hal_t*) ext->private_data;
-    snd_ctl_ext_key_t key;
+    snd_ctl_ext_key_t key=NULL;
     
     int numid = snd_ctl_elem_id_get_numid(id);
     if (numid > 0) {

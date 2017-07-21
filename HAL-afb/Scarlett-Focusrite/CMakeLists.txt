@@ -24,7 +24,7 @@ PROJECT_TARGET_ADD(hal-scalett-usb)
     ADD_LIBRARY(hal-scalett-usb MODULE ScarlettUsbHAL.c)
 
     # Binder exposes a unique public entry point
-    SET_TARGET_PROPERTIES(hal-scalett-usb PROPERTIES
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	PREFIX "afb-"
         LABELS "BINDING"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
@@ -32,11 +32,11 @@ PROJECT_TARGET_ADD(hal-scalett-usb)
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(hal-scalett-usb 
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} 
         hal-interface
         audio-interface
     )
 
     # installation directory
-    INSTALL(TARGETS hal-scalett-usb
+    INSTALL(TARGETS ${TARGET_NAME}
         LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

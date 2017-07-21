@@ -17,8 +17,8 @@
  * 
  * To find out which control your sound card uses
  *  aplay -l  # Check sndcard name name in between []
- *  amixer -D hw:USB controls # get supported controls
- *  amixer -Dhw:USB cget name=Power-Switch
+ *  amixer -D hw:xx controls # get supported controls
+ *  amixer -D "hw:3" cget numid=xx  # get control settings
  * 
  */
 #define _GNU_SOURCE 
@@ -38,19 +38,20 @@ STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle, s
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
 STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .tag=Master_Playback_Volume, .  ctl={.numid=04 } },
-  { .tag=PCM_Playback_Volume     , .ctl={.numid=06 } },
-  { .tag=PCM_Playback_Switch     , .ctl={.numid=05 } },
-  { .tag=Capture_Volume          , .ctl={.numid=12 } },
-  { .tag=Master_OnOff_Switch     , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .name="AGL-Power-Switch"},  .cb={.callback=MasterOnOff, .handle=NULL}},
-  { .tag=Master_Playback_Ramp    , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=2, .name="AGL-Volume-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}},
+  { .tag=Master_Playback_Volume, .ctl={.numid=04 } },
+  { .tag=PCM_Playback_Volume   , .ctl={.numid=06 } },
+  { .tag=PCM_Playback_Switch   , .ctl={.numid=05 } },
+  { .tag=Capture_Volume        , .ctl={.numid=12 } },
+  { .tag=Master_OnOff_Switch   , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .name="Power-Switch"},  .cb={.callback=MasterOnOff, .handle=NULL}},
+  { .tag=Master_Playback_Ramp  , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=2, .name="Volume-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}},
+
   { .tag=EndHalCrlTag}  /* marker for end of the array */
 } ;
 
 // HAL sound card mapping info
 STATIC alsaHalSndCardT alsaHalSndCard  = {
-    .name  = "Scarlett 18i8 USB", //  WARNING: name MUST match with 'aplay -l'
-    .info  = "Hardware Abstraction Layer for Scarlett Focusrite USB professional music sound card",
+    .name  = "HDA Intel PCH", //  WARNING: name MUST match with 'aplay -l'
+    .info  = "Hardware Abstraction Layer for IntelHDA sound card",
     .ctls  = alsaHalMap,
 };
 
@@ -58,14 +59,14 @@ STATIC alsaHalSndCardT alsaHalSndCard  = {
 STATIC int sndServiceInit () {
     int err;
     AFB_DEBUG ("IntelHalBinding Init");
-    
+
     err = halServiceInit (afbBindingV2.api, &alsaHalSndCard);
     return err;
 }
 
 // API prefix should be unique for each snd card
 PUBLIC const struct afb_binding_v2 afbBindingV2 = {
-    .api     = "scarlett-usb",
+    .api     = "intel-hda",
     .init    = sndServiceInit,
     .verbs   = halServiceApi,
     .onevent = halServiceEvent,

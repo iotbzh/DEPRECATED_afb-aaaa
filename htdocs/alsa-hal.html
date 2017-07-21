@@ -4,24 +4,27 @@
     
     <script type="text/javascript" src="AFB-websock.js"></script>
     <script type="text/javascript" src="AudioBinding.js"></script>
-    
-<b> references</b>
-    <ol> 
-        <li>http://localhost:1234/alsa-core.html?haldev=scarlett-usb</li>
-    </ol>
+</head>
 
-<body onload="init();">
-    <h1>Hello world test</h1>
-    <button id="connected" onclick="init()">Binder WS Fail</button></li>
+    
+<body onload="init('hal_registry','alsacore', 'hallist')">
+        
+<b> references</b>
+    
+    <h1>Simple AlsaHAL tests</h1>
+    <button id="connected" onclick="init('hal_registry','alsacore', 'hallist')">Binder WS Fail</button>
+    <br><br>
+    <b>Selected HAL </b>
+    <select id='hal_registry'></select>
+    <br>
+
     <br>
     <ol>
-    <li><button onclick="callbinder('alsacore','hallist')">List Existing HAL</button></li>
-    
-    <li><button onclick="callbinder(haldev,'listctls')">List Active HAL Controls </button></li>
-    <br>    
-    <li><button onclick="callbinder(haldev,'getctls', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
-    <li><button onclick="callbinder(haldev,'getctls', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
-    <li><button onclick="callbinder(haldev,'getctls', [4,5])">Get [4,5]</button></li>
+        
+    <li><button onclick="callbinder(halapi,'listctls')">List Selected HAL Controls </button></li>
+    <li><button onclick="callbinder(halapi,'getctls', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
+    <li><button onclick="callbinder(halapi,'getctls', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
+    <li><button onclick="callbinder(halapi,'getctls', [4,5])">Get [4,5]</button></li>
     <br>
     </ol>
     
