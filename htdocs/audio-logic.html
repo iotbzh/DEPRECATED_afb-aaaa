@@ -1,29 +1,9 @@
 <html>
 <head>
-    <title>Hello world test</title>
+    <title>High Level API Simple Test Page</title>
     
     <script type="text/javascript" src="AFB-websock.js"></script>
     <script type="text/javascript" src="AudioBinding.js"></script>
-    
-<body onload="init();">
-    <h1>Hello world test</h1>
-    <button id="connected">Binder WS Fail</button></li>
-    <br>
-    <ol>
-    <li><button onclick="callbinder('audio','open',{sndname: sndname})">Open SndCard</button></li>
-    <br>
-    <li><button onclick="callbinder('audio','setvol', {pcm:'master', vol='+10'})">Increase +10 Master</button></li>
-    <li><button onclick="callbinder('audio','setvol', {pcm:'master', vol='-10'})">Decrease -10 Master</button></li>
-    <li><button onclick="callbinder('audio','setvol', {pcm:'master', vol='%50'})">SetVol %50 Master</button></li>
-    <li><button onclick="callbinder('audio','getvol', {pcm:'master'})">GetVolume Master</button></li>
-    <br>
-    <li><button onclick="callbinder('audio','monitor')">Monitor LowLevel Events</button></li>
-    <li><button onclick="callbinder('audio','subscribe')">Subscribe AudioBinding Events</button></li>
-    <br>
-    <li><button onclick="callbinder('audio','close')">Close SndCard</button></li>
+</head>
 
-    <br>
-    <div id="main" style="visibility:hidden">
-    Server says... <div id="output"></div>
-    Events: <div id="outevt"></div>
-    </div>    
+ToBeDone

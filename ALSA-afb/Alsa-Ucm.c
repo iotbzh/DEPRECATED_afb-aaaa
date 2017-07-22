@@ -364,7 +364,7 @@ PUBLIC void alsaUseCaseSet(struct afb_req request) {
     // label are requested transfert request to get
     if (afb_req_value(request, "values")) return alsaUseCaseGet(request);
     
-    if (queryValues.quiet <= 3) {
+    if (queryValues.mode <= 3) {
         json_object *jValue;
 
         jValue = ucmGetValue (&ucmHandles[ucmIdx], verb, dev, "OutputDspName");

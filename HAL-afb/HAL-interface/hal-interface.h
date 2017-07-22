@@ -24,15 +24,21 @@
 #include "audio-interface.h"
 
 typedef struct {
+    int min;
+    int max;
+    int step;
+    int mute;
+} alsaHalDBscaleT;
+
+typedef struct {
      char* name;
      int numid;
-     int values;
+     snd_ctl_elem_type_t type;
+     int count;    
      int minval;
      int maxval;
      int step;
-     int count;
-     snd_ctl_elem_type_t type;
-     halAclEnumT acl;
+     alsaHalDBscaleT  *dbscale;
 } alsaHalCtlMapT;
 
 // avoid compiler warning [Jose does not like typedef :) ]
@@ -61,6 +67,9 @@ typedef const struct  {
 extern afb_verb_v2 halServiceApi[];
 PUBLIC void halServiceEvent(const char *evtname, struct json_object *object);
 PUBLIC int  halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard);
+
+// hal-volmap.c
+PUBLIC struct json_object *GetNormaliseVolume(const alsaHalCtlMapT *halCtls,  struct json_object *valuesJ);
 
 
 #endif /* SHAREHALLIB_H */

@@ -37,11 +37,11 @@ static const unsigned int *allocate_bool_elem_set_tlv (void) {
         return tlv;
 }
 
-STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ) {
+STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ, halQueryMode queryMode) {
     int err, ctlNumid;
     json_object *tmpJ;
-    ctlRequestT ctlRequest;
     const char *ctlName;
+    ctlRequestT ctlRequest;    
     int  ctlMax, ctlMin, ctlStep, ctlCount, ctlSubDev, ctlSndDev;
     snd_ctl_elem_type_t  ctlType;
     snd_ctl_elem_info_t  *elemInfo;
@@ -68,10 +68,14 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
     snd_ctl_elem_info_set_interface (elemInfo, SND_CTL_ELEM_IFACE_MIXER);
     err = snd_ctl_elem_info(ctlDev, elemInfo);
     if (!err) {
-        AFB_NOTICE ("ctlName=%s numid=%d already exit", snd_ctl_elem_info_get_name(elemInfo), snd_ctl_elem_info_get_numid(elemInfo));
         snd_ctl_elem_id_alloca(&elemId);    
-        snd_ctl_elem_info_get_id(elemInfo, elemId);        
-        goto OnSucessExit;
+        snd_ctl_elem_info_get_id(elemInfo, elemId);
+        if (ctlNumid) goto OnSucessExit; // hardware control nothing todo
+        else {  // user created kcontrol should be removable  
+            err = snd_ctl_elem_remove(ctlDev, elemId);
+            AFB_NOTICE ("ctlName=%s numid=%d fail to reset", snd_ctl_elem_info_get_name(elemInfo), snd_ctl_elem_info_get_numid(elemInfo));
+            goto OnErrorExit;
+        }
     }
     
     // default for json_object_get_int is zero
@@ -177,7 +181,7 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
 
     // return newly created as a JSON object
     OnSucessExit:
-        alsaGetSingleCtl (ctlDev, elemId, &ctlRequest, 0);
+        alsaGetSingleCtl (ctlDev, elemId, &ctlRequest, queryMode);
         if (ctlRequest.used < 0) goto OnErrorExit;   
         return ctlRequest.jValues;
     
@@ -190,7 +194,7 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
     json_object *ctlsJ, *ctlsValues, *ctlValues;
     enum json_type;
     snd_ctl_t  *ctlDev=NULL;
-    const char *devid;
+    const char *devid, *mode;
 
     devid = afb_req_value(request, "devid");
     if (devid == NULL) {
@@ -204,9 +208,16 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
         afb_req_fail_f (request, "devid-unknown", "SndCard devid=[%s] Not Found err=%s", devid, snd_strerror(err));
         goto OnErrorExit;
     }
-    
+
+    // get verbosity level
+    halQueryMode queryMode = QUERY_QUIET;
+    mode = afb_req_value(request, "mode");
+    if (mode != NULL) {
+        sscanf(mode,"%i", (int*)&queryMode);
+    }
+        
     // extract sound controls and parse json
-    ctlsJ = json_tokener_parse (afb_req_value(request, "ctls"));
+    ctlsJ = json_tokener_parse (afb_req_value(request, "ctl"));
     if (!ctlsJ) {
         afb_req_fail_f (request, "ctls-missing", "ctls MUST be defined as a JSON array for alsaAddCustomCtls");
         goto OnErrorExit;
@@ -214,7 +225,7 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
      
     switch (json_object_get_type(ctlsJ)) { 
         case json_type_object:
-             ctlsValues= addOneSndCtl(request, ctlDev, ctlsJ);
+             ctlsValues= addOneSndCtl(request, ctlDev, ctlsJ, queryMode);
              
              break;
         
@@ -222,7 +233,7 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
             ctlsValues= json_object_new_array();
             for (int idx= 0; idx < json_object_array_length (ctlsJ); idx++) {
                 json_object *ctlJ = json_object_array_get_idx (ctlsJ, idx);
-                ctlValues= addOneSndCtl(request, ctlDev, ctlJ) ;
+                ctlValues= addOneSndCtl(request, ctlDev, ctlJ, queryMode) ;
                 if (ctlValues) json_object_array_add (ctlsValues, ctlValues);
             }
             break;

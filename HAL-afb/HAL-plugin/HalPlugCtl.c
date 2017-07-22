@@ -291,7 +291,7 @@ SND_CTL_PLUGIN_DEFINE_FUNC(afbhal) {
             continue;
         }
         
-        if (strcmp(id, "ctls") == 0) {
+        if (strcmp(id, "ctl") == 0) {
             const char *ctlConf;
             snd_config_type_t ctype;
             snd_config_iterator_t currentCtl, follow;

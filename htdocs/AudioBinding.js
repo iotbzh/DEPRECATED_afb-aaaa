@@ -1,7 +1,29 @@
     var afb = new AFB("api", "mysecret");
     var ws;
-    var halapi="HALNotSelected";
+    var sndcard="HALNotSelected";
     var evtidx=0;
+
+    function syntaxHighlight(json) {
+        if (typeof json !== 'string') {
+             json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
 
     function getParameterByName(name, url) {
         if (!url) {
@@ -25,8 +47,8 @@
     var sndname=getParameterByName("sndname");
     if (!sndname) sndname="PCH";
     
-    var quiet=getParameterByName("quiet");
-    if (!quiet) quiet="99";
+    var mode=getParameterByName("mode");
+    if (!mode) mode="99";
 
 
     
@@ -54,12 +76,12 @@
 
     function replyok(obj) {
             console.log("replyok:" + JSON.stringify(obj));
-            document.getElementById("output").innerHTML = "OK: "+JSON.stringify(obj);
+            document.getElementById("output").innerHTML = "OK: "+ syntaxHighlight(obj);
     }
     
     function replyerr(obj) {
             console.log("replyerr:" + JSON.stringify(obj));
-            document.getElementById("output").innerHTML = "ERROR: "+JSON.stringify(obj);
+            document.getElementById("output").innerHTML = "ERROR: "+ syntaxHighlight(obj);
     }
     
     function gotevent(obj) {
@@ -78,7 +100,8 @@
      // On button click from HTML page    
     function callbinder(api, verb, query) {
             console.log ("subscribe api="+api+" verb="+verb+" query=" +query);
-            document.getElementById("question").innerHTML = "apicall: " + api+"/"+verb +" ("+ JSON.stringify(query)+")";
+            var question = urlws +"/" +api +"/" +verb + "?query=" + JSON.stringify(query);          
+            document.getElementById("question").innerHTML = syntaxHighlight(question);
             ws.call(api+"/"+verb, query).then(replyok, replyerr);
     }
 
@@ -89,27 +112,38 @@
         
         // onlick update selected HAL api
         selectobj.onclick=function(){
-           halapi= this.value; 
-           console.log ("New Default HAL=" + halapi);           
+           sndcard= this.value; 
+           console.log ("Default Selection=" + sndcard);           
         };
 
         function gotit (result) {
             
-           // display response as for normal onclick action
-           replyok(result);
-           var response=result.response;
+            // display response as for normal onclick action
+            replyok(result);
+            var response=result.response;
            
-           // fulfill select with avaliable active HAL
-           for (idx=0; idx<response.length; idx++) {
-               console.log ("probeActiveHal =" + response[idx].shortname);
-               var opt = document.createElement('option');
-               opt.value = response[idx].api;
-               opt.text  = response[idx].shortname;
-               selectobj.appendChild(opt);
-           }
+            // fulfill select with avaliable active HAL
+            for (idx=0; idx<response.length; idx++) {
+                var opt = document.createElement('option');
+
+                // Alsa LowLevel selection mode
+                if (response[idx].name)  opt.text   = response[idx].name;
+                if (response[idx].devid) opt.value  = response[idx].devid;
+
+                // HAL selection mode
+                if (response[idx].shortname) opt.text  = response[idx].shortname;
+                if (response[idx].api) opt.value = response[idx].api;
                
-           halapi= selectobj.value;
+                selectobj.appendChild(opt);
+            }
+               
+           sndcard= selectobj.value;
         }
+        
+        console.log ("subscribe api="+api+" verb="+verb+" query=" +query);
+        
+        var question = urlws +"/"+api +"/" +verb + "?query=" + JSON.stringify(query);          
+        document.getElementById("question").innerHTML = syntaxHighlight(question);
 
         // request lowlevel ALSA to get API list
         ws.call(api+"/"+verb, query).then(gotit, replyerr);

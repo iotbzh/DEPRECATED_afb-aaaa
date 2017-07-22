@@ -90,17 +90,17 @@ PUBLIC  int alsaCheckQuery (afb_req request, queryValuesT *queryValues) {
     const char *numids;
     json_object *jNumIds;
 
-    const char *rqtQuiet = afb_req_value(request, "quiet");
-    if (!rqtQuiet) queryValues->quiet=99; // default super quiet
-    else if (rqtQuiet && ! sscanf (rqtQuiet, "%d", &queryValues->quiet)) {
+    const char *rqtmode = afb_req_value(request, "mode");
+    if (!rqtmode) queryValues->mode=QUERY_QUIET; // default quiet
+    else if (rqtmode && ! sscanf (rqtmode, "%d", (int)&queryValues->mode)) {
         json_object *query = afb_req_json(request);
         
-        afb_req_fail_f (request, "quiet-notinteger","Query=%s Quiet not integer &quiet=%s&", json_object_get_string(query), rqtQuiet);
+        afb_req_fail_f (request, "mode-notinteger","Query=%s mode not integer &mode=%s&", json_object_get_string(query), rqtmode);
         goto OnErrorExit;
     };
    
     // no NumId is interpreted as ALL for get and error for set
-    numids = afb_req_value(request, "numids");
+    numids = afb_req_value(request, "numid");
     if (numids == NULL) {
         queryValues->count=0;
         goto OnExit;
@@ -153,7 +153,7 @@ STATIC json_object *DB2StringJsonOject (long dB) {
 // Direct port from amixer TLV decode routine. This code is too complex for me.
 // I hopefully did not break it when porting it.
 
-STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
+STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size, int mode) {
     char label[20];
     unsigned int type = tlv[0];
     unsigned int size;
@@ -187,7 +187,7 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
                     fprintf(stderr, "TLV size error in compound!\n");
                     return NULL;
                 }
-                embedJson = decodeTlv(tlv + idx, tlv[idx + 1] + 8);
+                embedJson = decodeTlv(tlv + idx, tlv[idx + 1] + 8, mode);
                 json_object_array_add(containerJson, embedJson);
                 idx += (unsigned int) (2 + (tlv[idx + 1] + sizeof (unsigned int) - 1) / sizeof (unsigned int));
             }
@@ -202,15 +202,25 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
             if (size != 2 * sizeof (unsigned int)) {
                 json_object * arrayJson = json_object_new_array();
                 while (size > 0) {
-                    snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
-                    json_object_array_add(arrayJson, json_object_new_string(label));
+                    if (mode >= QUERY_VERBOSE) {
+                        snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
+                        json_object_array_add(arrayJson, json_object_new_string(label));
+                    } else {
+                        json_object_array_add(arrayJson, json_object_new_int(tlv[idx++]));                        
+                    }    
                     size -= (unsigned int) sizeof (unsigned int);
                 }
                 json_object_object_add(dbscaleJson, "array", arrayJson);
             } else {
-                json_object_object_add(dbscaleJson, "min", DB2StringJsonOject((int) tlv[2]));
-                json_object_object_add(dbscaleJson, "step", DB2StringJsonOject(tlv[3] & 0xffff));
-                json_object_object_add(dbscaleJson, "mute", DB2StringJsonOject((tlv[3] >> 16) & 1));
+                if (mode >= QUERY_VERBOSE) {
+                    json_object_object_add(dbscaleJson, "min", DB2StringJsonOject((int) tlv[2]));
+                    json_object_object_add(dbscaleJson, "step", DB2StringJsonOject(tlv[3] & 0xffff));
+                    json_object_object_add(dbscaleJson, "mute", DB2StringJsonOject((tlv[3] >> 16) & 1));
+                } else {
+                    json_object_object_add(dbscaleJson, "min",  json_object_new_int((int) tlv[2]));
+                    json_object_object_add(dbscaleJson, "step", json_object_new_int(tlv[3] & 0xffff));
+                    json_object_object_add(dbscaleJson, "mute", json_object_new_int((tlv[3] >> 16) & 1));                    
+                }    
             }
             json_object_object_add(decodeTlvJson, "dbscale", dbscaleJson);
             break;
@@ -224,14 +234,23 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
             if (size != 2 * sizeof (unsigned int)) {
                 json_object * arrayJson = json_object_new_array();
                 while (size > 0) {
-                    snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
-                    json_object_array_add(arrayJson, json_object_new_string(label));
+                    if (mode >= QUERY_VERBOSE) {
+                        snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
+                        json_object_array_add(arrayJson, json_object_new_string(label));
+                    } else {
+                        json_object_array_add(arrayJson, json_object_new_int(tlv[idx++]));                        
+                    }    
                     size -= (unsigned int) sizeof (unsigned int);
                 }
                 json_object_object_add(dbLinearJson, "offset", arrayJson);
             } else {
-                json_object_object_add(dbLinearJson, "min", DB2StringJsonOject((int) tlv[2]));
-                json_object_object_add(dbLinearJson, "max", DB2StringJsonOject((int) tlv[3]));
+                if (mode >= QUERY_VERBOSE) {
+                    json_object_object_add(dbLinearJson, "min", DB2StringJsonOject((int) tlv[2]));
+                    json_object_object_add(dbLinearJson, "max", DB2StringJsonOject((int) tlv[3]));
+                } else {
+                    json_object_object_add(dbLinearJson, "min", json_object_new_int((int) tlv[2]));
+                    json_object_object_add(dbLinearJson, "max", json_object_new_int((int) tlv[3]));                    
+                }    
             }
             json_object_object_add(decodeTlvJson, "dblinear", dbLinearJson);
             break;
@@ -246,8 +265,12 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
             if ((size % (6 * sizeof (unsigned int))) != 0) {
                 json_object *arrayJson = json_object_new_array();
                 while (size > 0) {
-                    snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
-                    json_object_array_add(arrayJson, json_object_new_string(label));
+                    if (mode >= QUERY_VERBOSE) {
+                        snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
+                        json_object_array_add(arrayJson, json_object_new_string(label));
+                    } else {
+                        json_object_array_add(arrayJson, json_object_new_int(tlv[idx++]));                        
+                    }    
                     size -= (unsigned int) sizeof (unsigned int);
                 }
                 json_object_object_add(dbRangeJson, "dbrange", arrayJson);
@@ -255,11 +278,9 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
             }
             while (size > 0) {
                 json_object * embedJson = json_object_new_object();
-                snprintf(label, sizeof (label), "%i,", tlv[idx++]);
-                json_object_object_add(embedJson, "rangemin", json_object_new_string(label));
-                snprintf(label, sizeof (label), "%i", tlv[idx++]);
-                json_object_object_add(embedJson, "rangemax", json_object_new_string(label));
-                embedJson = decodeTlv(tlv + idx, 4 * sizeof (unsigned int));
+                json_object_object_add(embedJson, "rangemin", json_object_new_int(tlv[idx++]));
+                json_object_object_add(embedJson, "rangemax", json_object_new_int(tlv[idx++]));
+                embedJson = decodeTlv(tlv + idx, 4 * sizeof (unsigned int), mode);
                 json_object_object_add(embedJson, "tlv", embedJson);
                 idx += 4;
                 size -= (unsigned int) (6 * sizeof (unsigned int));
@@ -278,15 +299,24 @@ STATIC json_object *decodeTlv(unsigned int *tlv, unsigned int tlv_size) {
             if (size != 2 * sizeof (unsigned int)) {
                 json_object * arrayJson = json_object_new_array();
                 while (size > 0) {
-                    snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
-                    json_object_array_add(arrayJson, json_object_new_string(label));
+                    if (mode >= QUERY_VERBOSE) {
+                        snprintf(label, sizeof (label), "0x%08x,", tlv[idx++]);
+                        json_object_array_add(arrayJson, json_object_new_string(label));
+                    } else {
+                        json_object_array_add(arrayJson, json_object_new_int(tlv[idx++]));                        
+                    }    
                     size -= (unsigned int) sizeof (unsigned int);
                 }
                 json_object_object_add(dbMinMaxJson, "array", arrayJson);
 
             } else {
-                json_object_object_add(dbMinMaxJson, "min", DB2StringJsonOject((int) tlv[2]));
-                json_object_object_add(dbMinMaxJson, "max", DB2StringJsonOject((int) tlv[3]));
+                if (mode >= QUERY_VERBOSE) {
+                    json_object_object_add(dbMinMaxJson, "min", DB2StringJsonOject((int) tlv[2]));
+                    json_object_object_add(dbMinMaxJson, "max", DB2StringJsonOject((int) tlv[3]));
+                } else {
+                    json_object_object_add(dbMinMaxJson, "min", json_object_new_int((int) tlv[2]));
+                    json_object_object_add(dbMinMaxJson, "max", json_object_new_int((int) tlv[3]));                    
+                }    
             }
 
             if (type == SND_CTL_TLVT_DB_MINMAX_MUTE) {
@@ -350,7 +380,7 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     int err;
 
     if ((err = snd_ctl_open(&handle, rqtSndId, 0)) < 0) {
-        AFB_INFO ("SndCard [%s] Not Found", rqtSndId);
+        AFB_INFO ("alsaCardProbe [%s] Not Found", rqtSndId);
         return NULL;
     }
 
@@ -522,7 +552,7 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 }
 
 // process ALSA control and store then into ctlRequest
-PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, int quiet) {
+PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, halQueryMode queryMode) {
     snd_ctl_elem_type_t  elemType;
     snd_ctl_elem_value_t *elemData;
     snd_ctl_elem_info_t  *elemInfo;
@@ -548,9 +578,9 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 
     ctlRequest->jValues= json_object_new_object();
     json_object_object_add (ctlRequest->jValues,"numid" , json_object_new_int(numid));
-    if (quiet < 2) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
-    if (quiet < 1) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
-    if (quiet < 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
+    if (queryMode >= 1) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
+    if (queryMode >= 2) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
+    if (queryMode >= 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
 
     json_object *jsonValuesCtl = json_object_new_array();
     for (idx = 0; idx < count; idx++) { // start from one in amixer.c !!!
@@ -590,54 +620,55 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     }
     json_object_object_add (ctlRequest->jValues,"val",jsonValuesCtl);
 
-    if (!quiet) {  // in simple mode do not print usable values
+    if (queryMode >= 1) {  // in simple mode do not print usable values
         json_object *jsonClassCtl = json_object_new_object();
         json_object_object_add (jsonClassCtl,"type" , json_object_new_int(elemType));
-		json_object_object_add (jsonClassCtl,"count", json_object_new_int(count));
+        json_object_object_add (jsonClassCtl,"count", json_object_new_int(count));
 
-		switch (elemType) {
-			case SND_CTL_ELEM_TYPE_INTEGER:
-				json_object_object_add (jsonClassCtl,"min",  json_object_new_int((int)snd_ctl_elem_info_get_min(elemInfo)));
-				json_object_object_add (jsonClassCtl,"max",  json_object_new_int((int)snd_ctl_elem_info_get_max(elemInfo)));
-				json_object_object_add (jsonClassCtl,"step", json_object_new_int((int)snd_ctl_elem_info_get_step(elemInfo)));
-				break;
-			case SND_CTL_ELEM_TYPE_INTEGER64:
-				json_object_object_add (jsonClassCtl,"min",  json_object_new_int64(snd_ctl_elem_info_get_min64(elemInfo)));
-				json_object_object_add (jsonClassCtl,"max",  json_object_new_int64(snd_ctl_elem_info_get_max64(elemInfo)));
-				json_object_object_add (jsonClassCtl,"step", json_object_new_int64(snd_ctl_elem_info_get_step64(elemInfo)));
-				break;
-			case SND_CTL_ELEM_TYPE_ENUMERATED: {
-				unsigned int item, items = snd_ctl_elem_info_get_items(elemInfo);
-				json_object *jsonEnum = json_object_new_array();
+        switch (elemType) {
+                case SND_CTL_ELEM_TYPE_INTEGER:
+                        json_object_object_add (jsonClassCtl,"min",  json_object_new_int((int)snd_ctl_elem_info_get_min(elemInfo)));
+                        json_object_object_add (jsonClassCtl,"max",  json_object_new_int((int)snd_ctl_elem_info_get_max(elemInfo)));
+                        json_object_object_add (jsonClassCtl,"step", json_object_new_int((int)snd_ctl_elem_info_get_step(elemInfo)));
+                        break;
+                case SND_CTL_ELEM_TYPE_INTEGER64:
+                        json_object_object_add (jsonClassCtl,"min",  json_object_new_int64(snd_ctl_elem_info_get_min64(elemInfo)));
+                        json_object_object_add (jsonClassCtl,"max",  json_object_new_int64(snd_ctl_elem_info_get_max64(elemInfo)));
+                        json_object_object_add (jsonClassCtl,"step", json_object_new_int64(snd_ctl_elem_info_get_step64(elemInfo)));
+                        break;
+                case SND_CTL_ELEM_TYPE_ENUMERATED: {
+                        unsigned int item, items = snd_ctl_elem_info_get_items(elemInfo);
+                        json_object *jsonEnum = json_object_new_array();
 
-				for (item = 0; item < items; item++) {
-					snd_ctl_elem_info_set_item(elemInfo, item);
-					if ((err = snd_ctl_elem_info(ctlDev, elemInfo)) >= 0) {
-						json_object_array_add (jsonEnum, json_object_new_string(snd_ctl_elem_info_get_item_name(elemInfo)));
-					}
-				}
-				json_object_object_add (jsonClassCtl, "enums",jsonEnum);
-				break;
-			}
-			default: break; // ignore any unknown type
-			}
+                        for (item = 0; item < items; item++) {
+                                snd_ctl_elem_info_set_item(elemInfo, item);
+                                if ((err = snd_ctl_elem_info(ctlDev, elemInfo)) >= 0) {
+                                        json_object_array_add (jsonEnum, json_object_new_string(snd_ctl_elem_info_get_item_name(elemInfo)));
+                                }
+                        }
+                        json_object_object_add (jsonClassCtl, "enums",jsonEnum);
+                        break;
+                }
+                default: break; // ignore any unknown type
+        }
+        
+        // add collected class info with associated ACLs
+        json_object_object_add (ctlRequest->jValues,"ctl", jsonClassCtl);
+        
+        if (queryMode >= QUERY_FULL) json_object_object_add (ctlRequest->jValues,"acl"  , getControlAcl (elemInfo));
 
-		// add collected class info with associated ACLs
-		json_object_object_add (ctlRequest->jValues,"ctrl", jsonClassCtl);
-		json_object_object_add (ctlRequest->jValues,"acl"  , getControlAcl (elemInfo));
-
-		// check for tlv [direct port from amixer.c]
-		if (snd_ctl_elem_info_is_tlv_readable(elemInfo)) {
-				unsigned int *tlv;
-				tlv = malloc(4096);
-				if ((err = snd_ctl_elem_info(ctlDev, elemInfo)) < 0) {
-					fprintf (stderr, "Control %s element TLV read error\n", snd_strerror(err));
-					free(tlv);
-				} else {
-					json_object_object_add (ctlRequest->jValues,"tlv", decodeTlv (tlv, 4096));
-		   }
-		}
+        // check for tlv [direct port from amixer.c]
+        if (snd_ctl_elem_info_is_tlv_readable(elemInfo)) {
+            unsigned int *tlv = alloca(4096);
+            if ((err = snd_ctl_elem_tlv_read(ctlDev, elemId, tlv, 4096)) < 0) {
+                    fprintf (stderr, "Control %s element TLV read error\n", snd_strerror(err));
+                    goto OnErrorExit;
+            } else {
+                    json_object_object_add (ctlRequest->jValues,"tlv", decodeTlv (tlv, 4096, queryMode));                                       
+            } 
+        }
     }
+    
     ctlRequest->used=1;
     return 0;
    
@@ -722,7 +753,7 @@ STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
             snd_ctl_elem_list_get_id (ctlList, ctlIndex, elemId);
             switch (action) {
                 case ACTION_GET:
-                    err = alsaGetSingleCtl (ctlDev, elemId, &ctlRequest[jdx], queryValues.quiet);
+                    err = alsaGetSingleCtl (ctlDev, elemId, &ctlRequest[jdx], queryValues.mode);
                 break;
                 
                 case ACTION_SET:
@@ -749,7 +780,7 @@ STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
 
             if (ctlRequest[jdx].numId == -1) json_object_object_add (failctl, "info", json_object_new_string ("Invalid NumID"));
             else {
-               if (ctlRequest[jdx].used == 0) json_object_object_add (failctl, "info", json_object_new_string ("Does Not Exist"));
+               if (ctlRequest[jdx].used ==  0) json_object_object_add (failctl, "info", json_object_new_string ("Does Not Exist"));
                if (ctlRequest[jdx].used == -1) json_object_object_add (failctl, "info", json_object_new_string ("Invalid Value"));
             }
             json_object_array_add (warnings, failctl);

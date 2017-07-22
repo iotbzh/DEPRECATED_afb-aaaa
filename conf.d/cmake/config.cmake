@@ -43,7 +43,8 @@ set(CMAKE_BUILD_TYPE "DEBUG")
 
 # Static constante definition
 # -----------------------------
-add_compile_options(-DMAX_SND_CARD=16)
+add_compile_options(-DMAX_SND_CARD=16)        # should be more than enough even in luxury vehicule 
+add_compile_options(-DMAX_LINEAR_DB_SCALE=24) # until 24db volume normalisation use a simple linear scale
 
 # Compiler selection if needed. Overload the detected compiler.
 # -----------------------------------------------

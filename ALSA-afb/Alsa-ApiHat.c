@@ -35,8 +35,8 @@ static const struct afb_verb_v2 api_verbs[] = {
   /* VERB'S NAME          FUNCTION TO CALL  */
   { .verb= "ping"   ,     .callback= pingtest },
   { .verb= "getinfo",     .callback= alsaGetInfo},
-  { .verb= "getctls",     .callback= alsaGetCtls},
-  { .verb= "setctls",     .callback= alsaSetCtls},
+  { .verb= "getctl",      .callback= alsaGetCtls},
+  { .verb= "setctl",      .callback= alsaSetCtls},
   { .verb= "subscribe",   .callback= alsaEvtSubcribe},
   { .verb= "getcardid",   .callback= alsaGetCardId},
   { .verb= "halregister", .callback= alsaRegisterHal},

@@ -25,7 +25,7 @@ typedef struct {
     struct pollfd pfds;
     sd_event_source *src;
     snd_ctl_t  *ctlDev;
-    int quiet;
+    int mode;
     struct afb_event afbevt;
 } evtHandleT;
 
@@ -81,7 +81,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         
         snd_ctl_event_elem_get_id (eventId, elemId);
         
-        err = alsaGetSingleCtl (evtHandle->ctlDev, elemId, &ctlRequest, evtHandle->quiet);
+        err = alsaGetSingleCtl (evtHandle->ctlDev, elemId, &ctlRequest, evtHandle->mode);
         if (err) goto OnErrorExit;
 
         iface  = snd_ctl_event_elem_get_interface(eventId);
@@ -93,7 +93,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         ctlEventJ = json_object_new_object();
         json_object_object_add(ctlEventJ, "device" ,json_object_new_int (device));
         json_object_object_add(ctlEventJ, "subdev" ,json_object_new_int (subdev));
-        if (evtHandle->quiet < 2) {
+        if (evtHandle->mode < 2) {
             json_object_object_add(ctlEventJ, "iface"  ,json_object_new_int (iface));
             json_object_object_add(ctlEventJ, "devname",json_object_new_string (devname));
         }
@@ -158,7 +158,7 @@ PUBLIC void alsaEvtSubcribe (afb_req request) {
         
         evtHandle = malloc (sizeof(evtHandleT));
         evtHandle->ctlDev = ctlDev;
-        evtHandle->quiet  = queryValues.quiet;
+        evtHandle->mode  = queryValues.mode;
         sndHandles[idxFree].ucount = 0;
         sndHandles[idxFree].cardId = cardId;
         sndHandles[idxFree].evtHandle = evtHandle;

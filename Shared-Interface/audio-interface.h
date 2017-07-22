@@ -35,6 +35,13 @@
 #endif
 #define STATIC static
 
+typedef enum {
+  QUERY_QUIET   =0,  
+  QUERY_COMPACT =1,  
+  QUERY_VERBOSE =2,  
+  QUERY_FULL    =3,  
+} halQueryMode;
+
 // Most controls are MIXER but some vendor specific are possible
 typedef enum {
     OUTVOL,

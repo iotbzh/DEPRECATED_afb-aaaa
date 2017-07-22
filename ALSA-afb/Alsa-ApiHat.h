@@ -33,7 +33,7 @@ typedef enum {
 typedef struct {
   const char *devid;
   json_object *jNumIds;
-  int quiet;
+  halQueryMode mode;
   int count;
 } queryValuesT;
 
@@ -50,7 +50,7 @@ extern const struct afb_binding_interface *afbIface;
 PUBLIC int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues);
 
 // AlseCoreSetGet exports
-PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, int quiet);
+PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, halQueryMode queryMode);
 PUBLIC void alsaGetInfo (struct afb_req request);
 PUBLIC void alsaGetCtls(struct afb_req request);
 PUBLIC void alsaSetCtls(struct afb_req request);

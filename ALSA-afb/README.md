@@ -18,8 +18,8 @@ Testing: (from project directory bindings)
  # Get all controls from a given sound card
  http://localhost:1234/api/alsacore/getctl?devid=hw:0
 
- # Get detail on a given control (optional quiet=0=verbose,1,2)
- http://localhost:1234/api/alsacore/getctl?devid=hw:0&numid=1&quiet=0
+ # Get detail on a given control (optional mode=0=verbose,1,2)
+ http://localhost:1234/api/alsacore/getctl?devid=hw:0&numid=1&mode=0
 
 # Debug event with afb-client-demo
 ```

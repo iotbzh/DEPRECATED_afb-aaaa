@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>Basic Audio Hardware Abstraction Layer Test</title>
-    
+    <link rel="stylesheet" href="AudioBinding.css">
     <script type="text/javascript" src="AFB-websock.js"></script>
     <script type="text/javascript" src="AudioBinding.js"></script>
 </head>
@@ -9,29 +9,40 @@
     
 <body onload="init('hal_registry','alsacore', 'hallist')">
         
-<b> references</b>
-    
     <h1>Simple AlsaHAL tests</h1>
     <button id="connected" onclick="init('hal_registry','alsacore', 'hallist')">Binder WS Fail</button>
     <br><br>
     <b>Selected HAL </b>
     <select id='hal_registry'></select>
+    
+    <b>API Verbosity </b>
+    <select id='api_verbosity' onclick='mode=this.value'>
+        <option value='0'>Quiet</option>
+        <option value='1'>Compact</option>
+        <option value='2'>Verbose</option>
+        <option value='3'>Full</option>
+    </select>    
     <br>
 
     <br>
     <ol>
         
-    <li><button onclick="callbinder(halapi,'listctls')">List Selected HAL Controls </button></li>
-    <li><button onclick="callbinder(halapi,'getctls', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
-    <li><button onclick="callbinder(halapi,'getctls', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
-    <li><button onclick="callbinder(halapi,'getctls', [4,5])">Get [4,5]</button></li>
+    <li><button onclick="callbinder(sndcard,'listctls')">List Selected HAL Controls </button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-get', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-get', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-get', [4,5])">Get [4,5]</button></li>
+    <br>
+    <li><button onclick="callbinder(sndcard,'ctl-set', {label:'Master_Playback_Volume', value=[50]})">Set {label:'Master_Playback_Volume', value=[50]}</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, value:25},{tag:5, value:25}])">Set[{tag:4, value:25},{tag:5, value:25}]</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, value:[55,45]},{tag:5, value:[45,55]}])">Set[{tag:4, value:[55,45]},{tag:5, value:[45,55]}]]</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', [4,5])">Set [4,5]</button></li>
     <br>
     </ol>
     
     <div id="main" style="visibility:hidden">
     <ol>
-    <li>Question <div id="question"></div>
-    <li>Response <div id="output"></div>
-    <li>Events: <div id="outevt"></div>
+    <li>Question <pre id="question"></pre>
+    <li>Response <pre id="output"></pre>
+    <li>Events: <pre id="outevt"></pre>
     </ol>
     </div>    
