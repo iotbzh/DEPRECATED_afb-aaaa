@@ -21,120 +21,74 @@
    http://alsa.opensrc.org/HowTo_access_a_mixer_control
    https://github.com/gch1p/alsa-volume-monitor/blob/master/main.c
    https://github.com/DongheonKim/android_hardware_alsa-sound/blob/master/ALSAControl.cpp (ALSA low level API)
+   https://www.kernel.org/doc/html/v4.11/sound/index.html
 
 */
 
 #define _GNU_SOURCE  // needed for vasprintf
-
 #include "Alsa-ApiHat.h"
 
-PUBLIC void NumidsListParse (queryValuesT *queryValues, ctlRequestT *ctlRequest) {
-    json_object *jValues;
+PUBLIC void NumidsListParse (ActionSetGetT action, queryValuesT *queryValues, ctlRequestT *ctlRequest) {
     int length;
-    
-    for (int idx=0; idx < queryValues->count; idx ++) {                
-        ctlRequest[idx].jToken = json_object_array_get_idx (queryValues->jNumIds, idx);
-        ctlRequest[idx].jValues = NULL;
-        ctlRequest[idx].used=0;
 
+    for (int idx=0; idx < queryValues->count; idx ++) {               
+        json_object *jId, *valuesJ;
+        ctlRequest[idx].used=0;
+        ctlRequest[idx].valuesJ = NULL;
+        
+        // when only one NUMID is provided it might not be encapsulated in a JSON array 
+        if (json_type_array == json_object_get_type(queryValues->numidsJ)) ctlRequest[idx].jToken = json_object_array_get_idx (queryValues->numidsJ, idx);
+        else ctlRequest[idx].jToken=queryValues->numidsJ;
+        
         enum json_type jtype=json_object_get_type(ctlRequest[idx].jToken);
         switch (jtype) {
-            json_object *jId, *jVal;
             
             case json_type_int:
                 // if NUMID is not an array then it should be an integer numid with no value
                 ctlRequest[idx].numId = json_object_get_int (ctlRequest[idx].jToken);
+
+                // Special SET simple short numid form [numid, [VAL1...VALX]]
+                if (action == ACTION_SET && queryValues->count == 2) {
+                   ctlRequest[idx].valuesJ = json_object_array_get_idx (queryValues->numidsJ, 1);
+                   queryValues->count =1; //In this form count==2 , when only one numid is to set
+                   idx ++;
+                   continue;
+                } else
                 break;
 
             case  json_type_array:   
                 // NUMID is an array 1st slot should be numid, optionally values may come after
                 length=json_object_array_length (ctlRequest[idx].jToken);
-                if (length < 1 || length >2) {
-                    ctlRequest[idx].used=-1;
-                    continue; 
-                }
 
+                // numid must be in 1st slot of numid json array
                 ctlRequest[idx].numId =json_object_get_int(json_object_array_get_idx (ctlRequest[idx].jToken, 0));
+                if (action == ACTION_GET) continue; 
 
-                if (length == 2) {
-                    jValues = json_object_array_get_idx (ctlRequest[idx].jToken, 1);
-                    if (jValues == NULL) {
-                        ctlRequest[idx].used=-1;
-                        continue; 
-                    }            
-                    // Value is an int or an array with potentially multiple subvalues
-                    ctlRequest[idx].jValues = jValues;
+                // In Write mode second value should be the value
+                if (action == ACTION_SET && length == 2) {
+                   ctlRequest[idx].valuesJ = json_object_array_get_idx (ctlRequest[idx].jToken, 1);
+                   continue;
                 }
+
+                // no numid value
+                ctlRequest[idx].used=-1;
                 break;
                 
             case json_type_object:
                 // numid+values formated as {id:xxx, val:[aa,bb...,nn]}
-                if (!json_object_object_get_ex (ctlRequest[idx].jToken,"id", &jId) || !json_object_object_get_ex (ctlRequest[idx].jToken,"val",&jVal)) {
+                if (!json_object_object_get_ex (ctlRequest[idx].jToken,"id", &jId) || !json_object_object_get_ex (ctlRequest[idx].jToken,"val",&valuesJ)) {
                     AFB_NOTICE("Invalid Json=%s missing 'id'|'val'", json_object_get_string(ctlRequest[idx].jToken));
                     ctlRequest[idx].used=-1;
                 } else {
                     ctlRequest[idx].numId   =json_object_get_int(jId);
-                    ctlRequest[idx].jValues =jVal;
+                    if (action == ACTION_SET) ctlRequest[idx].valuesJ=valuesJ;
                 }
-                
+                break;
                 
             default:                
                 ctlRequest[idx].used=-1;   
         }
     }
-}
-
-PUBLIC  int alsaCheckQuery (afb_req request, queryValuesT *queryValues) {
-    queryValues->devid = afb_req_value(request, "devid");
-    if (queryValues->devid == NULL) goto OnErrorExit;
-    const char *numids;
-    json_object *jNumIds;
-
-    const char *rqtmode = afb_req_value(request, "mode");
-    if (!rqtmode) queryValues->mode=QUERY_QUIET; // default quiet
-    else if (rqtmode && ! sscanf (rqtmode, "%d", (int)&queryValues->mode)) {
-        json_object *query = afb_req_json(request);
-        
-        afb_req_fail_f (request, "mode-notinteger","Query=%s mode not integer &mode=%s&", json_object_get_string(query), rqtmode);
-        goto OnErrorExit;
-    };
-   
-    // no NumId is interpreted as ALL for get and error for set
-    numids = afb_req_value(request, "numid");
-    if (numids == NULL) {
-        queryValues->count=0;
-        goto OnExit;
-    }
-
-    jNumIds = json_tokener_parse(numids);
-    if (!jNumIds) {
-        afb_req_fail_f (request, "numids-notjson","numids=%s not a valid json entry", numids);
-        goto OnErrorExit;        
-    };
-    
-    enum json_type jtype= json_object_get_type(jNumIds);
-    switch (jtype) {
-        case json_type_array:
-            queryValues->jNumIds = jNumIds;
-            queryValues->count = json_object_array_length (jNumIds);
-            break;
-            
-        case json_type_int:
-            queryValues->count = 1;
-            queryValues->jNumIds = json_object_new_array ();
-            json_object_array_add (queryValues->jNumIds, jNumIds);
-            break;
-        
-        default:           
-            afb_req_fail_f (request, "numid-notarray","NumId=%s NumId not valid JSON array", numids);
-            goto OnErrorExit;        
-    }
-
-OnExit:    
-    return 0;
-    
-OnErrorExit:
-    return 1;
 }
 
 STATIC json_object *DB2StringJsonOject (long dB) {
@@ -380,14 +334,14 @@ STATIC  json_object* alsaCardProbe (const char *rqtSndId) {
     int err;
 
     if ((err = snd_ctl_open(&handle, rqtSndId, 0)) < 0) {
-        AFB_INFO ("alsaCardProbe [%s] Not Found", rqtSndId);
+        AFB_INFO ("alsaCardProbe '%s' Not Found", rqtSndId);
         return NULL;
     }
 
     snd_ctl_card_info_alloca(&cardinfo);
     if ((err = snd_ctl_card_info(handle, cardinfo)) < 0) {
         snd_ctl_close(handle);
-        AFB_WARNING ("SndCard [%s] info error: %s", rqtSndId, snd_strerror(err));
+        AFB_WARNING ("SndCard '%s' info error: %s", rqtSndId, snd_strerror(err));
         return NULL;
     }
 
@@ -427,7 +381,7 @@ PUBLIC void alsaGetInfo (afb_req request) {
         // only one card was requested let's probe it
         ctlDev = alsaCardProbe (rqtSndId);
         if (ctlDev != NULL) afb_req_success(request, ctlDev, NULL);
-        else afb_req_fail_f (request, "sndscard-notfound", "SndCard [%s] Not Found", rqtSndId);
+        else afb_req_fail_f (request, "sndscard-notfound", "SndCard '%s' Not Found", rqtSndId);
         
     } else {
         // return an array of ctlDev
@@ -487,22 +441,22 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     snd_ctl_elem_info_alloca(&elemInfo);
     snd_ctl_elem_info_set_id(elemInfo, elemId);  // map ctlInfo to ctlId elemInfo is updated !!!
     if (snd_ctl_elem_info(ctlDev, elemInfo) < 0) {
-        AFB_NOTICE( "Fail to load ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_get_string(ctlRequest->jValues));
+        AFB_NOTICE( "Fail to load ALSA NUMID=%d Values='%s'", ctlRequest->numId, json_object_get_string(ctlRequest->valuesJ));
         goto OnErrorExit;
     }
     
     if (!snd_ctl_elem_info_is_writable(elemInfo)) {
-        AFB_NOTICE( "Not Writable ALSA NUMID=%d Values=[%s]", ctlRequest->numId, json_object_get_string(ctlRequest->jValues));
+        AFB_NOTICE( "Not Writable ALSA NUMID=%d Values='%s'", ctlRequest->numId, json_object_get_string(ctlRequest->valuesJ));
         goto OnErrorExit;
     }
     
     count = snd_ctl_elem_info_get_count (elemInfo); 
     if (count == 0) goto OnErrorExit;
-    
-    enum json_type jtype= json_object_get_type(ctlRequest->jValues);
+   
+    enum json_type jtype= json_object_get_type(ctlRequest->valuesJ);
     switch (jtype) {
         case json_type_array:
-            length = json_object_array_length (ctlRequest->jValues);
+            length = json_object_array_length (ctlRequest->valuesJ);
             valueIsArray=1;           
             break;
         case json_type_int:
@@ -510,14 +464,13 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
             valueIsArray=0;
             break;                        
         default:
-            count =0;
             length = 0;
             break;
     }
 
 
-    if (count == 0 || count < length) {
-        AFB_NOTICE( "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_get_string(ctlRequest->jValues), length, count);
+    if (length == 0) {
+        AFB_NOTICE( "Invalid values NUMID='%d' Values='%s' count='%d' wanted='%d'", ctlRequest->numId, json_object_get_string(ctlRequest->valuesJ), length, count);
         goto OnErrorExit;
     }
 
@@ -526,12 +479,16 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     if (snd_ctl_elem_read(ctlDev, elemData) < 0) goto OnErrorExit;   
 
     // Loop on every control value and push to sndcard
-    for (int index=0; index < count && index < length; index++) {
+    for (int index=0; index < count; index++) {
         json_object *element;
         int value;
-        
-        if (valueIsArray) element= json_object_array_get_idx(ctlRequest->jValues, index);
-        else element= ctlRequest->jValues;
+
+        // when not enough value duplicate last provided one
+        if (!valueIsArray) element= ctlRequest->valuesJ;
+        else {
+            if (index < length) element= json_object_array_get_idx(ctlRequest->valuesJ, index);
+            else element= json_object_array_get_idx(ctlRequest->valuesJ, length-1);
+        }
         
         value= json_object_get_int (element);
         snd_ctl_elem_value_set_integer(elemData, index, value);
@@ -539,7 +496,7 @@ PUBLIC int alsaSetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     
     err = snd_ctl_elem_write(ctlDev, elemData);
     if (err < 0) {
-        AFB_NOTICE( "Fail to write ALSA NUMID=%d Values=[%s] Error=%s", ctlRequest->numId, json_object_get_string(ctlRequest->jValues), snd_strerror(err));
+        AFB_NOTICE( "Fail to write ALSA NUMID=%d Values='%s' Error=%s", ctlRequest->numId, json_object_get_string(ctlRequest->valuesJ), snd_strerror(err));
         goto OnErrorExit;
     }
     
@@ -576,11 +533,11 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
     
     int numid= snd_ctl_elem_info_get_numid(elemInfo);
 
-    ctlRequest->jValues= json_object_new_object();
-    json_object_object_add (ctlRequest->jValues,"numid" , json_object_new_int(numid));
-    if (queryMode >= 1) json_object_object_add (ctlRequest->jValues,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
-    if (queryMode >= 2) json_object_object_add (ctlRequest->jValues,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
-    if (queryMode >= 3) json_object_object_add (ctlRequest->jValues,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
+    ctlRequest->valuesJ= json_object_new_object();
+    json_object_object_add (ctlRequest->valuesJ,"id" , json_object_new_int(numid));
+    if (queryMode >= 1) json_object_object_add (ctlRequest->valuesJ,"name" , json_object_new_string(snd_ctl_elem_id_get_name (elemId)));
+    if (queryMode >= 2) json_object_object_add (ctlRequest->valuesJ,"iface" , json_object_new_string(snd_ctl_elem_iface_name(snd_ctl_elem_id_get_interface(elemId))));
+    if (queryMode >= 3) json_object_object_add (ctlRequest->valuesJ,"actif", json_object_new_boolean(!snd_ctl_elem_info_is_inactive(elemInfo)));
 
     json_object *jsonValuesCtl = json_object_new_array();
     for (idx = 0; idx < count; idx++) { // start from one in amixer.c !!!
@@ -618,7 +575,7 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
                 break;
         }
     }
-    json_object_object_add (ctlRequest->jValues,"val",jsonValuesCtl);
+    json_object_object_add (ctlRequest->valuesJ,"val",jsonValuesCtl);
 
     if (queryMode >= 1) {  // in simple mode do not print usable values
         json_object *jsonClassCtl = json_object_new_object();
@@ -653,18 +610,18 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
         }
         
         // add collected class info with associated ACLs
-        json_object_object_add (ctlRequest->jValues,"ctl", jsonClassCtl);
+        json_object_object_add (ctlRequest->valuesJ,"ctl", jsonClassCtl);
         
-        if (queryMode >= QUERY_FULL) json_object_object_add (ctlRequest->jValues,"acl"  , getControlAcl (elemInfo));
+        if (queryMode >= QUERY_FULL) json_object_object_add (ctlRequest->valuesJ,"acl"  , getControlAcl (elemInfo));
 
         // check for tlv [direct port from amixer.c]
         if (snd_ctl_elem_info_is_tlv_readable(elemInfo)) {
-            unsigned int *tlv = alloca(4096);
+            unsigned int *tlv = alloca(TLV_BYTE_SIZE);
             if ((err = snd_ctl_elem_tlv_read(ctlDev, elemId, tlv, 4096)) < 0) {
                     fprintf (stderr, "Control %s element TLV read error\n", snd_strerror(err));
                     goto OnErrorExit;
             } else {
-                    json_object_object_add (ctlRequest->jValues,"tlv", decodeTlv (tlv, 4096, queryMode));                                       
+                    json_object_object_add (ctlRequest->valuesJ,"tlv", decodeTlv (tlv, TLV_BYTE_SIZE, queryMode));                                       
             } 
         }
     }
@@ -678,38 +635,61 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
 }
 
 // assign multiple control to the same value
-STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
+STATIC void alsaSetGetCtls (ActionSetGetT action, afb_req request) {
     ctlRequestT *ctlRequest;
     const char *warmsg=NULL;
-    int err=0, status=0;
+    int err=0, status=0, done;
     unsigned int ctlCount;
     snd_ctl_t *ctlDev;
     snd_ctl_elem_list_t *ctlList;  
     json_object *sndctls=json_object_new_array();;
     queryValuesT queryValues;
+    json_object *queryJ, *numidsJ;
        
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
+    queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
     
+    // Prase Numids + optional values
+    done= json_object_object_get_ex (queryJ, "numid" , &numidsJ);
+    if (!done) queryValues.count=0;
+    else {
+        enum json_type jtype= json_object_get_type(numidsJ);
+        switch (jtype) {
+            case json_type_array:
+                queryValues.numidsJ = numidsJ;
+                queryValues.count = json_object_array_length (numidsJ);
+                break;
 
+            case json_type_int:
+            case json_type_object:
+                queryValues.count = 1;
+                queryValues.numidsJ = numidsJ;
+                break;
+                
+            default:           
+                afb_req_fail_f (request, "numid-notarray","NumId=%s NumId not valid JSON array",  json_object_get_string(numidsJ));
+                goto OnErrorExit;        
+        }
+    }
+    
     if ((err = snd_ctl_open(&ctlDev, queryValues.devid, 0)) < 0) {
-        afb_req_fail_f (request, "sndcrl-notfound","devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
+        afb_req_fail_f (request, "sndcrl-notfound","devid='%s' load fail error=%s\n", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
     
     snd_ctl_elem_list_alloca(&ctlList); 
     if ((err = snd_ctl_elem_list (ctlDev, ctlList)) < 0) {
-        afb_req_fail_f (request, "listInit-failed","devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
+        afb_req_fail_f (request, "listInit-failed","devid='%s' load fail error=%s\n", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
 
     if ((err = snd_ctl_elem_list_alloc_space(ctlList, snd_ctl_elem_list_get_count(ctlList))) < 0) {
-        afb_req_fail_f (request, "listAlloc-failed","devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
+        afb_req_fail_f (request, "listAlloc-failed","devid='%s' load fail error=%s\n", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
     
     if ((err = snd_ctl_elem_list (ctlDev, ctlList)) < 0) {
-        afb_req_fail_f (request, "listOpen-failed","devid=[%s] load fail error=%s\n", queryValues.devid, snd_strerror(err));
+        afb_req_fail_f (request, "listOpen-failed","devid='%s' load fail error=%s\n", queryValues.devid, snd_strerror(err));
         goto OnErrorExit;
     }
 
@@ -719,7 +699,7 @@ STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
         ctlRequest= alloca (sizeof(ctlRequestT)*(ctlCount));
     } else {
         ctlRequest= alloca (sizeof(ctlRequestT)*(queryValues.count));
-        NumidsListParse (&queryValues, ctlRequest);
+        NumidsListParse (action, &queryValues, ctlRequest);
     }
           
     // Loop on all ctlDev controls
@@ -754,45 +734,47 @@ STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
             switch (action) {
                 case ACTION_GET:
                     err = alsaGetSingleCtl (ctlDev, elemId, &ctlRequest[jdx], queryValues.mode);
-                break;
+                    break;
                 
                 case ACTION_SET:
                     err = alsaSetSingleCtl (ctlDev, elemId, &ctlRequest[jdx]);
+                    break;
                     
                 default:
                     err = 1;
             }
             if (err) status++;
             else {
-                json_object_array_add (sndctls, ctlRequest[jdx].jValues);
+                if (action == ACTION_GET) json_object_array_add (sndctls, ctlRequest[jdx].valuesJ);
             }
         }
     }
   
     // if we had error let's add them into response message info
-    json_object *warnings = json_object_new_array();
+    json_object *warningsJ = json_object_new_array();
     for (int jdx=0; jdx < queryValues.count; jdx++) {
         if (ctlRequest[jdx].used <= 0) {
             json_object *failctl = json_object_new_object();
             json_object_object_add (failctl, "numid", ctlRequest[jdx].jToken);
-            if (ctlRequest[jdx].jValues) 
-                json_object_object_add(failctl, "values", ctlRequest[jdx].jValues);
+            if (ctlRequest[jdx].valuesJ) json_object_object_add(failctl, "value", ctlRequest[jdx].valuesJ);
+            
+            AFB_NOTICE ("*** jToken=%s value=%s", json_object_get_string(ctlRequest[jdx].jToken), json_object_get_string(ctlRequest[jdx].valuesJ));
 
-            if (ctlRequest[jdx].numId == -1) json_object_object_add (failctl, "info", json_object_new_string ("Invalid NumID"));
+            if (ctlRequest[jdx].numId == -1) json_object_object_add (failctl, "error", json_object_new_string ("Numid Invalid"));
             else {
-               if (ctlRequest[jdx].used ==  0) json_object_object_add (failctl, "info", json_object_new_string ("Does Not Exist"));
-               if (ctlRequest[jdx].used == -1) json_object_object_add (failctl, "info", json_object_new_string ("Invalid Value"));
+               if (ctlRequest[jdx].used ==  0) json_object_object_add (failctl, "error", json_object_new_string ("Numid Does Not Exist"));
+               if (ctlRequest[jdx].used == -1) json_object_object_add (failctl, "error", json_object_new_string ("Value invalid"));
             }
-            json_object_array_add (warnings, failctl);
+            json_object_array_add (warningsJ, failctl);
         }
-        /* WARNING!!!! Check with Jose why following put free jValues
+        /* WARNING!!!! Check with Jose why following put free valuesJ
         if (ctlRequest[jdx].jToken) json_object_put(ctlRequest[jdx].jToken);
-        if (ctlRequest[jdx].jValues) json_object_put(ctlRequest[jdx].jValues);
+        if (ctlRequest[jdx].valuesJ) json_object_put(ctlRequest[jdx].valuesJ);
         */
     }
     
-    if (json_object_array_length(warnings)) warmsg=json_object_get_string (warnings);
-    else json_object_put(warnings);
+    if (json_object_array_length(warningsJ) > 0) warmsg=json_object_get_string (warningsJ);
+    else json_object_put(warningsJ);
   
     // send response+warning if any
     afb_req_success (request, sndctls, warmsg);
@@ -803,11 +785,11 @@ STATIC void alsaSetGetCtls (afb_req request, ActionSetGetT action) {
 }
 
 PUBLIC void alsaGetCtls (afb_req request) {
-    alsaSetGetCtls (request, ACTION_GET);
+    alsaSetGetCtls (ACTION_GET, request);
 }
     
 PUBLIC void alsaSetCtls (afb_req request) {
-    alsaSetGetCtls (request, ACTION_SET);
+    alsaSetGetCtls (ACTION_SET, request);
 }
 
 

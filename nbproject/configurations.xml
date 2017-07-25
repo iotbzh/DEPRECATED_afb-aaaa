@@ -107,6 +107,8 @@
       <item path="ALSA-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
         <cTool flags="4">
           <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
@@ -118,6 +120,8 @@
       <item path="ALSA-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
         <cTool flags="4">
           <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
         </cTool>
@@ -125,6 +129,8 @@
       <item path="ALSA-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
         <cTool flags="4">
           <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
@@ -134,19 +140,30 @@
         </cTool>
       </item>
       <item path="ALSA-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+        <cTool flags="1">
           <incDir>
+            <pElem>../../../opt/include</pElem>
             <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
-            <pElem>../../../opt/include</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>alsa_lowlevel_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </item>
       <item path="ALSA-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
         <cTool flags="4">
           <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ALSA-afb</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
@@ -163,28 +180,17 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
+        <cTool flags="4">
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>Shared-Interface</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volmap.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="4">
           <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Shared-Interface</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
@@ -298,14 +304,6 @@
         <cTool flags="4">
         </cTool>
       </item>
-      <folder path="0/ALSA-afb">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
-          </incDir>
-        </cTool>
-      </folder>
       <folder path="0/Common">
         <cTool>
           <incDir>
@@ -335,9 +333,11 @@
       </folder>
       <folder path="0/HAL-afb/HAL-interface">
         <cTool>
-          <preprocessorList>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-          </preprocessorList>
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+          </incDir>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/HAL-plugin">

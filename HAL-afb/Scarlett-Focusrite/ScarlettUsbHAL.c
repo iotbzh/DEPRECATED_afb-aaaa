@@ -19,6 +19,7 @@
  *  aplay -l  # Check sndcard name name in between []
  *  amixer -D hw:USB controls # get supported controls
  *  amixer -Dhw:USB cget name=Power-Switch
+ *  amixer -Dhw:USB cset name=Power-Switch true
  * 
  */
 #define _GNU_SOURCE 

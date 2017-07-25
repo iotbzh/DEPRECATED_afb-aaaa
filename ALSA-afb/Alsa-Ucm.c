@@ -111,16 +111,15 @@ STATIC int alsaUseCaseOpen (struct afb_req request, queryValuesT *queryValues, i
       
 
 PUBLIC void alsaUseCaseQuery(struct afb_req request) { 
-    int err, verbCount, ucmIdx;
+    int verbCount, ucmIdx;
     const char **verbList;
     snd_use_case_mgr_t *ucmHandle;
     queryValuesT queryValues;
     json_object *ucmJs;
     const char *cardName;
 
-    
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
+    json_object *queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
     
     ucmIdx = alsaUseCaseOpen (request, &queryValues, TRUE);
     if (ucmIdx < 0) goto OnErrorExit;
@@ -158,7 +157,7 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
                 json_object_array_add (devsJ, devJ);
             }
             json_object_object_add(ucmJ,"devices", devsJ);
-            snd_use_case_free_list(devList, err);
+            snd_use_case_free_list(devList, devCount);
         }
         
         snprintf (identifier, sizeof(identifier), "_modifiers/%s", verbList[idx]);
@@ -174,7 +173,7 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
                 json_object_array_add (modsJ, modJ);
             }
             json_object_object_add(ucmJ,"modifiers", modsJ);
-            snd_use_case_free_list(modList, err);
+            snd_use_case_free_list(modList, modCount);
         }
 
         snprintf (identifier, sizeof(identifier), "TQ/%s", verbList[idx]);
@@ -190,14 +189,14 @@ PUBLIC void alsaUseCaseQuery(struct afb_req request) {
                 json_object_array_add (tqsJ, tqJ);
             }
             json_object_object_add(ucmJ,"tqs", tqsJ);
-            snd_use_case_free_list(tqList, err);
+            snd_use_case_free_list(tqList, tqCount);
         }
         
         json_object_array_add (ucmJs, ucmJ);
     }
     
     afb_req_success (request, ucmJs, NULL);
-    snd_use_case_free_list(verbList, err);
+    snd_use_case_free_list(verbList, verbCount);
         
   OnErrorExit:
     return;
@@ -235,14 +234,15 @@ STATIC json_object *ucmGetValue (ucmHandleT *ucmHandle, const char *verb, const 
 }
 
 PUBLIC void alsaUseCaseGet (struct afb_req request) {
-    int err, ucmIdx, labelCount;
+    int ucmIdx, labelCount;
     queryValuesT queryValues;
     json_object *jResponse = json_object_new_object();
     json_object *jWarnings = json_object_new_array();
     const char *warnings=NULL;
     
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
+    json_object *queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
+;
     
     ucmIdx = alsaUseCaseOpen (request, &queryValues, TRUE);
     if (ucmIdx < 0) goto OnErrorExit;
@@ -261,7 +261,7 @@ PUBLIC void alsaUseCaseGet (struct afb_req request) {
     // device selection is handle as a modifier
     if (dev) mod=dev;
 
-    const char *labels = afb_req_value(request, "values");
+    const char *labels = afb_req_value(request, "value");
     if (!labels) {
         afb_req_fail_f (request, "ucmget-labels", "SndCard devid=[%s] name=[%s] UCM values name missing", queryValues.devid, cardName);
         goto OnErrorExit;  
@@ -323,8 +323,9 @@ PUBLIC void alsaUseCaseSet(struct afb_req request) {
     queryValuesT queryValues;
     json_object *jResponse = json_object_new_object();
     
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
+    json_object *queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
+
     
     ucmIdx = alsaUseCaseOpen (request, &queryValues, TRUE);
     if (ucmIdx < 0) goto OnErrorExit;
@@ -362,7 +363,7 @@ PUBLIC void alsaUseCaseSet(struct afb_req request) {
     }
     
     // label are requested transfert request to get
-    if (afb_req_value(request, "values")) return alsaUseCaseGet(request);
+    if (afb_req_value(request, "value")) return alsaUseCaseGet(request);
     
     if (queryValues.mode <= 3) {
         json_object *jValue;
@@ -388,8 +389,8 @@ PUBLIC void alsaUseCaseReset (struct afb_req request) {
     int err, ucmIdx;
     queryValuesT queryValues;
     
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
+    json_object *queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
     
     ucmIdx = alsaUseCaseOpen (request, &queryValues, FALSE);
     if (ucmIdx < 0) goto OnErrorExit;
@@ -410,8 +411,8 @@ PUBLIC void alsaUseCaseClose (struct afb_req request) {
     int err, ucmIdx;
     queryValuesT queryValues;
     
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
+    json_object *queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
     
     ucmIdx = alsaUseCaseOpen (request, &queryValues, FALSE);
     if (ucmIdx < 0) goto OnErrorExit;

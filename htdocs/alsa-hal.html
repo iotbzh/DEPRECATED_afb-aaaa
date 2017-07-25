@@ -27,15 +27,15 @@
     <br>
     <ol>
         
-    <li><button onclick="callbinder(sndcard,'listctls')">List Selected HAL Controls </button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-list')">List Selected HAL Controls </button></li>
     <li><button onclick="callbinder(sndcard,'ctl-get', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
     <li><button onclick="callbinder(sndcard,'ctl-get', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
     <li><button onclick="callbinder(sndcard,'ctl-get', [4,5])">Get [4,5]</button></li>
     <br>
-    <li><button onclick="callbinder(sndcard,'ctl-set', {label:'Master_Playback_Volume', value=[50]})">Set {label:'Master_Playback_Volume', value=[50]}</button></li>
-    <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, value:25},{tag:5, value:25}])">Set[{tag:4, value:25},{tag:5, value:25}]</button></li>
-    <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, value:[55,45]},{tag:5, value:[45,55]}])">Set[{tag:4, value:[55,45]},{tag:5, value:[45,55]}]]</button></li>
-    <li><button onclick="callbinder(sndcard,'ctl-set', [4,5])">Set [4,5]</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', {label:'Master_Playback_Volume', val:[50]})">Set {label:'Master_Playback_Volume', value=[50]}</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', {tag: 4, val:5})">Set {tag: 4, val:5}</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, val:25},{tag:5, val:25}])">Set[{tag:4, val:25},{tag:5, val:25}]</button></li>
+    <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, val:[55,45]},{tag:5, val:[45,55]}])">Set[{tag:4, val:[55,45]},{tag:5, val:[45,55]}]]</button></li>
     <br>
     </ol>
     

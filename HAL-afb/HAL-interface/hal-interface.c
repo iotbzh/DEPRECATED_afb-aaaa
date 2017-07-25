@@ -52,12 +52,10 @@ STATIC void halSubscribe(afb_req request) {
     }
 }
 
-
-
 // Map HAL ctlName to ctlLabel
 STATIC int halCtlStringToIndex (const char* label) {
 
-    for (int idx = 0;   halCtls[idx].ctl.numid; idx++) {
+    for (int idx = 0;  halCtls[idx].tag != EndHalCrlTag; idx++) {
        if (!strcmp (halCtls[idx].label, label)) return idx;
     }
     
@@ -67,7 +65,7 @@ STATIC int halCtlStringToIndex (const char* label) {
 
 STATIC int halCtlTagToIndex (halCtlsEnumT tag) {
 
-    for (int idx = 0;  halCtls[idx].ctl.numid; idx++) {
+    for (int idx = 0;  halCtls[idx].tag != EndHalCrlTag; idx++) {
        if (halCtls[idx].tag == tag) return idx;
     }
     
@@ -93,122 +91,98 @@ PUBLIC void halListCtls(afb_req request) {
     afb_req_success (request, ctlsHalJ, NULL);
 }
 
-
 STATIC int halGetCtlIndex (afb_req request, struct json_object*ctlInJ) {
     struct json_object *tmpJ;
-    int tag, index;
+    int tag, index, done;
 
     // check 1st short command mode [tag1, tag2, ...]
-    tag = json_object_get_type (ctlInJ);
-    
-    if (!tag) {
-        json_object_object_get_ex (ctlInJ, "tag" , &tmpJ);
-        tag = json_object_get_int(tmpJ);
-    }
-    
-    if (tag) {
-        index = halCtlTagToIndex((halCtlsEnumT) tag);
-    } else {
-        // tag was not provided let's try label
-        const char *label;
+    enum json_type jtype = json_object_get_type (ctlInJ);
+    switch (jtype) {
+        case json_type_array: 
+            tmpJ = json_object_array_get_idx (ctlInJ, 0);
+            tag = json_object_get_int(tmpJ);
+            index = halCtlTagToIndex(tag);  
+            break;
+            
+        case json_type_int: 
+            tag = json_object_get_int(ctlInJ);
+            index = halCtlTagToIndex(tag);  
+            break;
         
-        json_object_object_get_ex (ctlInJ, "label" , &tmpJ);
-        label = json_object_get_string(tmpJ);
-        index = halCtlStringToIndex(label);
+        case json_type_object:
+            done = json_object_object_get_ex (ctlInJ, "tag" , &tmpJ);
+            if (done) {
+                tag = json_object_get_int(tmpJ);
+                index = halCtlTagToIndex(tag);  
+            } else {
+                const char *label;
+                done = json_object_object_get_ex (ctlInJ, "label" , &tmpJ);
+                if (!done) goto OnErrorExit;
+                label = json_object_get_string(tmpJ);
+                index = halCtlStringToIndex(label);
+            }
+            break;
+        
+        default: 
+            goto OnErrorExit;
     }
+    
 
-    if (index < 0) {
-        afb_req_fail_f(request, "ctl-invalid", "No Label/Tag given ctl='%s'", json_object_get_string(ctlInJ));
-        goto OnErrorExit;                
-    }
+    if (index < 0) goto OnErrorExit;
     
     // return corresponding lowlevel numid to querylist
     return index;
     
     OnErrorExit:
+        afb_req_fail_f(request, "ctl-invalid", "No Label/Tag given ctl='%s'", json_object_get_string(ctlInJ));
         return -1;
 } 
-
-// HAL normalise volume values to 0-100%
-STATIC struct json_object *UnNormaliseValue(const alsaHalCtlMapT *halCtls,  struct json_object *valuesJ) {
-    int length;
-
-    // assert response as the right length    
-    length = json_object_array_length(valuesJ);
-    if (length != halCtls->count) {
-        AFB_WARNING ("UnNormaliseValue invalid ctl='%s' values count=%d len=%d", halCtls->name, halCtls->count, length);
-        return NULL;
-    }
-    
-    json_object *normalisedJ= json_object_new_array();
-    for (int idx=0; idx < halCtls->count; idx++) {
-        int value;
-        
-        // use last value in array when number of values does not match with actual ctl count
-        if (idx < length) {
-            json_object *valueJ = json_object_array_get_idx (valuesJ, idx);
-            value = json_object_get_int(valueJ);
-            
-            // cleanup and normalise value
-            if (value > halCtls->maxval) value= halCtls->maxval;
-            if (value < halCtls->minval) value= halCtls->minval;
-
-            // If Integer move from 0-100% to effective value
-            if (halCtls->type == SND_CTL_ELEM_TYPE_INTEGER) {
-                value = (value * (halCtls->maxval-halCtls->minval))/100;
-            } 
-        }
-        
-        // add unnormalised value into response
-        json_object_array_add(normalisedJ, json_object_new_int(value));  
-    }
-    
-    return (normalisedJ);
-}
 
 
 // Translate high level control to low level and call lower layer
 PUBLIC void halSetCtls(afb_req request) {
-    int err, index;
+    int err, done, index;
     struct json_object *ctlsInJ, *ctlsOutJ, *queryJ, *valuesJ, *responseJ;
 
     // get query from request
     ctlsInJ = afb_req_json(request);
-    ctlsOutJ = json_object_new_array();
     
     switch (json_object_get_type(ctlsInJ)) {
         case json_type_object: {
+            ctlsOutJ = json_object_new_object();
+            
             // control is in literal form {tag=xxx, label=xxx, value=xxxx}
             index = halGetCtlIndex (request, ctlsInJ);
-            if (index <=0) goto OnErrorExit;
+            if (index < 0) goto OnErrorExit;
             
-            err= json_object_object_get_ex (ctlsInJ, "value" , &valuesJ);
-            if (err) {
+            done= json_object_object_get_ex (ctlsInJ, "val" , &valuesJ);
+            if (!done) {
                 afb_req_fail_f(request, "ctl-invalid", "No val=[val1, ...] ctl='%s'", json_object_get_string(ctlsInJ));
                 goto OnErrorExit;                                
             }
             
-            json_object_array_add (ctlsOutJ, json_object_new_int(halCtls[index].ctl.numid));
-            json_object_array_add (ctlsOutJ, UnNormaliseValue (&halCtls[index].ctl, valuesJ));                
+            json_object_object_add (ctlsOutJ, "id", json_object_new_int(halCtls[index].ctl.numid));
+            json_object_object_add (ctlsOutJ,"val", SetGetNormaliseVolumes (ACTION_SET, &halCtls[index].ctl, valuesJ));                
             break;
         }
         
         case json_type_array: {
+            ctlsOutJ = json_object_new_array();
             
             for (int idx= 0; idx < json_object_array_length (ctlsInJ); idx++) {
                 struct json_object *ctlInJ = json_object_array_get_idx (ctlsInJ, idx);
                 index= halGetCtlIndex (request, ctlInJ);
-                if (index<=0) goto OnErrorExit;
+                if (index < 0) goto OnErrorExit;
 
-                err= json_object_object_get_ex (ctlInJ, "value" , &valuesJ);
-                if (err) {
+                done= json_object_object_get_ex (ctlInJ, "val" , &valuesJ);
+                if (!done) {
                     afb_req_fail_f(request, "ctl-invalid", "No val=[val1, ...] ctl='%s'", json_object_get_string(ctlsInJ));
                     goto OnErrorExit;                                
                 }
                 // let's create alsa low level set control request
-                struct json_object *ctlOutJ = json_object_new_array();
-                json_object_array_add (ctlOutJ, json_object_new_int(halCtls[index].ctl.numid));
-                json_object_array_add (ctlOutJ, UnNormaliseValue (&halCtls[index].ctl, valuesJ));                
+                struct json_object *ctlOutJ = json_object_new_object();
+                json_object_object_add (ctlOutJ, "id", json_object_new_int(halCtls[index].ctl.numid));
+                json_object_object_add (ctlOutJ, "val", SetGetNormaliseVolumes (ACTION_SET, &halCtls[index].ctl, valuesJ));                
                 
                 json_object_array_add (ctlsOutJ, ctlOutJ);
             }
@@ -225,19 +199,12 @@ PUBLIC void halSetCtls(afb_req request) {
     json_object_object_add(queryJ, "devid", json_object_new_string (halDevid));
     json_object_object_add(queryJ, "numid", ctlsOutJ);
 
-    err= afb_service_call_sync("alsacore", "setctls", queryJ, &responseJ);
+    err= afb_service_call_sync("alsacore", "setctl", queryJ, &responseJ);
     if (err) {
         afb_req_fail_f(request, "subcall:alsacore/setctl", "%s", json_object_get_string(responseJ));
         goto OnErrorExit;        
     }
     
-    // Let ignore info data if any and keep on response
-    json_object_object_get_ex (responseJ, "response", &responseJ);
-    
-    // map back low level response to HAL ctl with normalised values
-    //struct json_object *halResponse =  CtlSetPrepareResponse(request, responseJ);
-    //if (!halResponse) goto OnErrorExit;
-   
     afb_req_success (request, NULL, NULL);
     return;
 
@@ -246,7 +213,7 @@ OnErrorExit:
 };
 
 // Remap low level controls into HAL hight level ones
-STATIC json_object *CtlGetPrepareResponse(afb_req request, struct json_object *ctlsJ) {
+STATIC json_object *HalGetPrepareResponse(afb_req request, struct json_object *ctlsJ) {
     struct json_object *halResponseJ;
 
     // make sure return controls have a valid type
@@ -264,7 +231,7 @@ STATIC json_object *CtlGetPrepareResponse(afb_req request, struct json_object *c
         int numid;
 
         sndCtlJ = json_object_array_get_idx(ctlsJ, idx);
-        if (!json_object_object_get_ex(sndCtlJ, "numid", &numidJ) ||  !json_object_object_get_ex(sndCtlJ, "val", &valJ)) {
+        if (!json_object_object_get_ex(sndCtlJ, "id", &numidJ) ||  !json_object_object_get_ex(sndCtlJ, "val", &valJ)) {
             afb_req_fail_f(request, "ctl-invalid", "Invalid Control return from alsa/getcontrol ctl=%s", json_object_get_string(sndCtlJ));
             goto OnErrorExit;
         }
@@ -279,7 +246,7 @@ STATIC json_object *CtlGetPrepareResponse(afb_req request, struct json_object *c
                 struct json_object *halCtlJ = json_object_new_object();
                 json_object_object_add(halCtlJ, "label", json_object_new_string(halCtls[idx].label)); // idx+1 == HAL/NUMID
                 json_object_object_add(halCtlJ, "tag"  , json_object_new_int(halCtls[idx].tag)); // idx+1 == HAL/NUMID
-                json_object_object_add(halCtlJ, "val"  , GetNormaliseVolume(&halCtls[idx].ctl, valJ));
+                json_object_object_add(halCtlJ, "val"  , SetGetNormaliseVolumes(ACTION_GET, &halCtls[idx].ctl, valJ));
                 json_object_array_add(halResponseJ, halCtlJ);
                 break;
             }           
@@ -308,7 +275,7 @@ PUBLIC void halGetCtls(afb_req request) {
         case json_type_object: {
 
             index = halGetCtlIndex (request, ctlsInJ);
-            if (index <=0) goto OnErrorExit;
+            if (index < 0) goto OnErrorExit;
             json_object_array_add (ctlsOutJ, json_object_new_int(halCtls[index].ctl.numid));
             break;
         }
@@ -318,7 +285,7 @@ PUBLIC void halGetCtls(afb_req request) {
             for (int idx= 0; idx < json_object_array_length (ctlsInJ); idx++) {
                 struct json_object *ctlInJ = json_object_array_get_idx (ctlsInJ, idx);
                 index= halGetCtlIndex (request, ctlInJ);
-                if (index<=0) goto OnErrorExit;
+                if (index < 0) goto OnErrorExit;
                 json_object_array_add (ctlsOutJ, json_object_new_int(halCtls[index].ctl.numid));
             }
             break;
@@ -344,7 +311,7 @@ PUBLIC void halGetCtls(afb_req request) {
     json_object_object_get_ex (responseJ, "response", &responseJ);
     
     // map back low level response to HAL ctl with normalised values
-    struct json_object *halResponse =  CtlGetPrepareResponse(request, responseJ);
+    struct json_object *halResponse =  HalGetPrepareResponse(request, responseJ);
     if (!halResponse) goto OnErrorExit;
    
     afb_req_success (request, halResponse, NULL);
@@ -361,7 +328,7 @@ PUBLIC void halServiceEvent(const char *evtname, struct json_object *eventJ) {
     
     AFB_NOTICE("halServiceEvent evtname=%s [msg=%s]", evtname, json_object_get_string(eventJ));
     
-    json_object_object_get_ex (eventJ, "values" , &valuesJ);
+    json_object_object_get_ex (eventJ, "val" , &valuesJ);
     if (!valuesJ) {
         AFB_ERROR("halServiceEvent novalues: evtname=%s [msg=%s]", evtname, json_object_get_string(eventJ));
         return;
@@ -387,7 +354,7 @@ STATIC int UpdateOneSndCtl (alsaHalCtlMapT *ctl, struct json_object *sndCtlJ) {
     json_object_object_get_ex (sndCtlJ, "name" , &tmpJ);
     ctl->name  = (char*)json_object_get_string(tmpJ);
     
-    json_object_object_get_ex (sndCtlJ, "numid" , &tmpJ);
+    json_object_object_get_ex (sndCtlJ, "id" , &tmpJ);
     ctl->numid  = json_object_get_int(tmpJ);
     
     // make sure we face a valid Alsa Low level ctl
@@ -547,6 +514,7 @@ PUBLIC afb_verb_v2 halServiceApi[] = {
     { .verb = "ping",     .callback = pingtest},
     { .verb = "ctl-list", .callback = halListCtls},
     { .verb = "ctl-get",  .callback = halGetCtls},
+    { .verb = "ctl-set",  .callback = halSetCtls},
     { .verb = "evt-sub",  .callback = halSubscribe},
     { .verb = NULL} /* marker for end of the array */
 };

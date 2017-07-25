@@ -32,7 +32,7 @@ typedef enum {
 // generic structure to pass parsed query values
 typedef struct {
   const char *devid;
-  json_object *jNumIds;
+  json_object *numidsJ;
   halQueryMode mode;
   int count;
 } queryValuesT;
@@ -41,13 +41,13 @@ typedef struct {
 typedef struct {
     unsigned int numId;
     json_object *jToken;
-    json_object *jValues;
+    json_object *valuesJ;
     int used;
 } ctlRequestT;
 
 // import from AlsaAfbBinding
 extern const struct afb_binding_interface *afbIface;
-PUBLIC int alsaCheckQuery (struct afb_req request, queryValuesT *queryValues);
+PUBLIC json_object *alsaCheckQuery (struct afb_req request, queryValuesT *queryValues);
 
 // AlseCoreSetGet exports
 PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRequestT *ctlRequest, halQueryMode queryMode);

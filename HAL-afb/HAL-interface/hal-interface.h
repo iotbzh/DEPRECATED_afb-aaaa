@@ -23,6 +23,11 @@
 
 #include "audio-interface.h"
 
+typedef enum {
+    ACTION_SET,
+    ACTION_GET
+} ActionSetGetT;
+
 typedef struct {
     int min;
     int max;
@@ -69,7 +74,7 @@ PUBLIC void halServiceEvent(const char *evtname, struct json_object *object);
 PUBLIC int  halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard);
 
 // hal-volmap.c
-PUBLIC struct json_object *GetNormaliseVolume(const alsaHalCtlMapT *halCtls,  struct json_object *valuesJ);
+PUBLIC struct json_object *SetGetNormaliseVolumes(ActionSetGetT action, const alsaHalCtlMapT *halCtls,  struct json_object *valuesJ);
 
 
 #endif /* SHAREHALLIB_H */

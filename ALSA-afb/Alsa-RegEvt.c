@@ -44,6 +44,31 @@ typedef struct {
 
 cardRegistryT *cardRegistry[MAX_SND_CARD+1];
 
+PUBLIC  json_object *alsaCheckQuery (afb_req request, queryValuesT *queryValues) {
+
+    json_object *tmpJ;
+    int done;
+
+    // get query from request
+    json_object *queryInJ = afb_req_json(request);
+    
+    done= json_object_object_get_ex (queryInJ, "devid" , &tmpJ);
+    if (!done) {
+        afb_req_fail_f(request, "devid-missing", "Invalid query='%s'", json_object_get_string(queryInJ));
+        goto OnErrorExit;                                
+    }
+    queryValues->devid = json_object_get_string(tmpJ);
+
+    done= json_object_object_get_ex (queryInJ, "mode" , &tmpJ);
+    if (!done) queryValues->mode=QUERY_QUIET; // default quiet
+    else queryValues->mode = json_object_get_int (tmpJ);
+     
+    return queryInJ;
+
+OnErrorExit:
+    return NULL;
+}
+
 // This routine is called when ALSA event are fired
 STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void* userData) {
     int err;
@@ -97,7 +122,7 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
             json_object_object_add(ctlEventJ, "iface"  ,json_object_new_int (iface));
             json_object_object_add(ctlEventJ, "devname",json_object_new_string (devname));
         }
-        if (ctlRequest.jValues) (json_object_object_add(ctlEventJ, "values"  ,ctlRequest.jValues));
+        if (ctlRequest.valuesJ) (json_object_object_add(ctlEventJ, "value"  ,ctlRequest.valuesJ));
         AFB_DEBUG( "sndCtlEventCB=%s", json_object_get_string(ctlEventJ));
         afb_event_push(evtHandle->afbevt, ctlEventJ);
     }
@@ -119,10 +144,8 @@ PUBLIC void alsaEvtSubcribe (afb_req request) {
     snd_ctl_card_info_t *cardinfo;
     queryValuesT queryValues;
 
-    
-    err = alsaCheckQuery (request, &queryValues);
-    if (err) goto OnErrorExit;
-
+    json_object *queryJ = alsaCheckQuery (request, &queryValues);
+    if (!queryJ) goto OnErrorExit;
 
     // open control interface for devid
     err = snd_ctl_open(&ctlDev, queryValues.devid, SND_CTL_READONLY);

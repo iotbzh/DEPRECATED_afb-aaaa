@@ -23,34 +23,6 @@
 
 #include "audio-interface.h"
 
-typedef struct {
-    int index;
-    int numid;
-} shareHallMap_T;
-
-
-PUBLIC int cbCheckResponse(struct afb_req request, int iserror, struct json_object *result) {
-    struct json_object *response, *status, *info;
-
-    if (iserror) { // on error proxy information we got from lower layer
-        if (result) {
-            if (json_object_object_get_ex(result, "request", &response)) {
-                json_object_object_get_ex(response, "info", &info);
-                json_object_object_get_ex(response, "status", &status);
-                afb_req_fail(request, json_object_get_string(status), json_object_get_string(info));
-                goto OnErrorExit;
-            }
-        } else {
-            afb_req_fail(request, "cbCheckFail", "No Result inside API response");
-        }
-        goto OnErrorExit;
-    }
-    return (0);
-
-OnErrorExit:
-    return (-1);
-}
-
 
 PUBLIC void pingtest(struct afb_req request) {
     json_object *query = afb_req_json(request);

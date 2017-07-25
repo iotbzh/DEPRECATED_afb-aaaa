@@ -45,6 +45,7 @@ set(CMAKE_BUILD_TYPE "DEBUG")
 # -----------------------------
 add_compile_options(-DMAX_SND_CARD=16)        # should be more than enough even in luxury vehicule 
 add_compile_options(-DMAX_LINEAR_DB_SCALE=24) # until 24db volume normalisation use a simple linear scale
+add_compile_options(-DTLV_BYTE_SIZE=256)       # Alsa use 4096 as default but 256 should fit most sndcards 
 
 # Compiler selection if needed. Overload the detected compiler.
 # -----------------------------------------------

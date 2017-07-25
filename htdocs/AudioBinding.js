@@ -2,6 +2,7 @@
     var ws;
     var sndcard="HALNotSelected";
     var evtidx=0;
+    var numid=0;
 
     function syntaxHighlight(json) {
         if (typeof json !== 'string') {
@@ -48,31 +49,10 @@
     if (!sndname) sndname="PCH";
     
     var mode=getParameterByName("mode");
-    if (!mode) mode="99";
+    if (!mode) mode="0";
 
 
     
-    function init(elemid, api, verb, query) {
-        
-        function onopen() {
-                // check for active HALs
-                probeActiveHal (elemid, api, verb, query);
-                
-                document.getElementById("main").style.visibility = "visible";
-                document.getElementById("connected").innerHTML = "Binder WS Active";
-                document.getElementById("connected").style.background  = "lightgreen";
-                ws.onevent("*", gotevent);
-        }
-
-        function onabort() {
-                document.getElementById("main").style.visibility = "hidden";
-                document.getElementById("connected").innerHTML = "Connected Closed";
-                document.getElementById("connected").style.background  = "red";
-
-        }
-            
-        ws = new afb.ws(onopen, onabort);
-    }
 
     function replyok(obj) {
             console.log("replyok:" + JSON.stringify(obj));
@@ -106,9 +86,17 @@
     }
 
 
-    // Retrieve the list of active HAL
-    function probeActiveHal (elemid, api, verb, query) {
+    // Retreive Select value and Text from the binder
+    // Note: selection of value/text for a given context is huggly!!!
+    function querySelectList (elemid, api, verb, query) {
+        
+        console.log("querySelectList elemid=%s api=%s verb=%s query=%s", elemid, api, verb, query);
+        
         var selectobj = document.getElementById(elemid);
+        if (!selectobj) {
+            console.log ("****** elemid=%s does not exit in HTML page ****", elemid);
+            return;
+        }
         
         // onlick update selected HAL api
         selectobj.onclick=function(){
@@ -139,12 +127,72 @@
                
            sndcard= selectobj.value;
         }
-        
-        console.log ("subscribe api="+api+" verb="+verb+" query=" +query);
-        
+                
         var question = urlws +"/"+api +"/" +verb + "?query=" + JSON.stringify(query);          
         document.getElementById("question").innerHTML = syntaxHighlight(question);
 
         // request lowlevel ALSA to get API list
         ws.call(api+"/"+verb, query).then(gotit, replyerr);
+    }
+    
+    function refresh_list (self, api, verb, query) {
+        console.log("refresh_list id=%s api=%s verb=%s query=%s", self.id, api, verb, query);
+  
+        if (self.value > 0) return;       
+  
+        // onlick update selected HAL api
+        self.onclick=function(){
+           numid = parseInt(self.value); 
+           console.log ("Default numid=%d", numid);           
+        };
+
+        function gotit (result) {
+            
+            // display response as for normal onclick action
+            replyok(result);
+            var response=result.response;
+
+
+            
+            // fulfill select with avaliable active HAL
+            for (idx=0; idx<response.length; idx++) {
+                var opt = document.createElement('option');
+
+                // Alsa LowLevel selection mode
+                opt.text   = response[idx].name + ' id=' + response[idx].id;
+                opt.value  = response[idx].id;
+               
+                self.appendChild(opt);
+            }               
+            self.selectedIndex=2;
+            numid = parseInt (self.value); 
+        }
+                
+        var question = urlws +"/"+api +"/" +verb + "?query=" + JSON.stringify(query);          
+        document.getElementById("question").innerHTML = syntaxHighlight(question);
+
+        // request lowlevel ALSA to get API list
+        ws.call(api+"/"+verb, query).then(gotit, replyerr);
+    }
+    
+        
+    function init(elemid, api, verb, query) {
+        
+        function onopen() {
+                // check for active HALs
+                querySelectList (elemid, api, verb, query);
+                
+                document.getElementById("main").style.visibility = "visible";
+                document.getElementById("connected").innerHTML = "Binder WS Active";
+                document.getElementById("connected").style.background  = "lightgreen";
+                ws.onevent("*", gotevent);
+        }
+
+        function onabort() {
+                document.getElementById("main").style.visibility = "hidden";
+                document.getElementById("connected").innerHTML = "Connected Closed";
+                document.getElementById("connected").style.background  = "red";
+
+        }           
+        ws = new afb.ws(onopen, onabort);
     }

@@ -183,7 +183,7 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
     OnSucessExit:
         alsaGetSingleCtl (ctlDev, elemId, &ctlRequest, queryMode);
         if (ctlRequest.used < 0) goto OnErrorExit;   
-        return ctlRequest.jValues;
+        return ctlRequest.valuesJ;
     
     OnErrorExit:
         return NULL;
