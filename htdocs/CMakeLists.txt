@@ -23,7 +23,7 @@
 ##################################################
 PROJECT_TARGET_ADD(www_test)
 
-    file(GLOB SOURCE_FILES "*.html" "*.js" "*.jpg")
+    file(GLOB SOURCE_FILES "*.html" "*.js" "*.jpg" "*.css")
 
     add_custom_target(${TARGET_NAME} 
        DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
@@ -43,5 +43,5 @@ PROJECT_TARGET_ADD(www_test)
     )
 
     # use only under native Linux when using "make install"
-    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR} DESTINATION . FILES_MATCHING PATTERN "*.html"  PATTERN "*.js" PATTERN "*.jpg")
+    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR} DESTINATION .)
 

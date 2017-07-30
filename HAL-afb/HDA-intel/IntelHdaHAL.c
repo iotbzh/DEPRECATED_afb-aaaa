@@ -25,26 +25,27 @@
 #include "hal-interface.h"
 #include "audio-interface.h" 
 
-STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle, struct json_object *valJ) {
-    struct json_object *reponseJ;
-    
-    AFB_INFO ("Power Set value=%s", json_object_get_string(valJ));
-    
-    reponseJ=json_object_new_object();
-    json_object_object_add (reponseJ, "Callback", json_object_new_string("Hello From HAL"));
-    
-    return reponseJ;
-}
+
+// Default Values for MasterVolume Ramping
+STATIC halVolRampT volRampMaster= {
+    .mode    = RAMP_VOL_NORMAL,
+    .slave   = Master_Playback_Volume,
+    .delay   = 100*1000, // ramping delay in us
+    .stepDown=1,
+    .stepUp  =1,
+};
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
 STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .tag=Master_Playback_Volume, .ctl={.numid=04 } },
-  { .tag=PCM_Playback_Volume   , .ctl={.numid=06 } },
-  { .tag=PCM_Playback_Switch   , .ctl={.numid=05 } },
-  { .tag=Capture_Volume        , .ctl={.numid=12 } },
-  { .tag=Master_OnOff_Switch   , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .name="Power-Switch"},  .cb={.callback=MasterOnOff, .handle=NULL}},
-  { .tag=Master_Playback_Ramp  , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=2, .name="Volume-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}},
+  { .tag=Master_Playback_Volume, .  ctl={ .name="Master Playback Volume" } },
+  { .tag=PCM_Playback_Volume     , .ctl={ .name="PCM Playback Volume" } },
+  { .tag=PCM_Playback_Switch     , .ctl={ .name="Master Playback Switch" } },
+  { .tag=Capture_Volume          , .ctl={ .name="Capture Volume" } },
 
+  { .tag=Vol_Ramp   , .cb={.callback=volumeRamp, .handle=&volRampMaster}, .info="ramp volume linearly according to current ramp setting",
+    .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .name="Hal-VolRamp"}
+  },
+  
   { .tag=EndHalCrlTag}  /* marker for end of the array */
 } ;
 

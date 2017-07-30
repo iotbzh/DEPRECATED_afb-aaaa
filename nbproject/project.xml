@@ -14,15 +14,11 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>Amixer-Dhw_4</name>
+                    <name>Localhost</name>
                     <type>0</type>
                 </confElem>
                 <confElem>
-                    <name>Amixer-CTL</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
-                    <name>Amixer-Set</name>
+                    <name>Laptop</name>
                     <type>0</type>
                 </confElem>
             </confList>

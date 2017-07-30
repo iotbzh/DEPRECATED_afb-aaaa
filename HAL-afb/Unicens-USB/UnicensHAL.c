@@ -25,16 +25,7 @@
 #include "hal-interface.h"
 #include "audio-interface.h" 
 
-STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle, struct json_object *valJ) {
-    struct json_object *reponseJ;
-    
-    AFB_INFO ("Power Set value=%s", json_object_get_string(valJ));
-    
-    reponseJ=json_object_new_object();
-    json_object_object_add (reponseJ, "Callback", json_object_new_string("Hello From HAL"));
-    
-    return reponseJ;
-}
+
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
 STATIC alsaHalMapT  alsaHalMap[]= { 
@@ -42,8 +33,6 @@ STATIC alsaHalMapT  alsaHalMap[]= {
   { .tag=PCM_Playback_Volume   , .ctl={.numid=06 } },
   { .tag=PCM_Playback_Switch   , .ctl={.numid=05 } },
   { .tag=Capture_Volume        , .ctl={.numid=12 } },
-  { .tag=Master_OnOff_Switch   , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .name="Power-Switch"},  .cb={.callback=MasterOnOff, .handle=NULL}},
-  { .tag=Master_Playback_Ramp  , .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=2, .name="Volume-Switch"}, .cb={.callback=MasterOnOff, .handle=NULL}},
 
   { .tag=EndHalCrlTag}  /* marker for end of the array */
 } ;
@@ -66,7 +55,7 @@ STATIC int sndServiceInit () {
 
 // API prefix should be unique for each snd card
 PUBLIC const struct afb_binding_v2 afbBindingV2 = {
-    .api     = "intel-hda",
+    .api     = "unicens-usb",
     .init    = sndServiceInit,
     .verbs   = halServiceApi,
     .onevent = halServiceEvent,

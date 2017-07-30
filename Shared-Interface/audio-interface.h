@@ -60,19 +60,36 @@ typedef enum {
 } halAclEnumT;
 
 typedef enum {
-   StartHalCrlTag=0,
+    StartHalCrlTag=0,
 
-   // HighLevel Audio Control List,
-   Master_Playback_Volume =1,
-   Master_Playback_Ramp   =2,
-   PCM_Playback_Volume    =3,
-   PCM_Playback_Switch    =4,
-   Capture_Volume         =5,
-   Master_OnOff_Switch    =6,
-
+    // volume RAMP
+    Vol_Ramp,        
+    Vol_Ramp_Set_Mode,        
+    Vol_Ramp_Set_Delay,        
+    Vol_Ramp_Set_Down,        
+    Vol_Ramp_Set_Up,        
+    Vol_Ramp_Set_Slave,        
+       
+    // HighLevel Audio Control List,
+    Master_Playback_Volume,
+    Master_Playback_Ramp,
+    PCM_Playback_Volume,
+    PCM_Playback_Switch,
+    Capture_Volume,
+    Master_OnOff_Switch,
+           
    EndHalCrlTag // used to compute number of ctls
 } halCtlsEnumT;
 
+typedef enum {
+   RAMP_VOL_NONE      = 0,
+   RAMP_VOL_NORMAL    = 1,
+   RAMP_VOL_SMOOTH    = 2,
+   RAMP_VOL_EMERGENCY = 3,
+   
+   EndHalVolMod
+    
+} halRampEnumT;
 
 PUBLIC void pingtest(struct afb_req request);
 

@@ -25,8 +25,8 @@
 #include "hal-interface.h"
 #include "audio-interface.h" 
 
-STATIC struct json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle, struct json_object *valJ) {
-    struct json_object *reponseJ;
+STATIC json_object* MasterOnOff (alsaHalCtlMapT *control, void* handle, json_object *valJ) {
+    json_object *reponseJ;
     
     AFB_INFO ("Power Set value=%s", json_object_get_string(valJ));
     

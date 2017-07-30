@@ -29,7 +29,7 @@
 #include "Alsa-ApiHat.h"
 
 // Performs like a toggle switch for attenuation, because they're bool (ref:user-ctl-element-set.c)
-static const unsigned int *allocate_bool_elem_set_tlv (void) {
+static const unsigned int *allocate_bool_fake_tlv (void) {
         static const SNDRV_CTL_TLVD_DECLARE_DB_MINMAX(range, -10000, 0);
         unsigned int *tlv= malloc(sizeof(range));
         if (tlv == NULL) return NULL;
@@ -37,8 +37,30 @@ static const unsigned int *allocate_bool_elem_set_tlv (void) {
         return tlv;
 }
 
+static const unsigned int *allocate_int_dbscale_tlv (int min, int step, int mute) {
+        // SNDRV_CTL_TLVD_DECLARE_DB_SCALE(range, min, step, mute);
+        size_t tlvSize = sizeof(4*sizeof(int*));
+        unsigned int *tlv= malloc(tlvSize);
+        tlv[0]=SNDRV_CTL_TLVT_DB_LINEAR;
+        tlv[1]=(int)tlvSize; 
+        tlv[2]=min*100;
+        tlv[3] = ((step*100) & SNDRV_CTL_TLVD_DB_SCALE_MASK) | ((mute*100) ? SNDRV_CTL_TLVD_DB_SCALE_MUTE : 0);
+        return tlv;
+}
+
+static const unsigned int *allocate_int_linear_tlv (int max, int min) {
+        // SNDRV_CTL_TLVD_DECLARE_DB_LINEAR (range, min, max);
+        size_t tlvSize = sizeof(4*sizeof(int*));
+        unsigned int *tlv= malloc(tlvSize);
+        tlv[0]=SNDRV_CTL_TLVT_DB_SCALE;
+        tlv[1]=(int)tlvSize; 
+        tlv[2]=-min*100;
+        tlv[3]=max*100;
+        return tlv;
+}
+
 STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_object *ctlJ, halQueryMode queryMode) {
-    int err, ctlNumid;
+    int err, ctlNumid, ctlValue;
     json_object *tmpJ;
     const char *ctlName;
     ctlRequestT ctlRequest;    
@@ -53,7 +75,7 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
     json_object_object_get_ex (ctlJ, "name" , &tmpJ);
     ctlName  = json_object_get_string(tmpJ);
     
-    json_object_object_get_ex (ctlJ, "numid" , &tmpJ);
+    json_object_object_get_ex (ctlJ, "ctl" , &tmpJ);
     ctlNumid  = json_object_get_int(tmpJ);
     
     if (!ctlNumid && !ctlName) {
@@ -70,17 +92,30 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
     if (!err) {
         snd_ctl_elem_id_alloca(&elemId);    
         snd_ctl_elem_info_get_id(elemInfo, elemId);
-        if (ctlNumid) goto OnSucessExit; // hardware control nothing todo
+        if (snd_ctl_elem_info_get_numid(elemInfo)) goto OnSucessExit; // hardware control nothing todo
         else {  // user created kcontrol should be removable  
             err = snd_ctl_elem_remove(ctlDev, elemId);
-            AFB_NOTICE ("ctlName=%s numid=%d fail to reset", snd_ctl_elem_info_get_name(elemInfo), snd_ctl_elem_info_get_numid(elemInfo));
-            goto OnErrorExit;
+            if (err < 0) {
+                afb_req_fail_f (request, "ctl-reset-fail", "ctlName=%s numid=%d fail to reset", snd_ctl_elem_info_get_name(elemInfo), snd_ctl_elem_info_get_numid(elemInfo));
+                goto OnErrorExit;
+            } else elemInfo=NULL; // we remove control elemInfo is not valid anymore
         }
+    }
+
+    // Control was deleted need to refresh elemInfo
+    if (!elemInfo) {
+        snd_ctl_elem_info_alloca(&elemInfo);
+        if (ctlName) snd_ctl_elem_info_set_name (elemInfo, ctlName);
+        snd_ctl_elem_info_set_interface (elemInfo, SND_CTL_ELEM_IFACE_MIXER);
+        snd_ctl_elem_info(ctlDev, elemInfo);
     }
     
     // default for json_object_get_int is zero
     json_object_object_get_ex (ctlJ, "min" , &tmpJ);
     ctlMin = json_object_get_int(tmpJ);
+    
+    json_object_object_get_ex (ctlJ, "value" , &tmpJ);
+    ctlValue = json_object_get_int(tmpJ);
 
     json_object_object_get_ex (ctlJ, "max" , &tmpJ);
     if (!tmpJ) ctlMax=1;
@@ -91,7 +126,7 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
     else ctlStep = json_object_get_int(tmpJ);
     
     json_object_object_get_ex (ctlJ, "count" , &tmpJ);
-    if (!tmpJ) ctlCount=2;
+    if (!tmpJ) ctlCount=1;
     else ctlCount = json_object_get_int(tmpJ);
 
     json_object_object_get_ex (ctlJ, "snddev" , &tmpJ);
@@ -113,17 +148,17 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
     
     switch (ctlType) {
         case SND_CTL_ELEM_TYPE_BOOLEAN:
-            err = snd_ctl_add_boolean_elem_set(ctlDev, elemInfo, 1, ctlCount);
+            err = snd_ctl_add_boolean_elem_set(ctlDev, elemInfo, ctlCount, ctlCount);
             if (err) {
                 afb_req_fail_f (request, "ctl-invalid-bool", "devid=%s crl=%s invalid boolean data", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
                 goto OnErrorExit;                
             }            
 
-            elemTlv = allocate_bool_elem_set_tlv();
+            elemTlv = allocate_bool_fake_tlv();
                     
             // Provide FALSE as default value
             for (int idx=0; idx < ctlCount; idx ++) {
-                snd_ctl_elem_value_set_boolean (elemValue, idx, 1);
+                snd_ctl_elem_value_set_boolean (elemValue, idx, ctlValue);
             }           
             break;
             
@@ -136,27 +171,79 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
 
             // Provide 0 as default value
             for (int idx=0; idx < ctlCount; idx ++) {
-                snd_ctl_elem_value_set_integer (elemValue, idx, 0);
-            }            
+                snd_ctl_elem_value_set_integer (elemValue, idx, ctlValue);
+            }
+
+            // Fulup needed to be tested with some dB expert !!!
+            json_object *dbscaleJ;
+            if (json_object_object_get_ex (ctlJ, "dbscale" , &dbscaleJ)) {
+                if (json_object_get_type(dbscaleJ) != json_type_object) {
+                    afb_req_fail_f (request, "ctl-invalid-dbscale", "devid=%s crl=%s invalid json in integer control", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
+                    goto OnErrorExit;
+                    
+                    json_object_object_get_ex (ctlJ, "min" , &tmpJ);
+                    int min = json_object_get_int(tmpJ);
+                    if (min >= 0) {
+                        afb_req_fail_f (request, "ctl-invalid-dbscale", "devid=%s crl=%s min should be a negative number", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
+                        goto OnErrorExit;                        
+                    }
+                    
+                    // default value 0=mute
+                    json_object_object_get_ex (ctlJ, "max" , &tmpJ);
+                    int max = json_object_get_int(tmpJ);
+                    
+                    // default value 1dB
+                    json_object_object_get_ex (ctlJ, "step" , &tmpJ);
+                    int step = json_object_get_int(tmpJ);
+                    if (step <= 0) step=1;
+                    
+                    elemTlv = allocate_int_dbscale_tlv (min, max, step);
+                    
+                }
+            } else {
+                // provide a fake linear TLV
+                elemTlv = allocate_int_linear_tlv (ctlMin, ctlMax);
+            }
             break;
             
-        case SND_CTL_ELEM_TYPE_INTEGER64:
-            err = snd_ctl_add_integer64_elem_set (ctlDev, elemInfo, 1, ctlCount, ctlMin, ctlMax, ctlStep);
+            
+        case SND_CTL_ELEM_TYPE_ENUMERATED: {
+            json_object *enumsJ;
+            json_object_object_get_ex (ctlJ, "enums" , &enumsJ);
+            if (json_object_get_type(enumsJ) != json_type_array) {
+                afb_req_fail_f (request, "ctl-missing-enums", "devid=%s crl=%s mandatory enum=xxx missing in enumerated control", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
+                goto OnErrorExit;                                
+            }
+            
+            int length = json_object_array_length(enumsJ);
+            const char **enumlabels = malloc(length*sizeof(char*));
+            
+            for (int jdx=0; jdx < length; jdx++) {
+                tmpJ = json_object_array_get_idx(enumsJ, jdx);
+                enumlabels[jdx] = json_object_get_string(tmpJ);
+            }
+            
+            err = snd_ctl_add_enumerated_elem_set (ctlDev, elemInfo, 1, ctlCount, length, enumlabels);
             if (err) {
-                afb_req_fail_f (request, "ctl-invalid-bool", "devid=%s crl=%s invalid boolean data", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
+                afb_req_fail_f (request, "ctl-invalid-bool", "devid=%s crl=%s invalid enumerated control", snd_ctl_name(ctlDev), json_object_get_string(ctlJ));
                 goto OnErrorExit;                
             }            
-
+            
             // Provide 0 as default value
             for (int idx=0; idx < ctlCount; idx ++) {
-                snd_ctl_elem_value_set_integer64 (elemValue, idx, 0);
+                snd_ctl_elem_value_set_enumerated (elemValue, idx, ctlValue);
             }            
-            break;
+
+            elemTlv = allocate_bool_fake_tlv();
             
-        case SND_CTL_ELEM_TYPE_ENUMERATED:            
+            break;
+        }
+        
+        // Long Term Waiting ToDoList
+        case SND_CTL_ELEM_TYPE_INTEGER64:
         case SND_CTL_ELEM_TYPE_BYTES:
         default:
-            afb_req_fail_f (request, "ctl-invalid-type", "crl=%s invalid/unknown type", json_object_get_string(ctlJ));
+            afb_req_fail_f (request, "ctl-invalid-type", "crl=%s unsupported/unknown element type", json_object_get_string(ctlJ));
             goto OnErrorExit;                
     }
 
@@ -177,7 +264,7 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t  *ctlDev, json_obje
             afb_req_fail_f (request, "TLV-write-fail", "crl=%s numid=%d fail to write data error=%s", json_object_get_string(ctlJ), snd_ctl_elem_info_get_numid(elemInfo), snd_strerror(err));
             goto OnErrorExit;                
         }
-    }    
+    } 
 
     // return newly created as a JSON object
     OnSucessExit:
@@ -225,9 +312,9 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
      
     switch (json_object_get_type(ctlsJ)) { 
         case json_type_object:
-             ctlsValues= addOneSndCtl(request, ctlDev, ctlsJ, queryMode);
-             
-             break;
+            ctlsValues= addOneSndCtl(request, ctlDev, ctlsJ, queryMode);
+            if (!ctlsValues) goto OnErrorExit; 
+            break;
         
         case json_type_array:
             ctlsValues= json_object_new_array();
@@ -235,6 +322,7 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
                 json_object *ctlJ = json_object_array_get_idx (ctlsJ, idx);
                 ctlValues= addOneSndCtl(request, ctlDev, ctlJ, queryMode) ;
                 if (ctlValues) json_object_array_add (ctlsValues, ctlValues);
+                else goto OnErrorExit; 
             }
             break;
             
@@ -247,6 +335,6 @@ PUBLIC void alsaAddCustomCtls(afb_req request) {
     afb_req_success(request, ctlsValues, NULL);
             
     OnErrorExit:
-        if (ctlDev) snd_ctl_close(ctlDev);   
+        if (ctlDev) snd_ctl_close(ctlDev);    
         return;
 }

@@ -618,7 +618,7 @@ PUBLIC int alsaGetSingleCtl (snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlRe
         if (snd_ctl_elem_info_is_tlv_readable(elemInfo)) {
             unsigned int *tlv = alloca(TLV_BYTE_SIZE);
             if ((err = snd_ctl_elem_tlv_read(ctlDev, elemId, tlv, 4096)) < 0) {
-                    fprintf (stderr, "Control %s element TLV read error\n", snd_strerror(err));
+                    AFB_NOTICE ("Control numid=%d err=%s element TLV read error\n", numid, snd_strerror(err));
                     goto OnErrorExit;
             } else {
                     json_object_object_add (ctlRequest->valuesJ,"tlv", decodeTlv (tlv, TLV_BYTE_SIZE, queryMode));                                       
@@ -642,15 +642,14 @@ STATIC void alsaSetGetCtls (ActionSetGetT action, afb_req request) {
     unsigned int ctlCount;
     snd_ctl_t *ctlDev;
     snd_ctl_elem_list_t *ctlList;  
-    json_object *sndctls=json_object_new_array();;
     queryValuesT queryValues;
-    json_object *queryJ, *numidsJ;
+    json_object *queryJ, *numidsJ, *sndctls;
        
     queryJ = alsaCheckQuery (request, &queryValues);
     if (!queryJ) goto OnErrorExit;
     
     // Prase Numids + optional values
-    done= json_object_object_get_ex (queryJ, "numid" , &numidsJ);
+    done= json_object_object_get_ex (queryJ, "ctl" , &numidsJ);
     if (!done) queryValues.count=0;
     else {
         enum json_type jtype= json_object_get_type(numidsJ);
@@ -701,6 +700,10 @@ STATIC void alsaSetGetCtls (ActionSetGetT action, afb_req request) {
         ctlRequest= alloca (sizeof(ctlRequestT)*(queryValues.count));
         NumidsListParse (action, &queryValues, ctlRequest);
     }
+    
+    // if more than one crl requested prepare an array for response
+    if (queryValues.count!= 1 && action==ACTION_GET) sndctls=json_object_new_array();
+    else sndctls=NULL;
           
     // Loop on all ctlDev controls
     for (int ctlIndex=0; ctlIndex < ctlCount; ctlIndex++) {
@@ -745,7 +748,11 @@ STATIC void alsaSetGetCtls (ActionSetGetT action, afb_req request) {
             }
             if (err) status++;
             else {
-                if (action == ACTION_GET) json_object_array_add (sndctls, ctlRequest[jdx].valuesJ);
+                // Do not embed response in an array when only one ctl was requested
+                if (action == ACTION_GET) {
+                    if (queryValues.count >  1) json_object_array_add (sndctls, ctlRequest[jdx].valuesJ);
+                    else sndctls = ctlRequest[jdx].valuesJ;
+                }
             }
         }
     }
@@ -755,16 +762,14 @@ STATIC void alsaSetGetCtls (ActionSetGetT action, afb_req request) {
     for (int jdx=0; jdx < queryValues.count; jdx++) {
         if (ctlRequest[jdx].used <= 0) {
             json_object *failctl = json_object_new_object();
-            json_object_object_add (failctl, "numid", ctlRequest[jdx].jToken);
-            if (ctlRequest[jdx].valuesJ) json_object_object_add(failctl, "value", ctlRequest[jdx].valuesJ);
-            
-            AFB_NOTICE ("*** jToken=%s value=%s", json_object_get_string(ctlRequest[jdx].jToken), json_object_get_string(ctlRequest[jdx].valuesJ));
-
-            if (ctlRequest[jdx].numId == -1) json_object_object_add (failctl, "error", json_object_new_string ("Numid Invalid"));
+            if (ctlRequest[jdx].numId == -1) json_object_object_add (failctl, "warning", json_object_new_string ("Numid Invalid"));
             else {
-               if (ctlRequest[jdx].used ==  0) json_object_object_add (failctl, "error", json_object_new_string ("Numid Does Not Exist"));
-               if (ctlRequest[jdx].used == -1) json_object_object_add (failctl, "error", json_object_new_string ("Value invalid"));
+               if (ctlRequest[jdx].used ==  0) json_object_object_add (failctl, "warning", json_object_new_string ("Numid Does Not Exist"));
+               if (ctlRequest[jdx].used == -1) json_object_object_add (failctl, "warning", json_object_new_string ("Value Refused"));
             }
+            
+            json_object_object_add (failctl, "ctl", ctlRequest[jdx].jToken);
+            
             json_object_array_add (warningsJ, failctl);
         }
         /* WARNING!!!! Check with Jose why following put free valuesJ

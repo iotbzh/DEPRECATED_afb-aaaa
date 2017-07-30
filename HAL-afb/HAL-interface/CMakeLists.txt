@@ -21,7 +21,7 @@
 PROJECT_TARGET_ADD(hal-interface)
 
     # Define targets 
-    ADD_LIBRARY(${TARGET_NAME} STATIC hal-volmap.c hal-interface.c)
+    ADD_LIBRARY(${TARGET_NAME} STATIC hal-volume.c hal-volramp.c hal-interface.c)
 
     # Library properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES OUTPUT_NAME halinterface)

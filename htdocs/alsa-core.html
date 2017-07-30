@@ -31,16 +31,16 @@
     <br>
     <ol>
     <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode})">Get all Alsa Ctls</button></li>
-    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode, numid:[numid]})">Get Alsa Ctls [numid]</button></li>
-    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode, numid:[numid,numid+1]})">Get Alsa Ctls [numid,numid+1]</button></li>
+    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode, ctl:[numid]})">Get Alsa Ctls [numid]</button></li>
+    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode, ctl:[numid,numid+1]})">Get Alsa Ctls [numid,numid+1]</button></li>
     <br>
     
     
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, numid:[[9,20]]})">Set Alsa Ctl numid:[[9,20]]</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, numid:[{id:9,val:50}]})">Set Alsa Ctl numid:[{id:9,val:50}]}</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, numid:[[6,[20,20]]]})">Set Alsa Ctl  numid:[[6,[20,20]]]</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, numid:[{id:6,val:[50,50]}]})">Set Alsa Ctl numid:[{id:2,val:[50,50]}]</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, numid:[{id:6,val:[50,50]}, {id:9,val:50,50}]})">Set Alsa Ctl numid:[{id:6,val:[50,50]}, {id:9,val:50,50}]</button></li>
+    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[[9,20]]})">Set Alsa Ctl ctl:[[9,20]]</button></li>
+    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[{id:9,val:50}]})">Set Alsa Ctl ctl:[{id:9,val:50}]}</button></li>
+    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[[6,[20,20]]]})">Set Alsa Ctl  ctl:[[6,[20,20]]]</button></li>
+    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[{id:6,val:[50,50]}]})">Set Alsa Ctl ctl:[{id:2,val:[50,50]}]</button></li>
+    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[{id:6,val:[50,50]}, {id:9,val:50,50}]})">Set Alsa Ctl ctl:[{id:6,val:[50,50]}, {id:9,val:50,50}]</button></li>
     <br>    
     <li><button onclick="callbinder('alsacore','ucmquery', {devid:sndcard, mode:mode})">List UCM verbs</button></li>
     <li><button onclick="callbinder('alsacore','ucmset'  , {devid:sndcard, mode:mode, verb:'HiFi'})">Set UCM HiFi</button></li>

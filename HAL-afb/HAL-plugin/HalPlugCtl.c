@@ -321,7 +321,7 @@ SND_CTL_PLUGIN_DEFINE_FUNC(afbhal) {
                    return -EINVAL;
                 }
                                 
-                err=snd_config_search(ctlconfig, "numid", &itemConf);
+                err=snd_config_search(ctlconfig, "ctl", &itemConf);
                 if (!err) {
                     if (snd_config_get_integer(itemConf, (long*)&plughandle->ctls[plughandle->ctlsCount].ctlNumid) < 0) {
                     SNDERR("Not Integer: ctl:%s numid should be a valid integer", ctlLabel);

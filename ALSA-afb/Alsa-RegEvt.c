@@ -71,7 +71,7 @@ OnErrorExit:
 
 // This routine is called when ALSA event are fired
 STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void* userData) {
-    int err;
+    int err, ctlNumid;
     evtHandleT *evtHandle = (evtHandleT*)userData; 
     snd_ctl_event_t *eventId;
     json_object *ctlEventJ;
@@ -79,12 +79,12 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
     int iface;
     int device;
     int subdev;
-    const char*devname;
+    const char*ctlName;
     ctlRequestT ctlRequest;
     snd_ctl_elem_id_t *elemId;
     
     if ((revents & EPOLLHUP) != 0) {
-        AFB_NOTICE( "SndCtl hanghup [car disconnected]");
+        AFB_NOTICE("SndCtl hanghup [car disconnected]");
         goto ExitOnSucess;
     }
     
@@ -108,21 +108,30 @@ STATIC  int sndCtlEventCB (sd_event_source* src, int fd, uint32_t revents, void*
         
         err = alsaGetSingleCtl (evtHandle->ctlDev, elemId, &ctlRequest, evtHandle->mode);
         if (err) goto OnErrorExit;
-
-        iface  = snd_ctl_event_elem_get_interface(eventId);
-        device = snd_ctl_event_elem_get_device(eventId);
-        subdev = snd_ctl_event_elem_get_subdevice(eventId);
-        devname= snd_ctl_event_elem_get_name(eventId);
-        
-        // proxy ctlevent as a binder event        
-        ctlEventJ = json_object_new_object();
-        json_object_object_add(ctlEventJ, "device" ,json_object_new_int (device));
-        json_object_object_add(ctlEventJ, "subdev" ,json_object_new_int (subdev));
-        if (evtHandle->mode < 2) {
-            json_object_object_add(ctlEventJ, "iface"  ,json_object_new_int (iface));
-            json_object_object_add(ctlEventJ, "devname",json_object_new_string (devname));
+               
+        // If CTL as a value use it as container for response
+        if (ctlRequest.valuesJ) ctlEventJ= ctlRequest.valuesJ;
+        else {
+            ctlEventJ = json_object_new_object();
+            ctlNumid = snd_ctl_event_elem_get_numid(eventId);
+            json_object_object_add(ctlEventJ, "id",json_object_new_int (ctlNumid));
         }
-        if (ctlRequest.valuesJ) (json_object_object_add(ctlEventJ, "value"  ,ctlRequest.valuesJ));
+
+        if (evtHandle->mode >= QUERY_COMPACT) {
+            ctlName = snd_ctl_event_elem_get_name(eventId);
+            json_object_object_add(ctlEventJ, "name",json_object_new_string (ctlName));
+        }
+
+        if (evtHandle->mode >= QUERY_VERBOSE) {
+            iface   = snd_ctl_event_elem_get_interface(eventId);
+            device  = snd_ctl_event_elem_get_device(eventId);
+            subdev  = snd_ctl_event_elem_get_subdevice(eventId);
+            json_object_object_add(ctlEventJ, "ifc"  ,json_object_new_int (iface));
+            json_object_object_add(ctlEventJ, "dev"  ,json_object_new_int (device));
+            json_object_object_add(ctlEventJ, "sub"  ,json_object_new_int (subdev));
+        }
+
+    
         AFB_DEBUG( "sndCtlEventCB=%s", json_object_get_string(ctlEventJ));
         afb_event_push(evtHandle->afbevt, ctlEventJ);
     }
@@ -234,7 +243,7 @@ PUBLIC void alsaEvtSubcribe (afb_req request) {
 // Subscribe to every Alsa CtlEvent send by a given board
 STATIC json_object *alsaProbeCardId (afb_req request) {
     char devid [10];
-    const char *devname, *shortname, *longname;
+    const char *ctlName, *shortname, *longname;
     int card, err, index, idx;
     json_object *responseJ;
     snd_ctl_t   *ctlDev;
@@ -260,12 +269,12 @@ STATIC json_object *alsaProbeCardId (afb_req request) {
         // extract sound card information
         snd_ctl_card_info(ctlDev, cardinfo);
         index    = snd_ctl_card_info_get_card(cardinfo);
-        devname  = snd_ctl_card_info_get_id(cardinfo);
+        ctlName  = snd_ctl_card_info_get_id(cardinfo);
         shortname= snd_ctl_card_info_get_name(cardinfo);
         longname = snd_ctl_card_info_get_longname(cardinfo);
         
         // check if short|long name match        
-        if (!strcmp (sndname, devname)) break;
+        if (!strcmp (sndname, ctlName)) break;
         if (!strcmp (sndname, shortname)) break;
         if (!strcmp (sndname, longname)) break;
     }

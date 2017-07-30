@@ -22,11 +22,25 @@
 #include <alsa/asoundlib.h>
 
 #include "audio-interface.h"
+#include <systemd/sd-event.h>
+
 
 typedef enum {
-    ACTION_SET,
-    ACTION_GET
+   ACTION_SET,
+   ACTION_GET
 } ActionSetGetT;
+
+// VolRamp Handle Store current status for a given VolRam CB set
+typedef struct {
+  halRampEnumT mode;
+  halCtlsEnumT slave;
+  int delay;     // delay between volset in us
+  int stepDown;  // linear %
+  int stepUp;    // linear %
+  int current;   // current volume for slave ctl
+  int target;    // target volume
+  sd_event_source *evtsrc; // event loop timer source
+} halVolRampT;
 
 typedef struct {
     int min;
@@ -42,7 +56,9 @@ typedef struct {
      int count;    
      int minval;
      int maxval;
+     int value;
      int step;
+     char **enums;
      alsaHalDBscaleT  *dbscale;
 } alsaHalCtlMapT;
 
@@ -50,8 +66,8 @@ typedef struct {
 typedef struct afb_service alsaHalServiceT;
 
 typedef struct {
-   struct json_object* (*callback)(alsaHalCtlMapT *control, void* handle,  struct json_object *valuesJ);
-   void* handle;        
+   void (*callback)(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *valuesJ);
+   void* handle;
 } alsaHalCbMapT;
 
 typedef struct {
@@ -62,19 +78,28 @@ typedef struct {
     char* info;
 } alsaHalMapT;
 
-
-typedef const struct  {
-    char  *name;
+typedef struct  {
+    const char  *name;
     const char  *info;
-    alsaHalMapT *ctls;    
+    alsaHalMapT *ctls; 
+    const char  *devid;
+    json_object* (*volumeCB)(ActionSetGetT action, const alsaHalCtlMapT *halCtls,  json_object *valuesJ);
 } alsaHalSndCardT;
 
+// hal-interface.c
 extern afb_verb_v2 halServiceApi[];
-PUBLIC void halServiceEvent(const char *evtname, struct json_object *object);
+extern char *halVolRampModes[];
+PUBLIC void halServiceEvent(const char *evtname, json_object *object);
 PUBLIC int  halServiceInit (const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard);
+PUBLIC json_object *halGetCtlByTag (halRampEnumT tag);
+PUBLIC int halSetCtlByTag (halRampEnumT tag, int value);
 
-// hal-volmap.c
-PUBLIC struct json_object *SetGetNormaliseVolumes(ActionSetGetT action, const alsaHalCtlMapT *halCtls,  struct json_object *valuesJ);
+
+// hal-volramp.c
+PUBLIC void volumeRamp (halCtlsEnumT halTag,alsaHalCtlMapT *control, void* handle, json_object *valJ);
+
+// hal-volume.c
+PUBLIC json_object *volumeNormalise(ActionSetGetT action, const alsaHalCtlMapT *halCtls,  json_object *valuesJ);
 
 
 #endif /* SHAREHALLIB_H */

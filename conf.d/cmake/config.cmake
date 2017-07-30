@@ -18,7 +18,7 @@
 
 # Project Info
 # ------------------
-set(PROJECT_NAME unicens-agent)
+set(PROJECT_NAME audio-bindings)
 set(PROJECT_VERSION "0.1")
 set(PROJECT_PRETTY_NAME "Audio Agent")
 set(PROJECT_DESCRIPTION "Expose Alsa through AGL AppFw")

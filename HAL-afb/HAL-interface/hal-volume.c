@@ -16,6 +16,9 @@
  * 
  * references: 
  *   alsa-util/amixer.c + alsa-lib/simple.c
+ *   snd_tlv_convert_from_dB
+ *   nt snd_tlv_convert_to_dB
+ *   snd_tlv_get_dB_range
  */
 
 #define _GNU_SOURCE  // needed for vasprintf
@@ -58,7 +61,7 @@ STATIC int dbNormalizeVal (enumRandeModeDB_T normaliseMode, const alsaHalDBscale
 }
 
 // HAL normalise volume values to 0-100%
-PUBLIC struct json_object *SetGetNormaliseVolumes(ActionSetGetT action, const alsaHalCtlMapT *halCtls,  struct json_object *valuesJ) {
+PUBLIC json_object *volumeNormalise(ActionSetGetT action, const alsaHalCtlMapT *halCtls,  json_object *valuesJ) {
     enumRandeModeDB_T useNormalizeDB;
     int length;
 
@@ -131,7 +134,7 @@ PUBLIC struct json_object *SetGetNormaliseVolumes(ActionSetGetT action, const al
                     break;
                     
                 default: 
-                    AFB_NOTICE ("SetGetNormaliseVolumes: invalid action value=%d", (int)action);
+                    AFB_NOTICE ("volumeNormalise: invalid action value=%d", (int)action);
                     goto ExitOnError;    
             }
         } 
