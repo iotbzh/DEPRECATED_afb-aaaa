@@ -37,6 +37,12 @@
     <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, val:25},{tag:5, val:25}])">Set[{tag:4, val:25},{tag:5, val:25}]</button></li>
     <li><button onclick="callbinder(sndcard,'ctl-set', [{tag:4, val:[55,45]},{tag:5, val:[45,55]}])">Set[{tag:4, val:[55,45]},{tag:5, val:[45,55]}]]</button></li>
     <br>
+    
+    <li>
+        <label for="volramp">Volume Ramp</label>
+        <input id="volramp" type="number" min=0 max=100 step=10 maxlength=3 placeholder="Enter 0-100" onChange="callbinder(sndcard,'ctl-set', {label:'Volume_Ramp', val:this.value})">
+    </li>
+    <br>
     </ol>
     
     <div id="main" style="visibility:hidden">

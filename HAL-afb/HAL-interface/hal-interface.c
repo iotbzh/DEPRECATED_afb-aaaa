@@ -39,6 +39,7 @@ STATIC const char *halCtlsLabels[] = {
     [Vol_Ramp_Set_Delay] = "Volume_Ramp_Delay",        
     [Vol_Ramp_Set_Down]  = "Volume_Ramp_Down",        
     [Vol_Ramp_Set_Up]    = "Volume_Ramp_Up",        
+    [Vol_Ramp_Set_Slave] = "Volume_Ramp_Slave",        
        
    [EndHalCrlTag] = NULL
 };
@@ -70,7 +71,7 @@ STATIC int halCtlStringToIndex (const char* label) {
     alsaHalMapT *halCtls= halSndCard->ctls;
 
     for (int idx = 0;  halCtls[idx].tag != EndHalCrlTag; idx++) {
-       if (!strcmp (halCtls[idx].label, label)) return idx;
+       if (halCtls[idx].label && !strcmp (halCtls[idx].label, label)) return idx;
     }
     
     // not found
