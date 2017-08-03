@@ -57,7 +57,7 @@ STATIC alsaHalMapT  alsaHalMap[]= {
   { .tag=Vol_Ramp_Set_Up   , .cb={.callback=volumeRamp, .handle=&volRampMaster}, .info="set linear step up ramp [default 10]",
     .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .value=10, .name="Hal-VolRamp-Step-Up"}
   },
-  { .tag=Vol_Ramp   , .cb={.callback=volumeRamp, .handle=&volRampMaster}, .info="ramp volume linearly according to current ramp setting",
+  { .tag=Master_Playback_Volume   , .cb={.callback=volumeRamp, .handle=&volRampMaster}, .info="ramp volume linearly according to current ramp setting",
     .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .name="Hal-VolRamp"}
   },
   
@@ -75,7 +75,7 @@ STATIC alsaHalSndCardT alsaHalSndCard  = {
 
 STATIC int sndServiceInit () {
     int err;
-    AFB_DEBUG ("IntelHalBinding Init");
+    AFB_DEBUG ("Scarlett Binding Init");
     
     err = halServiceInit (afbBindingV2.api, &alsaHalSndCard);
     return err;

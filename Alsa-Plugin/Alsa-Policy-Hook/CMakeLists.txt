@@ -16,27 +16,23 @@
 # limitations under the License.
 ###########################################################################
 
+# Activate ALSA  dynamic build build mode get resolve "snd_dlsym_start"
+add_compile_options(-DPIC)
 
-# Add target to project dependency list
-PROJECT_TARGET_ADD(hal-unicens-usb)
 
-    # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE UnicensHAL.c UnicensVol.c)
+PROJECT_TARGET_ADD(alsa_hook_cb)
 
-    # Binder exposes a unique public entry point
+    # Define targets 
+    ADD_LIBRARY(${TARGET_NAME} MODULE AlsaHookCb.c)
+
+    # Alsa Plugin properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	PREFIX "afb-"
-        LABELS "BINDING"
-	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
+	PREFIX ""
         OUTPUT_NAME ${TARGET_NAME}
     )
 
     # Library dependencies (include updates automatically)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
-        hal-interface
-        audio-interface
+        ${link_libraries}
     )
-
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
+    install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION lib)

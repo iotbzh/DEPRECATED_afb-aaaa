@@ -35,6 +35,9 @@
 #endif
 #define STATIC static
 
+// Soft control have dynamically allocated numid
+#define CTL_AUTO -1
+
 typedef enum {
   QUERY_QUIET   =0,  
   QUERY_COMPACT =1,  
@@ -63,7 +66,6 @@ typedef enum {
     StartHalCrlTag=0,
 
     // volume RAMP
-    Vol_Ramp,        
     Vol_Ramp_Set_Mode,        
     Vol_Ramp_Set_Delay,        
     Vol_Ramp_Set_Down,        
@@ -77,9 +79,15 @@ typedef enum {
     PCM_Playback_Switch,
     Capture_Volume,
     Master_OnOff_Switch,
+            
+    // Application Virtual Channels
+    Multimedia_Playback_Volume,        
+    Navigation_Playback_Volume,   
+    Emergency_Playback_Volume,        
            
    EndHalCrlTag // used to compute number of ctls
-} halCtlsEnumT;
+} halCtlsTagT;
+
 
 typedef enum {
    RAMP_VOL_NONE      = 0,
@@ -92,6 +100,8 @@ typedef enum {
 } halRampEnumT;
 
 PUBLIC void pingtest(struct afb_req request);
+extern const char *halVolRampModes[];
+extern const char *halCtlsLabels[];
 
 #endif /* AUDIO_INTERF_H */
 

@@ -18,10 +18,10 @@
 
 
 # Add target to project dependency list
-PROJECT_TARGET_ADD(hal-scalett-usb)
+PROJECT_TARGET_ADD(hal-jabra-usb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ScarlettUsbHAL.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE JabraUsbHAL.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES

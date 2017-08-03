@@ -27,48 +27,52 @@
 
 
 // Default Values for MasterVolume Ramping
-STATIC halVolRampT volRampMaster= {
-    .mode    = RAMP_VOL_NORMAL,
-    .slave   = Master_Playback_Volume,
-    .delay   = 100*1000, // ramping delay in us
-    .stepDown=1,
-    .stepUp  =1,
+STATIC halVolRampT volRampMaster = {
+    .mode = RAMP_VOL_NORMAL,
+    .slave = Master_Playback_Volume,
+    .delay = 100 * 1000, // ramping delay in us
+    .stepDown = 1,
+    .stepUp = 1,
 };
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
-STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .tag=Master_Playback_Volume, .  ctl={ .name="Master Playback Volume" } },
-  { .tag=PCM_Playback_Volume     , .ctl={ .name="PCM Playback Volume" } },
-  { .tag=PCM_Playback_Switch     , .ctl={ .name="Master Playback Switch" } },
-  { .tag=Capture_Volume          , .ctl={ .name="Capture Volume" } },
+STATIC alsaHalMapT alsaHalMap[] = {
+    { .tag = Master_Playback_Volume, . ctl =
+        { .name = "Master Playback Volume"}},
+    { .tag = PCM_Playback_Volume, .ctl =
+        { .name = "PCM Playback Volume"}},
+    { .tag = PCM_Playback_Switch, .ctl =
+        { .name = "Master Playback Switch"}},
+    { .tag = Capture_Volume, .ctl =
+        { .name = "Capture Volume"}},
 
-  { .tag=Vol_Ramp   , .cb={.callback=volumeRamp, .handle=&volRampMaster}, .info="ramp volume linearly according to current ramp setting",
-    .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .name="Hal-VolRamp"}
-  },
-  
-  { .tag=EndHalCrlTag}  /* marker for end of the array */
-} ;
+    { .tag = Master_Playback_Volume, .cb =
+        {.callback = volumeRamp, .handle = &volRampMaster}, .info = "ramp volume linearly according to current ramp setting",
+        .ctl =
+        {.numid = 0, .type = SND_CTL_ELEM_TYPE_INTEGER, .count = 1, .minval = 0, .maxval = 100, .step = 1, .name = "Hal-VolRamp"}},
 
-// HAL sound card mapping info
-STATIC alsaHalSndCardT alsaHalSndCard  = {
-    .name  = "HDA Intel PCH", //  WARNING: name MUST match with 'aplay -l'
-    .info  = "Hardware Abstraction Layer for IntelHDA sound card",
-    .ctls  = alsaHalMap,
+    { .tag = EndHalCrlTag} /* marker for end of the array */
 };
 
+// HAL sound card mapping info
+STATIC alsaHalSndCardT alsaHalSndCard = {
+    .name = "HDA Intel PCH", //  WARNING: name MUST match with 'aplay -l'
+    .info = "Hardware Abstraction Layer for IntelHDA sound card",
+    .ctls = alsaHalMap,
+};
 
-STATIC int sndServiceInit () {
+STATIC int sndServiceInit() {
     int err;
-    AFB_DEBUG ("IntelHalBinding Init");
+    AFB_DEBUG("IntelHal Binding Init");
 
-    err = halServiceInit (afbBindingV2.api, &alsaHalSndCard);
+    err = halServiceInit(afbBindingV2.api, &alsaHalSndCard);
     return err;
 }
 
 // API prefix should be unique for each snd card
 PUBLIC const struct afb_binding_v2 afbBindingV2 = {
-    .api     = "intel-hda",
-    .init    = sndServiceInit,
-    .verbs   = halServiceApi,
+    .api = "intel-hda",
+    .init = sndServiceInit,
+    .verbs = halServiceApi,
     .onevent = halServiceEvent,
 };

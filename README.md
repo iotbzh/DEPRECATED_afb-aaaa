@@ -78,14 +78,18 @@ AFB_daemon dependency on Standard Linux Distributions
     cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
     make
 
-    afb-daemon --workdir=.. --ldpaths=build --port=1234  --roothttp=./htdocs --token="" --verbose
+    afb-daemon --workdir=. --ldpaths=. --port=1234  --roothttp=../htdocs --token="" --verbose
+
+    Warning: See below net on GDB requiring (--workdir=.)
 ```
 
-# Local Source Debug with GDB
+# Note: GDB Source Debug limits/features
 
 Warning: technically AGL bindings are shared libraries loaded thought 'dlopen'. GDB supports source debug of dynamically
 loaded libraries, but user should be warn that the actual path to sharelib symbols is directly inherited from DLOPEN.
-As a result if you change your directory after binder start with --workdir=xxx then GDB will not find symbols anymore
+As a result if you change your directory after binder start with --workdir=xxx then GDB will stop working.
+
+Conclusion: double-check that --workdir=. and run debug session from ./build directory. Any IDEs like Netbeans or VisualCode should work out of the box.
 
 
 ```

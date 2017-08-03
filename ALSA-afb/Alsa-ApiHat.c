@@ -32,28 +32,28 @@
  * array of the verbs exported to afb-daemon
  */
 static const struct afb_verb_v2 api_verbs[] = {
-  /* VERB'S NAME          FUNCTION TO CALL  */
-  { .verb= "ping"   ,     .callback= pingtest },
-  { .verb= "getinfo",     .callback= alsaGetInfo},
-  { .verb= "getctl",      .callback= alsaGetCtls},
-  { .verb= "setctl",      .callback= alsaSetCtls},
-  { .verb= "subscribe",   .callback= alsaEvtSubcribe},
-  { .verb= "getcardid",   .callback= alsaGetCardId},
-  { .verb= "halregister", .callback= alsaRegisterHal},
-  { .verb= "hallist",     .callback= alsaActiveHal},
-  { .verb= "ucmquery",    .callback= alsaUseCaseQuery},
-  { .verb= "ucmset",      .callback= alsaUseCaseSet},
-  { .verb= "ucmget",      .callback= alsaUseCaseGet},
-  { .verb= "ucmreset",    .callback= alsaUseCaseReset},
-  { .verb= "ucmclose",    .callback= alsaUseCaseClose},
-  { .verb= "addcustomctl",.callback= alsaAddCustomCtls},
-  { .verb= NULL } /* marker for end of the array */
+    /* VERB'S NAME          FUNCTION TO CALL  */
+    { .verb = "ping", .callback = pingtest},
+    { .verb = "getinfo", .callback = alsaGetInfo},
+    { .verb = "getctl", .callback = alsaGetCtls},
+    { .verb = "setctl", .callback = alsaSetCtls},
+    { .verb = "subscribe", .callback = alsaEvtSubcribe},
+    { .verb = "getcardid", .callback = alsaGetCardId},
+    { .verb = "halregister", .callback = alsaRegisterHal},
+    { .verb = "hallist", .callback = alsaActiveHal},
+    { .verb = "ucmquery", .callback = alsaUseCaseQuery},
+    { .verb = "ucmset", .callback = alsaUseCaseSet},
+    { .verb = "ucmget", .callback = alsaUseCaseGet},
+    { .verb = "ucmreset", .callback = alsaUseCaseReset},
+    { .verb = "ucmclose", .callback = alsaUseCaseClose},
+    { .verb = "addcustomctl", .callback = alsaAddCustomCtls},
+    { .verb = NULL} /* marker for end of the array */
 };
 
 /*
  * description of the binding for afb-daemon
  */
 const struct afb_binding_v2 afbBindingV2 = {
-    .api     = "alsacore",
-    .verbs   = api_verbs,
+    .api = "alsacore",
+    .verbs = api_verbs,
 };

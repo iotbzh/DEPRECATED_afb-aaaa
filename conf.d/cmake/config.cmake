@@ -61,6 +61,7 @@ set (PKG_REQUIRED_LIST
         libmicrohttpd>=0.9.55
 	afb-daemon
 	json-c
+        libafbwsc
 )
 
 # LANG Specific compile flags set for all build types

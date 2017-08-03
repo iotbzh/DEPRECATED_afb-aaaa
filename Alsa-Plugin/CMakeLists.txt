@@ -17,26 +17,7 @@
 ###########################################################################
 
 
-# Add target to project dependency list
-PROJECT_TARGET_ADD(hal-scalett-usb)
+# Include any directory starting with a Capital letter
+# -----------------------------------------------------
+PROJECT_SUBDIRS_ADD(${PROJECT_SRC_DIR_PATTERN})
 
-    # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ScarlettUsbHAL.c)
-
-    # Binder exposes a unique public entry point
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	PREFIX "afb-"
-        LABELS "BINDING"
-	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
-        OUTPUT_NAME ${TARGET_NAME}
-    )
-
-    # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} 
-        hal-interface
-        audio-interface
-    )
-
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
