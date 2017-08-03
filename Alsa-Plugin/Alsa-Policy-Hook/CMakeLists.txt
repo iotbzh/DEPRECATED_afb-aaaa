@@ -20,10 +20,10 @@
 add_compile_options(-DPIC)
 
 
-PROJECT_TARGET_ADD(alsa_hook_cb)
+PROJECT_TARGET_ADD(policy_hook_cb)
 
     # Define targets 
-    ADD_LIBRARY(${TARGET_NAME} MODULE AlsaHookCb.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE PolicyHookCb.c)
 
     # Alsa Plugin properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES

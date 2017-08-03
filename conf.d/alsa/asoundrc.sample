@@ -46,7 +46,7 @@ pcm.MyMixerPCM {
 # -------------------------------------------
 pcm_hook_type.MyHookPlugin {
     install "AlsaInstallHook" 
-    lib "/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Alsa-Plugin/Alsa-Hook-Callback/alsa_hook_cb.so"
+    lib "/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Alsa-Plugin/Alsa-Policy-Hook/policy_hook_cb.so"
 }
 
 # Define a HookedPCM that point to Hook_type sharelib
@@ -59,19 +59,37 @@ pcm.MyNavigationHook {
     hooks.0 {
         type "MyHookPlugin"
         hook_args {
+            verbose true # print few log messages (default false);
 
-            # Every Call should return OK in order PCM to open
+            # Every Call should return OK in order PCM to open (default timeout 100ms)
             uri   "ws://localhost:1234/api?token='audio-agent-token'"
             request {
-                CallPing {
-                    api   "alsacore"
-                    verb  "ping"
+                # Request autorisation to write on navigation 
+                RequestNavigation {
+                    api   "polctl"
+                    verb  "navigation"
                 } 
-                CallUCM {
-                    api   "alsacore"
-                    verb  "ping"
-                    query "{'devid':'hw:v1340','verb':'Navigation','dev':'speakers'}"
-                }    
+                # subscribe to Audio Agent Event
+                SubscriveEvents {
+                    api   "polctl"
+                    verb  "monitor"
+                }
+                TestAutoStop {
+                    api   "polctl"
+                    verb  "event_test"
+                    query "{'label':'stop', 'delay':10000}"
+                }
+                TestAutoStart {
+                    api   "polctl"
+                    verb  "event_test"
+                    query "{'label':'stop', 'delay':20000}"
+                }
+                # start a test pause/resume not supported by every hardware
+                TestPauseResume {
+                    api   "polctl"
+                    verb  "event_test"
+                    query "{'label':'pause', 'delay':3000, 'count':10}"
+                } 
             }
         }
     }

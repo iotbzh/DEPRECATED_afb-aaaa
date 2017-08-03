@@ -27,27 +27,33 @@ pcm_hook_type.MyHookPlugin {
 # --------------------------------------------------------------------
 pcm.MyNavigationHook {
     type hooks
-    slave.pcm "MyMixerPCM" # Target PCM to effectively play sound 
+    slave.pcm "MyMixerPCM"
 
-    # Call request that should succeed before accessing slave PCM
+    # Defined used hook sharelib and provide arguments/config to install func
     hooks.0 {
-        type "MyHookPlugin"   # Name=xxxx should match with pcm_hook_type.xxxx
+        type "MyHookPlugin"
         hook_args {
+            verbose true # print few log messages (default false);
 
-            # URI to AGL-Advance-Audio-Agent binder
+            # Every Call should return OK in order PCM to open (default timeout 100ms)
             uri   "ws://localhost:1234/api?token='audio-agent-token'"
-
-            # Call request to send to binder (initial label is free, query is optional)
             request {
-                MyFirstCheck {
-                    api   "alsacore"
-                    verb  "ping"
+                # Request autorisation to write on navigation 
+                RequestNavigation {
+                    api   "polctl"
+                    verb  "navigation"
                 } 
-                MySecondCheck {
-                    api   "alsacore"
-                    verb  "ucmset"
-                    query "{'devid':'hw:v1340','verb':'Navigation','dev':'speakers'}"
-                }    
+                # subscribe to Audio Agent Event
+                SubscriveEvents {
+                    api   "polctl"
+                    verb  "monitor"
+                }
+                # force PCM stop after 10s
+                TestAutoStop {
+                    api   "polctl"
+                    verb  "event_test"
+                    query "{'label':'stop', 'delay':10000}"
+                }
             }
         }
     }
