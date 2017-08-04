@@ -38,24 +38,6 @@
         <in>HighLevelApiConf.c</in>
         <in>HighLevelBinding.c</in>
       </df>
-      <df name="MostVolume">
-        <df name="external">
-          <in>ConnectionInfo.cpp</in>
-          <in>Console.c</in>
-          <in>MacAddr.cpp</in>
-          <in>MostIpc.cpp</in>
-          <in>MostMsg.cpp</in>
-          <in>MostMsgTx.cpp</in>
-          <in>MsgAddr.cpp</in>
-          <in>MsgFilter.cpp</in>
-          <in>Shadow_NetworkMaster.cpp</in>
-          <in>Thread.cpp</in>
-        </df>
-        <in>DeviceContainer.cpp</in>
-        <in>DeviceValue.cpp</in>
-        <in>Mediator.cpp</in>
-        <in>libmostvolume.cpp</in>
-      </df>
       <df name="Shared-Interface">
         <in>audio-interface.c</in>
       </df>
@@ -261,40 +243,6 @@
             <pElem>build/HighLevel-afb</pElem>
           </incDir>
         </cTool>
-      </item>
-      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/ConnectionInfo.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
-      </item>
-      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
       <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
         <cTool flags="3">
@@ -588,40 +536,6 @@
             <pElem>build/HighLevel-afb</pElem>
           </incDir>
         </cTool>
-      </item>
-      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/ConnectionInfo.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
-      </item>
-      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
       <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
         <cTool flags="4">
