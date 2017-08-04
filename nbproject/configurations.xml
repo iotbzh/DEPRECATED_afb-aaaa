@@ -18,6 +18,9 @@
           <in>hal-volramp.c</in>
           <in>hal-volume.c</in>
         </df>
+        <df name="hal-most-unicens">
+          <in>hal_most_unicens.c</in>
+        </df>
         <df name="HAL-plugin">
           <in>HalPlugCb.c</in>
           <in>HalPlugCtl.c</in>
@@ -225,6 +228,13 @@
           </incDir>
         </cTool>
       </item>
+      <item path="HAL-afb/hal-most-unicens/hal_most_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
           <incDir>
@@ -320,6 +330,18 @@
           <incDir>
             <pElem>HAL-afb/Unicens-USB</pElem>
             <pElem>/usr/include/json-c</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/hal-most-unicens">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
         </cTool>
       </folder>
@@ -518,6 +540,13 @@
           </incDir>
         </cTool>
       </item>
+      <item path="HAL-afb/hal-most-unicens/hal_most_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
         <cTool flags="3">
           <incDir>
@@ -612,6 +641,18 @@
           <incDir>
             <pElem>HAL-afb/Unicens-USB</pElem>
             <pElem>/usr/include/json-c</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/hal-most-unicens">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
         </cTool>
       </folder>
