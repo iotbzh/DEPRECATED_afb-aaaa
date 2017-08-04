@@ -78,23 +78,8 @@
         <in>HighLevelApiConf.c</in>
         <in>HighLevelBinding.c</in>
       </df>
-      <df name="MostVolume">
-        <df name="external">
-          <in>ConnectionInfo.cpp</in>
-          <in>Console.c</in>
-          <in>MacAddr.cpp</in>
-          <in>MostIpc.cpp</in>
-          <in>MostMsg.cpp</in>
-          <in>MostMsgTx.cpp</in>
-          <in>MsgAddr.cpp</in>
-          <in>MsgFilter.cpp</in>
-          <in>Shadow_NetworkMaster.cpp</in>
-          <in>Thread.cpp</in>
-        </df>
-        <in>DeviceContainer.cpp</in>
-        <in>DeviceValue.cpp</in>
-        <in>Mediator.cpp</in>
-        <in>libmostvolume.cpp</in>
+      <df name="Shared-Interface">
+        <in>audio-interface.c</in>
       </df>
     </df>
     <logicalFolder name="ExternalFiles"
@@ -411,68 +396,8 @@
         <cTool flags="3">
         </cTool>
       </item>
-      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/ConnectionInfo.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
-      </item>
-      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <folder path="0/Alsa-Plugin">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
-            <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>PIC</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>policy_hook_cb_EXPORTS</Elem>
-          </preprocessorList>
+      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
         </cTool>
       </folder>
       <folder path="0/Alsa-afb">
@@ -933,50 +858,8 @@
           </incDir>
         </cTool>
       </item>
-      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/ConnectionInfo.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
-      </item>
-      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <folder path="0/Alsa-Plugin">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Alsa-Plugin/Alsa-Hook-Callback</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>build/Alsa-Plugin/Alsa-Hook-Callback</pElem>
-          </incDir>
+      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
         </cTool>
       </folder>
       <folder path="0/Alsa-afb">
