@@ -17,10 +17,10 @@
 ###########################################################################
 
 # Add target to project dependency list
-PROJECT_TARGET_ADD(audio-interface)
+PROJECT_TARGET_ADD(audio-common)
 
     # Define targets 
-    ADD_LIBRARY(${TARGET_NAME} STATIC audio-interface.c)
+    ADD_LIBRARY(${TARGET_NAME} STATIC audio-common.c wrap-json.c)
 
     # Library properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES

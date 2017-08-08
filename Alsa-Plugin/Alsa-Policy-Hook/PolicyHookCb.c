@@ -62,17 +62,6 @@
 #define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_ ## x
 void OnRequestCB(void* UNUSED(handle) , const char* UNUSED(api), const char* UNUSED(verb), struct afb_wsj1_msg*UNUSED(msg)) {}
 
-    typedef struct {
-    snd_pcm_t *pcm;
-    const char *uri;
-    struct afb_wsj1 *wsj1;
-    sd_event *sdLoop;
-    int verbose;
-    sem_t semaphore;
-    int count;
-    int error;
-} afbClientT;
-
 typedef struct {
     const char *api;
     const char *verb;
@@ -81,8 +70,22 @@ typedef struct {
     
     sd_event_source *evtSource;
     char *callIdTag;
-    afbClientT *afbClient;
+    void *afbClient;
 } afbRequestT;
+
+typedef struct {
+    snd_pcm_t *pcm;
+    const char *uri;
+    struct afb_wsj1 *wsj1;
+    sd_event *sdLoop;
+    int verbose;
+    sem_t semaphore;
+    int count;
+    int error;
+    afbRequestT **request;
+} afbClientT;
+
+
 
 static void *LoopInThread(void *handle) {
     afbClientT *afbClient = (afbClientT*) handle;
@@ -109,6 +112,11 @@ static void OnHangupCB(void *handle, struct afb_wsj1 *wsj1) {
     int err = snd_pcm_close (afbClient->pcm);
     if (err) exit(1);
 }
+
+typedef enum {
+    HOOK_INSTALL,
+    HOOK_CLOSE,
+} hookActionT;
 
 // supported action
 typedef enum {
@@ -201,8 +209,9 @@ static struct afb_wsj1_itf itf = {
 
 void OnResponseCB(void *handle, struct afb_wsj1_msg *msg) {
     afbRequestT *afbRequest= (afbRequestT*)handle;
+    afbClientT *afbClient=(afbClientT*)afbRequest->afbClient;
 
-    if (afbRequest->afbClient->verbose) printf("ON-RESPONSE call=%s response=%s\n", afbRequest->callIdTag, afb_wsj1_msg_object_s(msg));
+    if (afbClient->verbose) printf("ON-RESPONSE call=%s response=%s\n", afbRequest->callIdTag, afb_wsj1_msg_object_s(msg));
     
     // Cancel timeout for this request
     sd_event_source_unref(afbRequest->evtSource);
@@ -210,18 +219,18 @@ void OnResponseCB(void *handle, struct afb_wsj1_msg *msg) {
     if (! afb_wsj1_msg_is_reply_ok(msg)) goto OnErrorExit;
     
     // When not more waiting call release semaphore
-    afbRequest->afbClient->count--;
-    if (afbRequest->afbClient->count == 0) {
-        if (afbRequest->afbClient->verbose) printf("ON-RESPONSE No More Waiting Request\n");
-        afbRequest->afbClient->error=0;
-        sem_post (&afbRequest->afbClient->semaphore);
+    afbClient->count--;
+    if (afbClient->count == 0) {
+        if (afbClient->verbose) printf("ON-RESPONSE No More Waiting Request\n");
+        afbClient->error=0;
+        sem_post (&afbClient->semaphore);
     }
     return;
 
 OnErrorExit:    
     fprintf(stderr, "ON-RESPONSE ERROR call=%s response=%s\n", afbRequest->callIdTag, afb_wsj1_msg_object_s(msg));
-    afbRequest->afbClient->error=1;
-    sem_post (&afbRequest->afbClient->semaphore);
+   afbClient->error=1;
+    sem_post (&afbClient->semaphore);
 }
 
 int OnTimeoutCB (sd_event_source* source, uint64_t timer, void* handle) {
@@ -237,9 +246,10 @@ int OnTimeoutCB (sd_event_source* source, uint64_t timer, void* handle) {
 }
 
 // Call AGL binder asynchronously by with a timeout
-static int CallWithTimeout(afbClientT *afbClient, afbRequestT *afbRequest, int count) {
+static int CallWithTimeout(afbClientT *afbClient, afbRequestT *afbRequest, int count, hookActionT action) {
     uint64_t usec;
     int err;
+    const char *query;
 
     // create a unique tag for request
     (void) asprintf(&afbRequest->callIdTag, "%d:%s/%s", count, afbRequest->api, afbRequest->verb);
@@ -248,7 +258,9 @@ static int CallWithTimeout(afbClientT *afbClient, afbRequestT *afbRequest, int c
     sd_event_now(afbClient->sdLoop, CLOCK_MONOTONIC, &usec);
     sd_event_add_time(afbClient->sdLoop, &afbRequest->evtSource, CLOCK_MONOTONIC, usec+afbRequest->timeout*1000, 250, OnTimeoutCB, afbClient);
 
-    err = afb_wsj1_call_s(afbClient->wsj1, afbRequest->api, afbRequest->verb, afbRequest->query, OnResponseCB, afbRequest);
+    if (action == HOOK_INSTALL) query=afbRequest->query;
+    else query="{'closing': 1}";
+    err = afb_wsj1_call_s(afbClient->wsj1, afbRequest->api, afbRequest->verb, query, OnResponseCB, afbRequest);    
     if (err) goto OnErrorExit;
     
     // save client handle in request
@@ -261,37 +273,40 @@ OnErrorExit:
     return -1;
 }
 
-static int LaunchCallRequest(afbClientT *afbClient, afbRequestT **afbRequest) {
+static int LaunchCallRequest(afbClientT *afbClient, hookActionT action) {
 
     pthread_t tid;
     int err, idx;
+    afbRequestT **afbRequest= afbClient->request;
+        
+    if (action == HOOK_INSTALL) {
+        // init waiting counting semaphore
+        if (sem_init(&afbClient->semaphore, 1, 0) == -1) {
+           fprintf(stderr, "LaunchCallRequest: Fail Semaphore Init: %s\n", afbClient->uri); 
+        }
 
-    // init waiting counting semaphore
-    if (sem_init(&afbClient->semaphore, 1, 0) == -1) {
-       fprintf(stderr, "LaunchCallRequest: Fail Semaphore Init: %s\n", afbClient->uri); 
-    }
-    
-    // Create a main loop
-    err = sd_event_default(&afbClient->sdLoop);
-    if (err < 0) {
-        fprintf(stderr, "LaunchCallRequest: Connection to default event loop failed: %s\n", strerror(-err));
-        goto OnErrorExit;
-    }
-    
-    // start a thread with a mainloop to monitor Audio-Agent
-    err = pthread_create(&tid, NULL, &LoopInThread, afbClient);
-    if (err) goto OnErrorExit;
-    
-    // connect the websocket wsj1 to the uri given by the first argument 
-    afbClient->wsj1 = afb_ws_client_connect_wsj1(afbClient->sdLoop, afbClient->uri, &itf, afbClient);
-    if (afbClient->wsj1 == NULL) {
-        fprintf(stderr, "LaunchCallRequest: Connection to %s failed\n", afbClient->uri);
-        goto OnErrorExit;
-    }
+        // Create a main loop
+        err = sd_event_default(&afbClient->sdLoop);
+        if (err < 0) {
+            fprintf(stderr, "LaunchCallRequest: Connection to default event loop failed: %s\n", strerror(-err));
+            goto OnErrorExit;
+        }
 
+        // start a thread with a mainloop to monitor Audio-Agent
+        err = pthread_create(&tid, NULL, &LoopInThread, afbClient);
+        if (err) goto OnErrorExit;
+
+        // connect the websocket wsj1 to the uri given by the first argument 
+        afbClient->wsj1 = afb_ws_client_connect_wsj1(afbClient->sdLoop, afbClient->uri, &itf, afbClient);
+        if (afbClient->wsj1 == NULL) {
+            fprintf(stderr, "LaunchCallRequest: Connection to %s failed\n", afbClient->uri);
+            goto OnErrorExit;
+        }
+    }
+    
     // send call request to audio-agent asynchronously (respond with thread mainloop context)
     for (idx = 0; afbRequest[idx] != NULL; idx++) {
-        err = CallWithTimeout(afbClient, afbRequest[idx], idx);
+        err = CallWithTimeout(afbClient, afbRequest[idx], idx, action);
         if (err) {
             fprintf(stderr, "LaunchCallRequest: Fail call %s//%s/%s&%s", afbClient->uri, afbRequest[idx]->api, afbRequest[idx]->verb, afbRequest[idx]->query);
             goto OnErrorExit;
@@ -311,7 +326,25 @@ static int AlsaCloseHook(snd_pcm_hook_t *hook) {
 
     afbClientT *afbClient = (afbClientT*) snd_pcm_hook_get_private (hook);
     
-    if (afbClient->verbose) fprintf(stdout, "\nAlsaCloseHook pcm=%s\n", snd_pcm_name(afbClient->pcm));
+    // launch call request and create a waiting mainloop thread
+    int err = LaunchCallRequest(afbClient, HOOK_CLOSE);
+    if (err < 0) {
+        fprintf (stderr, "PCM Fail to Enter Mainloop\n");
+        goto OnErrorExit;
+    }
+    
+    // wait for all call request to return
+    sem_wait(&afbClient->semaphore);
+    if (afbClient->error) {
+        fprintf (stderr, "AlsaCloseHook: Audio Agent Fail to respond\n");
+        goto OnErrorExit;        
+    }
+
+    if (afbClient->verbose) fprintf(stdout, "\nAlsaHook Close Success PCM=%s URI=%s\n", snd_pcm_name(afbClient->pcm), afbClient->uri);
+    return 0;
+
+OnErrorExit:
+    fprintf(stderr, "\nAlsaPcmHook Plugin Close Fail PCM=%s\n", snd_pcm_name(afbClient->pcm));
     return 0;
 }
 
@@ -327,7 +360,7 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
     // start populating client handle
     afbClient->pcm = pcm;
     afbClient->verbose = 0;
-
+    afbClient->request = afbRequest;
     
     // Get PCM arguments from asoundrc
     snd_config_for_each(it, next, conf) {
@@ -393,18 +426,22 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
 
                 err = snd_config_search(ctlconfig, "api", &itemConf);
                 if (!err) {
-                    if (snd_config_get_string(itemConf, &afbRequest[callCount]->api) < 0) {
+                    const char *api;
+                    if (snd_config_get_string(itemConf, &api) < 0) {
                         SNDERR("Invalid api string for %s", callLabel);
                         goto OnErrorExit;
                     }
+                    afbRequest[callCount]->api=strdup(api);
                 }
                 
                 err = snd_config_search(ctlconfig, "verb", &itemConf);
                 if (!err) {
-                    if (snd_config_get_string(itemConf, &afbRequest[callCount]->verb) < 0) {
+                    const char *verb;
+                    if (snd_config_get_string(itemConf, &verb) < 0) {
                         SNDERR("Invalid verb string %s", id);
                         goto OnErrorExit;
                     }
+                    afbRequest[callCount]->verb=strdup(verb);
                 }
                 
                 err = snd_config_search(ctlconfig, "timeout", &itemConf);
@@ -462,7 +499,7 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
     if (err < 0) goto OnErrorExit;
 
     // launch call request and create a waiting mainloop thread
-    err = LaunchCallRequest(afbClient, afbRequest);
+    err = LaunchCallRequest(afbClient, HOOK_INSTALL);
     if (err < 0) {
         fprintf (stderr, "PCM Fail to Enter Mainloop\n");
         goto OnErrorExit;

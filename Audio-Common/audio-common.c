@@ -16,7 +16,7 @@
  * 
  */
 #define _GNU_SOURCE  // needed for vasprintf
-#include "audio-interface.h"
+#include "audio-common.h"
 
 PUBLIC const char *halCtlsLabels[] = {
    

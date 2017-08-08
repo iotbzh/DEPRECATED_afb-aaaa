@@ -22,7 +22,7 @@
 
 #include <alsa/asoundlib.h>
 #include <systemd/sd-event.h>
-#include "audio-interface.h"
+#include "audio-common.h"
 
 typedef enum {
     ACTION_SET,

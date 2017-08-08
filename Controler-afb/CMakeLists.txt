@@ -30,26 +30,28 @@ macro(SET_TARGET_GENSKEL TARGET_NAME API_DEF_NAME)
 endmacro(SET_TARGET_GENSKEL)
 
 # Add target to project dependency list
-PROJECT_TARGET_ADD(polctl-afb)
+PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE polctl-binding.c )
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-policy.c ctl-lua.c
+)
 
     # Generate API-v2 hat from OpenAPI json definition
-    SET_TARGET_GENSKEL(${TARGET_NAME} polctl-apidef)
+    SET_TARGET_GENSKEL(${TARGET_NAME} ctl-apidef)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	PREFIX "afb-"
         LABELS "BINDING"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
-        OUTPUT_NAME polctl
+        OUTPUT_NAME ${TARGET_NAME}
 
     )
 
     # Library dependencies (include updates automatically)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
-        audio-interface 
+        audio-common 
+        ${link_libraries}
     )
 
     # installation directory

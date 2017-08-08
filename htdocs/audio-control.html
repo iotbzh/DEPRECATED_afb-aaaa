@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Basic Audio Hardware Abstraction Layer Test</title>
+    <link rel="stylesheet" href="AudioBinding.css">
+    <script type="text/javascript" src="AFB-websock.js"></script>
+    <script type="text/javascript" src="AudioBinding.js"></script>
+</head>
+
+    
+<body onload="init('hal_registry','alsacore', 'hallist')">
+        
+    <h1>Simple Audio Control test</h1>
+    <button id="connected" onclick="init('alsa_registry','alsacore', 'getinfo');">Binder WS Fail</button>
+    <br><br>
+ 
+    <b>API Verbosity </b>
+    <select id='api_verbosity' onclick='mode=this.value'>
+        <option value='0'>Quiet</option>
+        <option value='1'>Compact</option>
+        <option value='2'>Verbose</option>
+        <option value='3'>Full</option>
+    </select>    
+    <br>
+
+    <br>
+    <ol>
+        
+    <li><button onclick="callbinder('control','lua_dostring','print(\'Bonjours\'); return true, 4567');">LUA string</button></li>
+    <li><button onclick="callbinder('control','lua_docall'  , {'func':'Adjust_Volume_Speed', 'args':[20]});">LUA function</button></li>
+    <li><button onclick="callbinder('control','lua_doscript', {'script':'helloworld-lua-script.lua', args:[{'arg1':'abcd'}, {'next':7890}, {'last':'xyz'}]});">LUA script</button></li>
+        
+    </ol>
+    
+    <div id="main" style="visibility:hidden">
+    <ol>
+    <li>Question <pre id="question"></pre>
+    <li>Response <pre id="output"></pre>
+    <li>Events: <pre id="outevt"></pre>
+    </ol>
+    </div>    

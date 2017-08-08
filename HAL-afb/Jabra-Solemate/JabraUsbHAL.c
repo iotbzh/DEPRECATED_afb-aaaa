@@ -24,7 +24,7 @@
  */
 #define _GNU_SOURCE 
 #include "hal-interface.h"
-#include "audio-interface.h" 
+#include "audio-common.h" 
 
 // Define few private tag for not standard functions
 #define PCM_Volume_Multimedia 1000

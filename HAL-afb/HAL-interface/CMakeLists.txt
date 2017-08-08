@@ -28,7 +28,7 @@ PROJECT_TARGET_ADD(hal-interface)
 
     # Library dependencies (include updates automatically)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
-        audio-interface
+        audio-common
     )
  
     # Define target includes

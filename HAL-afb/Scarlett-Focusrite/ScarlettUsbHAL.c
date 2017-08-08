@@ -24,7 +24,7 @@
  */
 #define _GNU_SOURCE 
 #include "hal-interface.h"
-#include "audio-interface.h" 
+#include "audio-common.h" 
 
 // Default Values for MasterVolume Ramping
 STATIC halVolRampT volRampMaster= {

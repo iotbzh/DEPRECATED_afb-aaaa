@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <alsa/asoundlib.h>
 
-#include "audio-interface.h"
+#include "audio-common.h"
 #include <systemd/sd-event.h>
 
 typedef enum {

@@ -21,6 +21,10 @@
           <in>PolicyHookCb.c</in>
         </df>
       </df>
+      <df name="Audio-Common">
+        <in>audio-common.c</in>
+        <in>wrap-json.c</in>
+      </df>
       <df name="build">
         <df name="CMakeFiles">
           <df name="3.5.2">
@@ -37,6 +41,12 @@
       </df>
       <df name="Common">
         <in>AudioCommonLib.c</in>
+      </df>
+      <df name="Controler-afb">
+        <in>ctl-binding.c</in>
+        <in>ctl-events.c</in>
+        <in>ctl-lua.c</in>
+        <in>ctl-policy.c</in>
       </df>
       <df name="HAL-afb">
         <df name="HAL-interface">
@@ -82,12 +92,6 @@
         <in>DeviceValue.cpp</in>
         <in>Mediator.cpp</in>
         <in>libmostvolume.cpp</in>
-      </df>
-      <df name="PolicyCtl-afb">
-        <in>polctl-binding.c</in>
-      </df>
-      <df name="Shared-Interface">
-        <in>audio-interface.c</in>
       </df>
     </df>
     <logicalFolder name="ExternalFiles"
@@ -163,8 +167,32 @@
         <cTool flags="1">
         </cTool>
       </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
       <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-policy.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-interface.c"
@@ -278,14 +306,6 @@
       </item>
       <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="PolicyCtl-afb/polctl-binding.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
       <folder path="0/ALSA-afb">
         <cTool>
           <incDir>
@@ -293,15 +313,15 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>alsa_lowlevel_EXPORTS</Elem>
           </preprocessorList>
@@ -317,14 +337,34 @@
             <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
             <Elem>PIC</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>policy_hook_cb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/Audio-Common">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -344,6 +384,28 @@
           </preprocessorList>
         </cTool>
       </folder>
+      <folder path="0/Controler-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
       <folder path="0/HAL-afb">
         <cTool>
           <incDir>
@@ -351,8 +413,6 @@
             <pElem>../../../opt/include/afb</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
           </preprocessorList>
         </cTool>
@@ -365,12 +425,14 @@
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
           </preprocessorList>
         </cTool>
@@ -381,6 +443,10 @@
             <pElem>HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/alsa</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/HDA-intel">
@@ -391,12 +457,14 @@
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HDA-intel</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>hal_intel_hda_EXPORTS</Elem>
           </preprocessorList>
@@ -410,12 +478,14 @@
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/Jabra-Solemate</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>hal_jabra_usb_EXPORTS</Elem>
           </preprocessorList>
@@ -429,12 +499,14 @@
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_FILE_POLICY="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_PATH_LUA="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_PATH_POLICY="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/home/fulup/opt/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>hal_scalett_usb_EXPORTS</Elem>
           </preprocessorList>
@@ -446,6 +518,10 @@
             <pElem>HAL-afb/Unicens-USB</pElem>
             <pElem>/usr/include/json-c</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HighLevel-afb">
@@ -462,47 +538,6 @@
           <incDir>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
           </incDir>
-        </cTool>
-      </folder>
-      <folder path="0/PolicyCtl-afb">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>build/PolicyCtl-afb</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>polctl_afb_EXPORTS</Elem>
-          </preprocessorList>
-        </cTool>
-      </folder>
-      <folder path="0/Shared-Interface">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>build/Shared-Interface</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
     </conf>
@@ -595,6 +630,10 @@
         <cTool flags="3">
         </cTool>
       </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
       <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
         </cTool>
@@ -722,10 +761,6 @@
       </item>
       <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
-        </cTool>
-      </item>
       <folder path="0/ALSA-afb">
         <cTool>
           <incDir>
@@ -743,6 +778,16 @@
             <pElem>/usr/include/json-c</pElem>
             <pElem>../../../opt/include</pElem>
             <pElem>build/Alsa-Plugin/Alsa-Hook-Callback</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Audio-Common">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Shared-Interface</pElem>
           </incDir>
         </cTool>
       </folder>
@@ -856,16 +901,6 @@
           </incDir>
         </cTool>
       </folder>
-      <folder path="0/Shared-Interface">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/Shared-Interface</pElem>
-          </incDir>
-        </cTool>
-      </folder>
     </conf>
     <conf name="Aplay_Multimedia" type="0">
       <toolsSet>
@@ -966,7 +1001,15 @@
             tool="0"
             flavor2="2">
       </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
       <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-interface.c"
             ex="false"
@@ -1074,14 +1117,6 @@
       </item>
       <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
-      <item path="PolicyCtl-afb/polctl-binding.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
       <item path="build/CMakeFiles/3.5.2/CompilerIdC/CMakeCCompilerId.c"
             ex="false"
             tool="0"
@@ -1122,6 +1157,37 @@
             <Elem>PIC</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>policy_hook_cb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/Audio-Common">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Shared-Interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/Controler-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>build/PolicyCtl-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>polctl_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -1184,37 +1250,6 @@
             <pElem>HAL-afb/Unicens-USB</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-          </incDir>
-        </cTool>
-      </folder>
-      <folder path="0/PolicyCtl-afb">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>build/PolicyCtl-afb</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>polctl_afb_EXPORTS</Elem>
-          </preprocessorList>
-        </cTool>
-      </folder>
-      <folder path="0/Shared-Interface">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/Shared-Interface</pElem>
           </incDir>
         </cTool>
       </folder>

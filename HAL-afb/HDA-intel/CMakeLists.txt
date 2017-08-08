@@ -34,7 +34,7 @@ PROJECT_TARGET_ADD(hal-intel-hda)
     # Library dependencies (include updates automatically)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
         hal-interface
-        audio-interface
+        audio-common
     )
 
     # installation directory
