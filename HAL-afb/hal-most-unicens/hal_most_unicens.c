@@ -17,27 +17,59 @@
  */
 #define _GNU_SOURCE 
 #include "hal-interface.h"
-#include "audio-interface.h" 
+#include "audio-interface.h"
+#include "wrap-json.h"
 
 static int master_volume;
-static int master_switch;
-static int pcm_volume;
+static json_bool master_switch;
+static int pcm_volume[6];
 
-void unicens_volume_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *valuesJ) {
+void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
+
+    const char *j_str = json_object_to_json_string(j_obj);
     
-    AFB_NOTICE("UNICENS Volume tag=%d, vol=%d, min=%d, max=%d", tag, control->value, control->minval, control->maxval);
+    if (wrap_json_unpack(j_obj, "[i!]", &master_volume) == 0) {
+        AFB_NOTICE("master_volume: %s, value=%d", j_str, master_volume);
+    }
+    else {
+        AFB_NOTICE("master_volume: INVALID STRING %s", j_str);
+    } 
+}
+
+void unicens_master_switch_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
+
+    const char *j_str = json_object_to_json_string(j_obj);
     
+    if (wrap_json_unpack(j_obj, "[b!]", &master_switch) == 0) {
+        AFB_NOTICE("master_switch: %s, value=%d", j_str, master_switch);
+    }
+    else {
+        AFB_NOTICE("master_switch: INVALID STRING %s", j_str);
+    }    
+}
+
+void unicens_pcm_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
+
+    const char *j_str = json_object_to_json_string(j_obj);
+    
+    if (wrap_json_unpack(j_obj, "[iiiiii!]", &pcm_volume[0], &pcm_volume[1], &pcm_volume[2], &pcm_volume[3],
+                                             &pcm_volume[4], &pcm_volume[5]) == 0) {
+        AFB_NOTICE("pcm_vol: %s", j_str);
+    }
+    else {
+        AFB_NOTICE("pcm_vol: INVALID STRING %s", j_str);
+    }
 }
 
 /* declare ALSA mixer controls */
 STATIC alsaHalMapT  alsaHalMap[]= { 
-  { .tag=Master_Playback_Volume, .cb={.callback=unicens_volume_cb, .handle=&master_volume}, .info="Sets master playback volume",
+  { .tag=Master_Playback_Volume, .cb={.callback=unicens_master_vol_cb, .handle=&master_volume}, .info="Sets master playback volume",
     .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .value=50, .name="Master Playback Volume"}   
   },
-  { .tag=Master_OnOff_Switch, .cb={.callback=unicens_volume_cb, .handle=&master_switch}, .info="Sets master playback switch",
+  { .tag=Master_OnOff_Switch, .cb={.callback=unicens_master_switch_cb, .handle=&master_switch}, .info="Sets master playback switch",
     .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .minval=0, .maxval=1, .step=1, .value=1, .name="Master Playback Switch"}   
   }, 
-  { .tag=PCM_Playback_Volume, .cb={.callback=unicens_volume_cb, .handle=&pcm_volume}, .info="Sets PCM playback volume",
+  { .tag=PCM_Playback_Volume, .cb={.callback=unicens_pcm_vol_cb, .handle=&pcm_volume}, .info="Sets PCM playback volume",
     .ctl={.numid=0, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=6, .minval=0, .maxval=100, .step=1, .value=100, .name="PCM Playback Volume"}   
   },
   { .tag=EndHalCrlTag}              /* marker for end of the array */

@@ -21,7 +21,7 @@
 PROJECT_TARGET_ADD(hal-most-unicens)
 
     # Define project Targets
-    ADD_LIBRARY(hal-most-unicens MODULE hal_most_unicens.c)
+    ADD_LIBRARY(hal-most-unicens MODULE hal_most_unicens.c wrap-json.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
