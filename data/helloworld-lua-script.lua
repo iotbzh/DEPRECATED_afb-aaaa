@@ -37,5 +37,5 @@
  
 
     -- return two arguments on top of status
-    return true, 1234, "ABCD"
+    return true, 1234, "ABCD", 5678
 

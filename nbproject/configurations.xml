@@ -313,6 +313,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/ALSA-afb</pElem>
           </incDir>
@@ -334,6 +335,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
           </incDir>
           <preprocessorList>
@@ -355,6 +357,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/Audio-Common</pElem>
           </incDir>
@@ -424,6 +427,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
@@ -456,6 +460,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HDA-intel</pElem>
@@ -477,6 +482,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/Jabra-Solemate</pElem>
@@ -498,6 +504,7 @@
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>

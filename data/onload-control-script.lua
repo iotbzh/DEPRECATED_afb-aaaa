@@ -23,14 +23,59 @@ count=0
 -- Adjust Volume function of vehicle speed
 function Adjust_Volume_Speed (speed_meters_second)
 
-   message= string.format("****  Adjust_Volume_Speed speed=%d count=%d", speed_meters_second, count);
-   print (message);
+  AFB:notice("In Adjust_Volume_Speed")
+
+   print (string.format("***** Adjust_Volume_Speed speed=%d count=%d", speed_meters_second, count));
 
    -- compute volume
    volume = speed_meters_second * 2
    count=count+1
 
-  return true, volume, count 
+  AFB:success (1234, volume, count, 5678) 
+end
+
+
+function Test_Binder_CB (result, context) 
+
+   local myTable= { ["arg1"] = "myString", ["arg2"] = 1234, ["arg4"] = true, ["arg5"] = 3.1416 }
+
+   AFB:notice ("In Test_Binder_CB", result, context)
+
+   AFB:success (1234, "ABCD", myTable, 5678)
+
+end
+
+function Test_Binder_Call_Async () 
+
+   local query= {
+      ["arg1"] = "myString",
+      ["arg2"] = 1234,
+      ["arg4"] = true,
+      ["arg5"] = 3.1416,
+   }
+
+   AFB:service("alsacore","ping", query, Test_Binder_CB, "myContext")
+
+end
+
+function Test_Binder_Call_Sync () 
+
+    local query= {
+      ["arg1"] = "myString",
+      ["arg2"] = 1234,
+      ["arg4"] = true,
+      ["arg5"] = 3.1416,
+    }
+
+   err= AFB:service_sync ("alsacore","ping", query)
+
+    if (err) then
+        AFB:fail ("AFB:service_call_sync fail");
+    else
+        AFB:success (1234, "ABCD", myTable)
+    end
+
+
 end
 
 function Ping_Test(...)
@@ -41,10 +86,9 @@ function Ping_Test(...)
     do
         print(" -- ", tostring(v))
     end
- 
 
-    -- return two arguments on top of status
-    return true, 1234, "ABCD"
+    -- push response to client
+    AFB:success (true, 1234, "ABCD"); 
 
 end
 
