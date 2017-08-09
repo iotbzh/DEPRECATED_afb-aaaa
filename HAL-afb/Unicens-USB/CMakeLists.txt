@@ -16,6 +16,7 @@
 # limitations under the License.
 ###########################################################################
 
+#[[
 
 # Add target to project dependency list
 PROJECT_TARGET_ADD(hal-unicens-usb)
@@ -40,3 +41,4 @@ PROJECT_TARGET_ADD(hal-unicens-usb)
     # installation directory
     INSTALL(TARGETS ${TARGET_NAME}
         LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
+    ]]
