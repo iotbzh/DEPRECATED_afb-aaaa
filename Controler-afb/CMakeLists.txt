@@ -16,19 +16,6 @@
 # limitations under the License.
 ###########################################################################
 
-
-# Generate API-v2 hat from OpenAPI json definition
-macro(SET_TARGET_GENSKEL TARGET_NAME API_DEF_NAME)
-    add_custom_command(OUTPUT ${API_DEF_NAME}.h
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${API_DEF_NAME}.json
-        COMMAND afb-genskel  ${API_DEF_NAME}.json >${API_DEF_NAME}.h 
-    )
-    add_custom_target(${API_DEF_NAME}_OPENAPI DEPENDS ${API_DEF_NAME}.h)
-    add_dependencies(${TARGET_NAME} ${API_DEF_NAME}_OPENAPI)
-    
-endmacro(SET_TARGET_GENSKEL)
-
 # Add target to project dependency list
 PROJECT_TARGET_ADD(control-afb)
 
@@ -36,13 +23,10 @@ PROJECT_TARGET_ADD(control-afb)
     ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-policy.c ctl-lua.c
 )
 
-    # Generate API-v2 hat from OpenAPI json definition
-    SET_TARGET_GENSKEL(${TARGET_NAME} ctl-apidef)
-
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	PREFIX "afb-"
-        LABELS "BINDING"
+        LABELS "BINDINGV2"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME ${TARGET_NAME}
 

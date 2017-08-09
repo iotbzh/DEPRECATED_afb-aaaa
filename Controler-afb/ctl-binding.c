@@ -26,7 +26,7 @@
 
 
 // Include Binding Stub generated from Json OpenAPI
-#include "ctl-apidef.h"
+#include "afb-control-afb.h"
 
 
 PUBLIC void ctlapi_navigation (afb_req request) {
