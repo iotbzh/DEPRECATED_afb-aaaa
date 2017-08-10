@@ -23,9 +23,8 @@
 #define AUDIO_INTERF_H
 
 #define AFB_BINDING_VERSION 2
-
-#include <json-c/json.h>
 #include <afb/afb-binding.h>
+#include <json-c/json.h>
 
 // Waiting for official macro from José
 #define AFB_GET_VERBOSITY afb_get_verbosity_v2()

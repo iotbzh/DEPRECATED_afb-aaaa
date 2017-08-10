@@ -31,17 +31,17 @@
 
 PUBLIC void ctlapi_navigation (afb_req request) {
        
-    ctlapi_authorize (CTLAPI_NAVIGATION, request);
+    ctlapi_dispatch (CTLAPI_NAVIGATION, request);
 }
 
 PUBLIC void ctlapi_multimedia (afb_req request) {
        
-    ctlapi_authorize (CTLAPI_MULTIMEDIA, request);
+    ctlapi_dispatch (CTLAPI_MULTIMEDIA, request);
 }
 
 PUBLIC void ctlapi_emergency (afb_req request) {
        
-    ctlapi_authorize (CTLAPI_EMERGENCY, request);
+    ctlapi_dispatch (CTLAPI_EMERGENCY, request);
 }
 
 PUBLIC void ctlapi_monitor (afb_req request) {
@@ -65,7 +65,7 @@ PUBLIC int CtlBindingInit () {
     int errcount=0;
     
     errcount += TimerEvtInit();
-    errcount += PolicyInit();
+    errcount += DispatchInit();
     errcount += LuaLibInit();
     
     AFB_DEBUG ("Audio Policy Control Binding Done errcount=%d", errcount);

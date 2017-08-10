@@ -65,25 +65,13 @@ set (PKG_REQUIRED_LIST
         lua>=5.3
 )
 
-# LANG Specific compile flags set for all build types
-# set(CMAKE_C_FLAGS "")
-# set(CMAKE_CXX_FLAGS "")
-
-# Do not optimise when debugging
-set(CMAKE_C_FLAGS_DEBUG "-g -ggdb -Wp,-U_FORTIFY_SOURCE")
-
-# (BUG!!!) as PKG_CONFIG_PATH does not work [should be an env variable]
-# ---------------------------------------------------------------------
-set(CMAKE_INSTALL_PREFIX $ENV{HOME}/opt)
-set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
-set(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
-
 # Define CONTROL_CDEV_NAME should match MOST driver values
 # ---------------------------------------------------------
-  add_compile_options(-DCONTROL_FILE_POLICY="onload-control-policy.json")
-  add_compile_options(-DCONTROL_PATH_POLICY="/etc/default/audio-agent/policy:$ENV{HOME}/.config/audio-agent:${CMAKE_INSTALL_PREFIX}/audio-agent/policy:${CMAKE_SOURCE_DIR}/data")
-
-  add_compile_options(-DCONTROL_PATH_LUA="/etc/default/audio-agent/policy:$ENV{HOME}/.config/audio-agent:${CMAKE_INSTALL_PREFIX}/audio-agent/policy:${CMAKE_SOURCE_DIR}/data")
+  add_compile_options(-DCONTROL_MAXPATH_LEN=255)
+  add_compile_options(-DCONTROL_DISPATCH_FILE="onload-control-policy.json")
+  add_compile_options(-DCONTROL_DISPATCH_PATH="${CMAKE_CURRENT_BINARY_DIR}/Controler-afb:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/controler")
+  add_compile_options(-DCONTROL_LUA_PATH="/etc/default/audio-agent/policy:$ENV{HOME}/.config/audio-agent:${CMAKE_INSTALL_PREFIX}/audio-agent/policy:${CMAKE_SOURCE_DIR}/data")
+  add_compile_options(-DCONTROL_PLUGIN_PATH="${BINDINGS_INSTALL_DIR}/controler:/usr/lib/${PROJECT_NAME}")
   
 # Print a helper message when every thing is finished
 # ----------------------------------------------------
