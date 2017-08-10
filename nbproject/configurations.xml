@@ -58,9 +58,18 @@
           <in>hal-volume.c</in>
         </df>
         <df name="hal-most-unicens">
+          <df name="ucs2-vol">
+            <df name="src">
+              <in>device_container.cpp</in>
+              <in>device_value.cpp</in>
+              <in>libmostvolume.cpp</in>
+              <in>setup.cpp</in>
+            </df>
+          </df>
           <in>hal_most_unicens.c</in>
           <in>wrap-json.c</in>
           <in>wrap_unicens.c</in>
+          <in>wrap_volume.c</in>
         </df>
         <df name="HAL-plugin">
           <in>HalPlugPcm.c</in>
@@ -397,7 +406,6 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="3">
           <incDir>
             <pElem>/opt/AGL/include/afb</pElem>
             <pElem>HAL-afb/hal-most-unicens</pElem>
@@ -410,11 +418,55 @@
           </incDir>
         </cTool>
       </item>
+      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/device_container.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool flags="1">
+          <incDir>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/device_value.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool flags="1">
+          <incDir>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/libmostvolume.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool flags="1">
+          <incDir>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/setup.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+        <ccTool flags="1">
+          <incDir>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
+          </incDir>
+        </ccTool>
+      </item>
       <item path="HAL-afb/hal-most-unicens/wrap-json.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="3">
+        <cTool flags="4">
           <incDir>
             <pElem>HAL-afb/hal-most-unicens</pElem>
             <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
@@ -427,7 +479,21 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>/opt/AGL/include/afb</pElem>
+            <pElem>HAL-afb/hal-most-unicens</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>build/HAL-afb/hal-most-unicens</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/wrap_volume.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
           <incDir>
             <pElem>/opt/AGL/include/afb</pElem>
             <pElem>HAL-afb/hal-most-unicens</pElem>
@@ -446,7 +512,7 @@
         </cTool>
       </item>
       <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
+        <cTool flags="4">
         </cTool>
       </folder>
       <folder path="0/Alsa-afb">
@@ -896,6 +962,13 @@
         </cTool>
       </item>
       <item path="HAL-afb/hal-most-unicens/wrap_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/wrap_volume.c"
             ex="false"
             tool="0"
             flavor2="3">

@@ -21,12 +21,13 @@
 #include "wrap-json.h"
 #include "string.h"
 #include "wrap_unicens.h"
+#include "wrap_volume.h"
 
 static int master_volume;
 static json_bool master_switch;
 static int pcm_volume[6];
 
-static uint8_t test[3] = {0x07,0x03,0xFF};
+/*static uint8_t test[3] = {0x07,0x03,0xFF};*/
 
 void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
@@ -109,13 +110,19 @@ STATIC int unicens_service_init() {
     
     err = wrap_ucs_subscribe_sync();
     if (err) {
-        AFB_ERROR("Failed to subscribe to unicensv2-binding");
+        AFB_ERROR("Failed to subscribe to UNICENS binding");
         goto OnErrorExit;
     }
     
     err = wrap_ucs_initialize_sync("/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data/config_multichannel_audio_kit.xml");
     if (err) {
-        AFB_ERROR("Failed to initialize unicens-v2 binding");
+        AFB_ERROR("Failed to initialize UNICENS binding");
+        goto OnErrorExit;
+    }
+    
+    err = wrap_volume_init();
+    if (err) {
+        AFB_ERROR("Failed to initialize wrapper for volume library");
         goto OnErrorExit;
     }
     

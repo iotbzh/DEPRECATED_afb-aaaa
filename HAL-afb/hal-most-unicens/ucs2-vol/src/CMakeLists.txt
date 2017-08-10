@@ -16,33 +16,24 @@
 # limitations under the License.
 ###########################################################################
 
-ADD_SUBDIRECTORY(ucs2-vol)
-
 # Add target to project dependency list
-PROJECT_TARGET_ADD(hal-most-unicens)
+PROJECT_TARGET_ADD(ucs2-volume)
 
-    # Define project Targets
-    ADD_LIBRARY(hal-most-unicens MODULE hal_most_unicens.c wrap-json.c wrap_unicens.c)
+# Define targets source files
+ADD_LIBRARY(${TARGET_NAME} STATIC device_container.cpp  device_value.cpp  libmostvolume.cpp  setup.cpp)
 
-    # Binder exposes a unique public entry point
+    # Library properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	PREFIX "afb-"
-        LABELS "BINDING"
-	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME ${TARGET_NAME}
     )
 
-    # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} 
-        hal-interface
-        audio-interface
-    )
-
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
+    # Library dependencies from PKG_REQUIRED_LIST
+    #TARGET_LINK_LIBRARIES(ucs2-volume     # Library dependencies (include updates automatically)
+    #    ${link_libraries}
+    #)
 
     # Define properties to expose when others use this target
     TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME}
-       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ucs2-vol/inc
+       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../inc
     )
+
