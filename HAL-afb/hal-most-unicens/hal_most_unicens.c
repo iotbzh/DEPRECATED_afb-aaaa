@@ -20,10 +20,13 @@
 #include "audio-interface.h"
 #include "wrap-json.h"
 #include "string.h"
+#include "wrap_unicens.h"
 
 static int master_volume;
 static json_bool master_switch;
 static int pcm_volume[6];
+
+static uint8_t test[3] = {0x07,0x03,0xFF};
 
 void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
@@ -31,6 +34,9 @@ void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* hand
     
     if (wrap_json_unpack(j_obj, "[i!]", &master_volume) == 0) {
         AFB_NOTICE("master_volume: %s, value=%d", j_str, master_volume);
+        /*wrap_ucs_i2cwrite(0x270, test, 3);
+        wrap_ucs_i2cwrite(0x271, test, 3);
+        wrap_ucs_i2cwrite(0x272, test, 3);*/
     }
     else {
         AFB_NOTICE("master_volume: INVALID STRING %s", j_str);
@@ -84,91 +90,34 @@ STATIC alsaHalSndCardT alsaHalSndCard  = {
     .volumeCB = NULL,               /* use default volume normalization function */
 };
 
-STATIC int unicens_start_binding() {
-    
-    json_object *j_response, *j_query = NULL;
-    int err;
-    
-    /* Build an empty JSON object */
-    err = wrap_json_pack(&j_query, "{}");
-    if (err) {
-        AFB_ERROR("Failed to create subscribe json object");
-        goto OnErrorExit; 
-    }
-    
-    err = afb_service_call_sync("UNICENS", "subscribe", j_query, &j_response);
-    if (err) {
-        AFB_ERROR("Fail subscribing to UNICENS events");
-        goto OnErrorExit;
-    }
-    else {
-        AFB_NOTICE("Subscribed to UNICENS events, res=%s", json_object_to_json_string(j_response));
-        json_object_put(j_response);
-    }
-    json_object_put(j_query);
-#if 0
-    /* Build JSON object to retrieve UNICENS configuration */
-    err = wrap_json_pack(&j_query, "{}");
-    if (err) {
-        AFB_ERROR("Failed to create listconfig json object");
-        goto OnErrorExit; 
-    }
-    
-    err = afb_service_call_sync("UNICENS", "listconfig", j_query, &j_response);
-    if (err) {
-        AFB_ERROR("Failed to call listconfig");
-        goto OnErrorExit;
-    }
-    else {
-        AFB_NOTICE("UNICENS listconfig result, res=%s", json_object_to_json_string(j_response));
-        json_object_put(j_response);
-    }
-    json_object_put(j_query);
-#endif
-    
-    /* Build JSON object to initialize UNICENS */
-    err = wrap_json_pack(&j_query, "{s:s}", "filename", "/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data/config_multichannel_audio_kit.xml");
-    if (err) {
-        AFB_ERROR("Failed to create initialize json object");
-        goto OnErrorExit; 
-    }
-    err = afb_service_call_sync("UNICENS", "initialise", j_query, &j_response);
-    if (err) {
-        AFB_ERROR("Failed to initialize UNICENS");
-        goto OnErrorExit;
-    }
-    else {
-        AFB_NOTICE("Initialized UNICENS, res=%s", json_object_to_json_string(j_response));
-        json_object_put(j_response);
-    }
-    json_object_put(j_query);
-    
-    
-    j_query = NULL;
-  OnErrorExit:
-    if (j_query)
-        json_object_put(j_query);
-    return NULL;
-}
-
+/* initializes ALSA sound card, UNICENS API */
 STATIC int unicens_service_init() {
-    int err;
+    int err = 0;
     AFB_NOTICE("Initializing HAL-MOST-UNICENS-BINDING");
     
     err = halServiceInit(afbBindingV2.api, &alsaHalSndCard);
     if (err) {
-        AFB_ERROR("Cannot initialize hal-most-unicens binding.");
-        goto OnErrorExit;        
+        AFB_ERROR("Cannot initialize ALSA soundcard.");
+        goto OnErrorExit;
     }    
     
     err= afb_daemon_require_api("UNICENS", 1);
     if (err) {
-        AFB_ERROR("UNICENS is missing or not initialized");
-        goto OnErrorExit;        
+        AFB_ERROR("Failed to access UNICENS API");
+        goto OnErrorExit;
     }
     
-    unicens_start_binding();
+    err = wrap_ucs_subscribe_sync();
+    if (err) {
+        AFB_ERROR("Failed to subscribe to unicensv2-binding");
+        goto OnErrorExit;
+    }
     
+    err = wrap_ucs_initialize_sync("/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data/config_multichannel_audio_kit.xml");
+    if (err) {
+        AFB_ERROR("Failed to initialize unicens-v2 binding");
+        goto OnErrorExit;
+    }
     
 OnErrorExit:
     AFB_NOTICE("Initializing HAL-MOST-UNICENS-BINDING done..");

@@ -21,6 +21,7 @@
         <df name="hal-most-unicens">
           <in>hal_most_unicens.c</in>
           <in>wrap-json.c</in>
+          <in>wrap_unicens.c</in>
         </df>
         <df name="HAL-plugin">
           <in>HalPlugCb.c</in>
@@ -266,6 +267,20 @@
             <pElem>HAL-afb/hal-most-unicens</pElem>
             <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>build/HAL-afb/hal-most-unicens</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/wrap_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>/opt/AGL/include/afb</pElem>
+            <pElem>HAL-afb/hal-most-unicens</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
             <pElem>build/HAL-afb/hal-most-unicens</pElem>
           </incDir>
         </cTool>
@@ -570,6 +585,13 @@
         </cTool>
       </item>
       <item path="HAL-afb/hal-most-unicens/hal_most_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HAL-afb/hal-most-unicens/wrap_unicens.c"
             ex="false"
             tool="0"
             flavor2="3">
