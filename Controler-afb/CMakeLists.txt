@@ -33,7 +33,7 @@ endmacro(SET_TARGET_GENSKEL)
 PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-policy.c ctl-lua.c
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c 
 )
 
     # Generate API-v2 hat from OpenAPI json definition
@@ -45,7 +45,6 @@ PROJECT_TARGET_ADD(control-afb)
         LABELS "BINDING"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME ${TARGET_NAME}
-
     )
 
     # Library dependencies (include updates automatically)
@@ -56,5 +55,24 @@ PROJECT_TARGET_ADD(control-afb)
 
     # installation directory
     INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
+        LIBRARY DESTINATION CMAKE_INSTALL_PREFIX )
 
+PROJECT_TARGET_ADD(ctl-plugin-sample)
+
+    # Define targets 
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-plugin-sample.c)
+
+    # Alsa Plugin properties
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+	PREFIX "audio-"
+        OUTPUT_NAME ${TARGET_NAME}
+    )
+
+    # Library dependencies (include updates automatically)
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+        ${link_libraries}
+    )
+
+    # installation directory
+    INSTALL(TARGETS ${TARGET_NAME}
+        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR}/controler)

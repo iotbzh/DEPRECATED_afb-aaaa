@@ -1,22 +1,31 @@
 {
     "$schema": "ToBeDone",
     "metadata": {
-        "label": "sample-audio-policy",
+        "label": "sample-audio-control",
         "info": "Provide Default Audio Policy for Multimedia, Navigation and Emergency",
         "version": "1.0"
     },
     "onload": {
-        "info": "controler initialisation config",
-        "plugin": "sample-audio-policy.so",
+        "label": "onload-config",
+        "info": "onload initialisation config",
+        "plugin": "audio-ctl-plugin-sample.so",
         "actions": [
             {
-                "info": "Call policy sharelib install entrypoint",
+                "label": "onload-sample-cb",
+                "info": "Call control sharelib install entrypoint",
                 "callback": "SamplePolicyInstall",
                 "args": {"arg1" : "first_arg", "nextarg": "second arg value"}
             }, {
+                "label": "onload-sample-api",
                 "info": "Assert AlsaCore Presence",   
                 "api": "alsacore",
-                "verb": "ping"
+                "verb": "ping",
+                "args": "test"
+            }, {
+                "label": "onload-sample-lua",
+                "info": "Assert LUA Engine",
+                "lua": "Test_Lua_Engine",
+                "args": "ping"
             }
         ]
     },
@@ -25,7 +34,7 @@
                     "label": "multimedia",
                     "actions": [
                         {
-                            "label": "multimedia-policy-cb",
+                            "label": "multimedia-control-cb",
                             "info": "Call Sharelib Sample Callback",
                             "callback": "samplePolicyCB",
                             "args": {
@@ -33,7 +42,7 @@
                             "arg2": "toto"
                             }
                         }, {
-                            "label": "multimedia-policy-ucm",
+                            "label": "multimedia-control-ucm",
                             "info": "Subcall AlSA UCM navigation",   
                             "api": "alsacore",
                             "verb": "ucmset",

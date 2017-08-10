@@ -23,6 +23,22 @@
 
 #include "ctl-binding.h"
 
+#define DEFAULT_PAUSE_DELAY 3000
+#define DEFAULT_TEST_COUNT 1
+typedef int (*timerCallbackT)(void *context);
+typedef struct {
+    int value;
+    const char *label;
+} AutoTestCtxT;
+
+typedef struct TimerHandleS {
+    int count;
+    int delay;
+    AutoTestCtxT *context;
+    timerCallbackT callback;
+    sd_event_source *evtSource;
+} TimerHandleT;
+
 static afb_event afbevt;
 
 STATIC int TimerNext (sd_event_source* source, uint64_t timer, void* handle) {

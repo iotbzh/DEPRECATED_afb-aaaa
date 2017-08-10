@@ -21,17 +21,17 @@
 count=0
 
 -- Adjust Volume function of vehicle speed
-function Adjust_Volume_Speed (speed_meters_second)
+function Adjust_Volume_Speed (request, speed_meters_second)
 
-  AFB:notice("In Adjust_Volume_Speed")
+  AFB:notice("In Adjust_Volume_Speed speed=%d", speed_meters_second);
 
-   print (string.format("***** Adjust_Volume_Speed speed=%d count=%d", speed_meters_second, count));
+   print (string.format("*****(From Lua) Adjust_Volume_Speed speed=%d count=%d", speed_meters_second, count));
 
    -- compute volume
    volume = speed_meters_second * 2
    count=count+1
 
-  AFB:success (1234, volume, count, 5678) 
+  AFB:success (request, 1234, volume, count, 5678) 
 end
 
 

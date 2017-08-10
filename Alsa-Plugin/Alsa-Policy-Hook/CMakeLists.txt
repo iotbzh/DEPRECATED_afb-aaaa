@@ -19,7 +19,6 @@
 # Activate ALSA  dynamic build build mode get resolve "snd_dlsym_start"
 add_compile_options(-DPIC)
 
-
 PROJECT_TARGET_ADD(policy_hook_cb)
 
     # Define targets 
