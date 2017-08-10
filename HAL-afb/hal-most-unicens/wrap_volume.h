@@ -18,5 +18,6 @@
 
 #pragma once
 #include <stdint.h>
+#include <systemd/sd-event.h>
 
 extern int wrap_volume_init(void);
