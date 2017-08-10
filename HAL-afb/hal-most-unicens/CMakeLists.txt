@@ -22,7 +22,7 @@ ADD_SUBDIRECTORY(ucs2-vol)
 PROJECT_TARGET_ADD(hal-most-unicens)
 
     # Define project Targets
-    ADD_LIBRARY(hal-most-unicens MODULE hal_most_unicens.c wrap-json.c wrap_unicens.c)
+    ADD_LIBRARY(hal-most-unicens MODULE hal_most_unicens.c wrap-json.c wrap_unicens.c wrap_volume.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
@@ -36,6 +36,7 @@ PROJECT_TARGET_ADD(hal-most-unicens)
     TARGET_LINK_LIBRARIES(${TARGET_NAME} 
         hal-interface
         audio-interface
+        ucs2-volume
     )
 
     # installation directory
