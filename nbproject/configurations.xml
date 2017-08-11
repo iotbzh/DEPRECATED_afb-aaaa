@@ -57,22 +57,14 @@
           <in>hal-volramp.c</in>
           <in>hal-volume.c</in>
         </df>
-        <df name="hal-most-unicens">
-          <df name="ucs2-vol">
-            <df name="src">
-              <in>device_container.cpp</in>
-              <in>device_value.cpp</in>
-              <in>libmostvolume.cpp</in>
-              <in>setup.cpp</in>
-            </df>
-          </df>
+        <df name="HAL-plugin">
+          <in>HalPlugPcm.c</in>
+        </df>
+        <df name="HAL_MOST_UNICENS">
           <in>hal_most_unicens.c</in>
           <in>wrap-json.c</in>
           <in>wrap_unicens.c</in>
           <in>wrap_volume.c</in>
-        </df>
-        <df name="HAL-plugin">
-          <in>HalPlugPcm.c</in>
         </df>
         <df name="HDA-intel">
           <in>IntelHdaHAL.c</in>
@@ -389,20 +381,53 @@
         <cTool flags="4">
           <incDir>
             <pElem>Shared-Interface</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>build/HAL-afb/Unicens-USB</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
       </item>
-      <item path="HAL-afb/Unicens-USB/UnicensVol.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+      <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
           <incDir>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>build/HAL-afb/Unicens-USB</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
       </item>
-      <item path="HAL-afb/hal-most-unicens/hal_most_unicens.c"
+      <item path="HAL-afb/HAL-plugin/HalPlugCb.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/hal_most_unicens.c"
             ex="false"
             tool="0"
             flavor2="3">
@@ -412,94 +437,76 @@
             <pElem>/usr/include/json-c</pElem>
             <pElem>Shared-Interface</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/wrap-json.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+          <incDir>
+            <pElem>/opt/AGL/include/afb</pElem>
+            <pElem>HAL-afb/hal-most-unicens</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>build/HAL-afb/hal-most-unicens</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_volume.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>/opt/AGL/include/afb</pElem>
+            <pElem>HAL-afb/hal-most-unicens</pElem>
+            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
+            <pElem>build/HAL-afb/hal-most-unicens</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
             <pElem>/opt/AGL/include</pElem>
-            <pElem>build/HAL-afb/hal-most-unicens</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
           </incDir>
         </cTool>
       </item>
-      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/device_container.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
+      <item path="HAL-afb/Unicens-USB/UnicensVol.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
           <incDir>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/device_value.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/libmostvolume.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/ucs2-vol/src/setup.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/src</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/wrap-json.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>HAL-afb/hal-most-unicens</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/HAL-afb/hal-most-unicens</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/wrap_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>/opt/AGL/include/afb</pElem>
-            <pElem>HAL-afb/hal-most-unicens</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>build/HAL-afb/hal-most-unicens</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/wrap_volume.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>/opt/AGL/include/afb</pElem>
-            <pElem>HAL-afb/hal-most-unicens</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
-            <pElem>build/HAL-afb/hal-most-unicens</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
           </incDir>
         </cTool>
       </item>
@@ -512,7 +519,7 @@
         </cTool>
       </item>
       <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+        <cTool flags="3">
         </cTool>
       </folder>
       <folder path="0/Alsa-afb">
@@ -918,6 +925,27 @@
         <cTool flags="1">
         </cTool>
       </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/hal_most_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_unicens.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_volume.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="4">
+        </cTool>
+      </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
         <cTool flags="3">
         </cTool>
@@ -952,27 +980,6 @@
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>build/HAL-afb/Unicens-USB</pElem>
           </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/hal_most_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/wrap_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
-      <item path="HAL-afb/hal-most-unicens/wrap_volume.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
@@ -1062,6 +1069,18 @@
           </incDir>
         </cTool>
       </folder>
+      <folder path="0/HAL-afb/HAL_MOST_UNICENS">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
+          </incDir>
+        </cTool>
+      </folder>
       <folder path="0/HAL-afb/HDA-intel">
         <cTool>
           <incDir>
@@ -1107,18 +1126,6 @@
             <pElem>HAL-afb/Unicens-USB</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-          </incDir>
-        </cTool>
-      </folder>
-      <folder path="0/HAL-afb/hal-most-unicens">
-        <cTool>
-          <incDir>
-            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
         </cTool>
       </folder>
