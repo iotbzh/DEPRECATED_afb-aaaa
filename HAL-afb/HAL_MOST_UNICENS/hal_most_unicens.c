@@ -23,6 +23,9 @@
 #include "wrap_unicens.h"
 #include "wrap_volume.h"
 
+#define XML_CONFIG_PATH "/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data/config_multichannel_audio_kit.xml"
+#define ALSA_CARD_NAME  "Microchip MOST:1"
+
 #define PCM_MAX_CHANNELS    6
 
 static int master_volume;
@@ -84,7 +87,7 @@ STATIC alsaHalMapT  alsaHalMap[]= {
 
 /* HAL sound card mapping info */
 STATIC alsaHalSndCardT alsaHalSndCard  = {
-    .name  = "Microchip MOST:1",   /*  WARNING: name MUST match with 'aplay -l' */
+    .name  = ALSA_CARD_NAME,   /*  WARNING: name MUST match with 'aplay -l' */
     .info  = "HAL for MICROCHIP MOST sound card controlled by UNICENS binding",
     .ctls  = alsaHalMap,
     .volumeCB = NULL,               /* use default volume normalization function */
@@ -113,7 +116,7 @@ STATIC int unicens_service_init() {
         goto OnErrorExit;
     }
     
-    err = wrap_ucs_initialize_sync("/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data/config_multichannel_audio_kit.xml");
+    err = wrap_ucs_initialize_sync(XML_CONFIG_PATH);
     if (err) {
         AFB_ERROR("Failed to initialize UNICENS binding");
         goto OnErrorExit;
