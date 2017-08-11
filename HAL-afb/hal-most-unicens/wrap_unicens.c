@@ -191,7 +191,7 @@ OnErrorExit:
 
 static void wrap_ucs_i2cwrite_cb(void *closure, int status, struct json_object *j_result) {
     
-    AFB_NOTICE("wrap_ucs_i2cwrite_cb: closure=%p status=%d, res=%s", closure, status, json_object_to_json_string(j_result));
+    AFB_DEBUG("wrap_ucs_i2cwrite_cb: closure=%p status=%d, res=%s", closure, status, json_object_to_json_string(j_result));
     
     if (closure) {
         async_job_t *job_ptr = (async_job_t *)closure;

@@ -23,11 +23,11 @@
 #include "wrap_unicens.h"
 #include "wrap_volume.h"
 
+#define PCM_MAX_CHANNELS    6
+
 static int master_volume;
 static json_bool master_switch;
-static int pcm_volume[6];
-
-/*static uint8_t test[3] = {0x07,0x03,0xFF};*/
+static int pcm_volume[PCM_MAX_CHANNELS];
 
 void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
@@ -35,9 +35,7 @@ void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* hand
     
     if (wrap_json_unpack(j_obj, "[i!]", &master_volume) == 0) {
         AFB_NOTICE("master_volume: %s, value=%d", j_str, master_volume);
-        /*wrap_ucs_i2cwrite(0x270, test, 3);
-        wrap_ucs_i2cwrite(0x271, test, 3);
-        wrap_ucs_i2cwrite(0x272, test, 3);*/
+        wrap_volume_master(master_volume);
     }
     else {
         AFB_NOTICE("master_volume: INVALID STRING %s", j_str);
@@ -63,6 +61,7 @@ void unicens_pcm_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,
     if (wrap_json_unpack(j_obj, "[iiiiii!]", &pcm_volume[0], &pcm_volume[1], &pcm_volume[2], &pcm_volume[3],
                                              &pcm_volume[4], &pcm_volume[5]) == 0) {
         AFB_NOTICE("pcm_vol: %s", j_str);
+        wrap_volume_pcm(pcm_volume, PCM_MAX_CHANNELS/*array size*/);
     }
     else {
         AFB_NOTICE("pcm_vol: INVALID STRING %s", j_str);
