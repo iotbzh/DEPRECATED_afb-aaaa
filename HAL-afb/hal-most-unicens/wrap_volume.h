@@ -21,3 +21,5 @@
 #include <systemd/sd-event.h>
 
 extern int wrap_volume_init(void);
+extern int wrap_volume_master(int volume);
+extern int wrap_volume_pcm(int *volume_ptr, int volume_sz);

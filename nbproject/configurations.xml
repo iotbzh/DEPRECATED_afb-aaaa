@@ -495,18 +495,12 @@
             flavor2="3">
         <cTool flags="4">
           <incDir>
-            <pElem>../../../opt/include/afb</pElem>
             <pElem>/opt/AGL/include/afb</pElem>
             <pElem>HAL-afb/hal-most-unicens</pElem>
-            <pElem>/usr/include/json-c</pElem>
             <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
+            <pElem>HAL-afb/hal-most-unicens/ucs2-vol/inc</pElem>
             <pElem>build/HAL-afb/hal-most-unicens</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">

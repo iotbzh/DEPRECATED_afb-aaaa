@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <time.h>
+#include <assert.h>
 #include <json-c/json.h>
 #include <afb/afb-binding.h>
 
@@ -53,6 +54,19 @@ static void wrap_volume_service_cb(uint16_t timeout) {
                         NULL);
 }
 
+/* Retrieves a new value adapted to a new maximum value. Minimum value is
+ * always zero. */
+static int wrap_volume_calculate(int value, int max_old, int max_new) {
+    
+    if (value > max_old)
+        value = max_old;
+    
+    value = (value * max_new) / max_old; /* calculate range: 0..255 */
+    assert(value <= max_new);
+    
+    return value;
+}
+
 extern int wrap_volume_init(void) {
     
     uint8_t ret = 0U;
@@ -64,4 +78,41 @@ extern int wrap_volume_init(void) {
     ret = lib_most_volume_init(&mv_init);
     
     return ret * (-1);
+}
+
+extern int wrap_volume_master(int volume) {
+    
+    int new_value, ret;
+    
+    new_value = wrap_volume_calculate(volume, 100, 255);
+    ret = lib_most_volume_set(LIB_MOST_VOLUME_MASTER, (uint8_t)new_value);
+    
+    if (ret != 0) {
+        AFB_ERROR("wrap_volume_master: volume library not ready.");
+        ret = ret * (-1); /* make return value negative */
+    }
+    
+    return ret;
+}
+
+extern int wrap_volume_pcm(int *volume_ptr, int volume_sz) {
+    
+    const int MAX_PCM_CHANNELS = 6;
+    int cnt, ret;
+    assert(volume_ptr != NULL);
+    assert(volume_sz <= MAX_PCM_CHANNELS);
+    
+    for (cnt = 0; cnt < volume_sz; cnt ++) {
+        
+        int new_value = wrap_volume_calculate(volume_ptr[cnt], 100, 255);
+        ret = lib_most_volume_set((enum lib_most_volume_channel_t)cnt, (uint8_t)new_value);
+        
+        if (ret != 0) {
+            AFB_ERROR("wrap_volume_pcm: volume library not ready.");
+            ret = ret * (-1); /* make return value negative */
+            break;
+        }
+    }
+    
+    return ret;
 }
