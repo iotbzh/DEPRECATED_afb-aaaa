@@ -70,6 +70,67 @@ typedef enum {
  *  https://stackoverflow.com/questions/45596493/lua-using-lua-newuserdata-from-lua-pcall
  */
 
+// List Avaliable Configuration Files
+PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext) {
+    json_object *responseJ;
+    char *dirPath;
+    char* dirList= strdup(searchPath);
+    size_t extLen=0;        
+    
+    void ScanDir (char *searchPath) {
+    DIR  *dirHandle;
+        struct dirent *dirEnt;
+        dirHandle = opendir (searchPath);
+        if (!dirHandle) {
+            AFB_NOTICE ("CONFIG-SCANNING dir=%s not readable", searchPath);
+            return;
+        } 
+        
+        //AFB_NOTICE ("CONFIG-SCANNING:ctl_listconfig scanning: %s", searchPath);
+        while ((dirEnt = readdir(dirHandle)) != NULL) {
+            
+            // recursively search embedded directories ignoring any directory starting by '.' or '_'
+            if (dirEnt->d_type == DT_DIR && mode == CTL_SCAN_RECURSIVE) {
+                char newpath[CONTROL_MAXPATH_LEN];
+                if (dirEnt->d_name[0]=='.' || dirEnt->d_name[0]=='_') continue;
+                
+                strncpy(newpath, searchPath, sizeof(newpath)); 
+                strncat(newpath, "/", sizeof(newpath)); 
+                strncat(newpath, dirEnt->d_name, sizeof(newpath)); 
+                ScanDir(newpath);
+                continue;
+            }
+            
+            // Unknown type is accepted to support dump filesystems
+            if (dirEnt->d_type == DT_REG || dirEnt->d_type == DT_UNKNOWN) {
+
+                // check prefix and extention
+                size_t extIdx=strlen(dirEnt->d_name)-extLen;
+                if (extIdx <= 0) continue; 
+                if (pre && !strcasestr (dirEnt->d_name, pre)) continue;    
+                if (ext && strcasecmp (ext, &dirEnt->d_name[extIdx])) continue;    
+
+                struct json_object *pathJ = json_object_new_object();
+                json_object_object_add(pathJ, "fullpath", json_object_new_string(searchPath));
+                json_object_object_add(pathJ, "filename", json_object_new_string(dirEnt->d_name));
+                json_object_array_add(responseJ, pathJ);
+            }
+        }
+        closedir(dirHandle);
+    }
+
+    if (ext) extLen=strlen(ext);
+    responseJ = json_object_new_array();
+    
+    // loop recursively on dir
+    for (dirPath= strtok(dirList, ":"); dirPath && *dirPath; dirPath=strtok(NULL,":")) {
+         ScanDir (dirPath);
+    }
+    
+    free (dirList);    
+    return (responseJ);
+}
+
 STATIC LuaAfbContextT *LuaCtxCheck (lua_State *luaState, int index) {
   LuaAfbContextT *afbContext;
   //luaL_checktype(luaState, index, LUA_TUSERDATA);
@@ -101,65 +162,6 @@ STATIC LuaAfbContextT *LuaCtxPush (lua_State *luaState, afb_req request, const c
 
 STATIC void LuaCtxFree (LuaAfbContextT *afbContext) {   
     free (afbContext->info);
-}
-
-// List Avaliable Configuration Files
-PUBLIC json_object* ScanForConfig (char* searchPath, char *pre, char *ext) {
-    json_object *responseJ;
-    DIR  *dirHandle;
-    char *dirPath;
-    char* dirList= strdup(searchPath);
-    size_t extLen=0;        
-    
-    void ScanDir (char *dirpath) {
-        struct dirent *dirEnt;
-        dirHandle = opendir (dirPath);
-        if (!dirHandle) {
-            AFB_NOTICE ("CONFIG-SCANNING dir=%s not readable", dirPath);
-            return;
-        } 
-        
-        AFB_NOTICE ("CONFIG-SCANNING:ctl_listconfig scanning: %s", dirPath);
-        while ((dirEnt = readdir(dirHandle)) != NULL) {
-            
-            // recursively search embedded directories ignoring any directory starting by '.' or '_'
-            if (dirEnt->d_type == DT_DIR) {
-                char newpath[CONTROL_MAXPATH_LEN];
-                if (dirEnt->d_name[0]=='.' || dirEnt->d_name[0]=='_') continue;
-                
-                strncpy(newpath, dirpath, sizeof(newpath)); 
-                strncat(newpath, "/", sizeof(newpath)); 
-                strncat(newpath, dirEnt->d_name, sizeof(newpath)); 
-            }
-            
-            // Unknown type is accepted to support dump filesystems
-            if (dirEnt->d_type == DT_REG || dirEnt->d_type == DT_UNKNOWN) {
-
-                // check prefix and extention
-                size_t extIdx=strlen(dirEnt->d_name)-extLen;
-                if (extIdx <= 0) continue; 
-                if (pre && !strcasestr (dirEnt->d_name, pre)) continue;    
-                if (ext && strcasecmp (ext, &dirEnt->d_name[extIdx])) continue;    
-
-                struct json_object *pathJ = json_object_new_object();
-                json_object_object_add(pathJ, "dirpath", json_object_new_string(dirPath));
-                json_object_object_add(pathJ, "filename", json_object_new_string(dirEnt->d_name));
-                json_object_array_add(responseJ, pathJ);
-            }
-        closedir(dirHandle);
-        }
-    }
-
-    if (ext) extLen=strlen(ext);
-    responseJ = json_object_new_array();
-    
-    // loop recursively on dir
-    for (dirPath= strtok(dirList, ":"); dirPath && *dirPath; dirPath=strtok(NULL,":")) {
-         ScanDir (dirPath);
-    }
-    
-    free (dirList);    
-    return (responseJ);
 }
 
 STATIC int LuaPushArgument (json_object *arg) {
@@ -511,7 +513,7 @@ PUBLIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             
             // scan luascript search path once
             static json_object *luaScriptPathJ =NULL;
-            if (!luaScriptPathJ)  luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , NULL, "lua");
+            if (!luaScriptPathJ)  luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_FLAT, NULL, "lua");
 
             err= wrap_json_unpack (queryJ, "{s:s, s?o s?o !}", "script", &script,"args", &args, "arg", &args);
             if (err) {
@@ -537,10 +539,10 @@ PUBLIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             } 
 
             for (index=0; index < json_object_array_length(luaScriptPathJ); index++) {
-                char *filename; char*dirpath;
+                char *filename; char*fullpath;
                 json_object *entryJ=json_object_array_get_idx(luaScriptPathJ, index);
 
-                err= wrap_json_unpack (entryJ, "{s:s, s:s !}", "dirpath",  &dirpath,"filename", &filename);
+                err= wrap_json_unpack (entryJ, "{s:s, s:s !}", "fullpath",  &fullpath,"filename", &filename);
                 if (err) {
                     AFB_ERROR ("LUA-DOSCRIPT HOOPs invalid LUA script path = %s", json_object_get_string(entryJ));
                     goto OnErrorExit;
@@ -548,8 +550,8 @@ PUBLIC void LuaDoAction (LuaDoActionT action, afb_req request) {
                 
                 if (strcmp(filename, script)) continue;
 
-                char filepath[255];
-                strncpy(filepath, dirpath, sizeof(filepath)); 
+                char filepath[CONTROL_MAXPATH_LEN];
+                strncpy(filepath, fullpath, sizeof(filepath)); 
                 strncat(filepath, "/", sizeof(filepath)); 
                 strncat(filepath, filename, sizeof(filepath)); 
                 err= luaL_loadfile(luaState, filepath);   
@@ -616,7 +618,7 @@ PUBLIC int LuaLibInit () {
     int err, index;
           
     // search for default policy config file
-    json_object *luaScriptPathJ = ScanForConfig(CONTROL_LUA_PATH , "onload", "lua");
+    json_object *luaScriptPathJ = ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE, "onload", "lua");
     
     // open a new LUA interpretor
     luaState = luaL_newstate();
@@ -636,15 +638,15 @@ PUBLIC int LuaLibInit () {
     for (index=0; index < json_object_array_length(luaScriptPathJ); index++) {
         json_object *entryJ=json_object_array_get_idx(luaScriptPathJ, index);
         
-        char *filename; char*dirpath;
-        err= wrap_json_unpack (entryJ, "{s:s, s:s !}", "dirpath",  &dirpath,"filename", &filename);
+        char *filename; char*fullpath;
+        err= wrap_json_unpack (entryJ, "{s:s, s:s !}", "fullpath",  &fullpath,"filename", &filename);
         if (err) {
             AFB_ERROR ("LUA-INIT HOOPs invalid config file path = %s", json_object_get_string(entryJ));
             goto OnErrorExit;
         }
         
         char filepath[CONTROL_MAXPATH_LEN];
-        strncpy(filepath, dirpath, sizeof(filepath)); 
+        strncpy(filepath, fullpath, sizeof(filepath)); 
         strncat(filepath, "/", sizeof(filepath)); 
         strncat(filepath, filename, sizeof(filepath)); 
         err= luaL_loadfile(luaState, filepath);   

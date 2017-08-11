@@ -31,6 +31,20 @@ typedef struct {
   int count;  
 } MyPluginCtxT;
 
+// This tag is mandotory and used as sanity check when loading plugin
+PUBLIC ulong CtlPluginMagic=CTL_PLUGIN_MAGIC;
+
+// Call at initialisation time
+PUBLIC void* CtlPluginOnload(char* label, char* version, char* info) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)calloc (1, sizeof(MyPluginCtxT));
+    pluginCtx->magic = MY_PLUGIN_MAGIC;
+    pluginCtx->count = 0;
+
+    fprintf(stderr, "*** CONTROLER-PLUGIN-SAMPLE:Install label=%s version=%s info=%s", label, info, version);
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Install label=%s version=%s info=%s", label, info, version);
+    return (void*)pluginCtx;
+}
+
 STATIC const char* jsonToString (json_object *valueJ) {
     const char *value;
     if (valueJ)
@@ -41,24 +55,18 @@ STATIC const char* jsonToString (json_object *valueJ) {
     return value;
 }
 
-PUBLIC int SamplePolicyInstall (DispatchActionT *action, json_object *response, void *context) {
-   
-    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)calloc (1, sizeof(MyPluginCtxT));
-    pluginCtx->magic = MY_PLUGIN_MAGIC;
-    pluginCtx->count = 0;
 
-    AFB_INFO ("CONTROLER-PLUGIN-SAMPLE SamplePolicyInstall action=%s args=%s", action->label, jsonToString(action->argsJ));
-    
-    return 0;
-}
-
-PUBLIC int SamplePolicyCount (DispatchActionT *action, json_object *response, void *context) {
+PUBLIC void SamplePolicyCount (afb_req request, DispatchActionT *action, void *context) {
    
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
-    //pluginCtx->magic = MY_PLUGIN_MAGIC;
-    //pluginCtx->count = 0;
-
-    AFB_INFO ("CONTROLER-PLUGIN-SAMPLE SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
     
-    return 0;
+    if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:count (Hoops) Invalid Sample Plugin Context");
+        return;
+        
+    };
+    
+    pluginCtx->count++;
+
+    AFB_INFO ("CONTROLER-PLUGIN-SAMPLE:Count SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
 }

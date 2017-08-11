@@ -116,8 +116,8 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
-        <element flagsID="1" commonFlags="-g -ggdb -fPIC -fPIC"/>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC"/>
+        <element flagsID="1" commonFlags="-g -fPIC -fPIC -g"/>
         <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
         <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
         <element flagsID="4"
@@ -145,43 +145,43 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -192,7 +192,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -203,7 +203,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -214,7 +214,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -225,7 +225,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
           <incDir>
             <pElem>build/Controler-afb</pElem>
           </incDir>
@@ -238,18 +238,18 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volramp.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
@@ -257,21 +257,21 @@
         </cTool>
       </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="HAL-afb/Jabra-Solemate/JabraUsbHAL.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
@@ -356,11 +356,12 @@
             <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
             <Elem>PIC</Elem>
@@ -381,11 +382,12 @@
             <pElem>build/Alsa-afb</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
@@ -405,11 +407,12 @@
             <pElem>build/Audio-Common</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
@@ -442,11 +445,12 @@
             <pElem>/usr/include/lua5.3</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
@@ -477,11 +481,12 @@
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
           </preprocessorList>
@@ -512,11 +517,12 @@
             <pElem>build/HAL-afb/HDA-intel</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>hal_intel_hda_EXPORTS</Elem>
@@ -536,11 +542,12 @@
             <pElem>build/HAL-afb/Jabra-Solemate</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>hal_jabra_usb_EXPORTS</Elem>
@@ -560,11 +567,12 @@
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_DISPATCH_FILE="onload-control-policy.json"</Elem>
-            <Elem>CONTROL_DISPATCH_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Controler-afb:/usr/local/audio-bindings/controler"</Elem>
-            <Elem>CONTROL_LUA_PATH="/etc/default/audio-agent/policy:/home/fulup/.config/audio-agent:/usr/local/audio-agent/policy:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data"</Elem>
+            <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>hal_scalett_usb_EXPORTS</Elem>

@@ -68,9 +68,15 @@ set (PKG_REQUIRED_LIST
 # Define CONTROL_CDEV_NAME should match MOST driver values
 # ---------------------------------------------------------
   add_compile_options(-DCONTROL_MAXPATH_LEN=255)
-  add_compile_options(-DCONTROL_DISPATCH_FILE="onload-control-policy.json")
-  add_compile_options(-DCONTROL_DISPATCH_PATH="${CMAKE_CURRENT_BINARY_DIR}/Controler-afb:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/controler")
-  add_compile_options(-DCONTROL_LUA_PATH="/etc/default/audio-agent/policy:$ENV{HOME}/.config/audio-agent:${CMAKE_INSTALL_PREFIX}/audio-agent/policy:${CMAKE_SOURCE_DIR}/data")
+  add_compile_options(-DCONTROL_CONFIG_FILE="onload-control-policy.json")
+  add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/config")
+
+  add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/data:/etc/default/${PROJECT_NAME}/lua:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lua")
+
+ 
+  set (CTL_PLUGIN_PRE "audio-")
+  set (CTL_PLUGIN_EXT ".ctlso")
+  add_compile_options(-DCTL_PLUGIN_MAGIC=2468013579)
   add_compile_options(-DCONTROL_PLUGIN_PATH="${BINDINGS_INSTALL_DIR}/controler:/usr/lib/${PROJECT_NAME}")
   
 # Print a helper message when every thing is finished

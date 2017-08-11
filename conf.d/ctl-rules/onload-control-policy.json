@@ -8,7 +8,7 @@
     "onload": {
         "label": "onload-config",
         "info": "onload initialisation config",
-        "plugin": "audio-ctl-plugin-sample.so",
+        "plugin": "audio-ctl-plugin-sample.ctlso",
         "actions": [
             {
                 "label": "onload-sample-cb",

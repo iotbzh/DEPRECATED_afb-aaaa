@@ -18,27 +18,9 @@
 
 
 
-##################################################
-# HTML Testing Files
-##################################################
-PROJECT_TARGET_ADD(htdocs)
+# Define subproject targets    
+ADD_SUBDIRECTORY(ctl-rules)
 
-    file(GLOB SOURCE_FILES "*.html" "*.js" "*.jpg" "*.css")
 
-    add_custom_target(${TARGET_NAME} 
-       DEPENDS  ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    ) 
 
-    add_custom_command(
-       DEPENDS  ${SOURCE_FILES}
-       OUTPUT ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND mkdir -p ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND touch ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND cp -r ${SOURCE_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    )
-
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	LABELS "HTDOCS"
-	OUTPUT_NAME ${TARGET_NAME}
-    )
 
