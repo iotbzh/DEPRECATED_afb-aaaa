@@ -36,11 +36,6 @@
 
 static  lua_State* luaState;
 
-typedef enum {
-    LUA_DOCALL,
-    LUA_DOSTRING,
-    LUA_DOSCRIPT,
-} LuaDoActionT;
 
 #define CTX_MAGIC 123456789
 #define CTX_TOKEN "AFB_ctx"
@@ -191,6 +186,7 @@ STATIC int LuaPushArgument (json_object *arg) {
             lua_pushnumber(luaState, json_object_get_double(arg));
             break;
         default:
+            AFB_ERROR("LuaPushArgument: unsupported Json object type %s", json_object_get_string(arg));
             return 0;
     }
     
@@ -454,7 +450,56 @@ STATIC int LuaAfbService(lua_State* luaState) {
 
 
 // Generated some fake event based on watchdog/counter
-PUBLIC void LuaDoAction (LuaDoActionT action, afb_req request) {
+PUBLIC int LuaCallFunc (afb_req request, DispatchActionT *action) {
+    
+    int err, count=0;
+
+    json_object* queryJ = afb_req_json(request);
+    json_object* argsJ  = action->argsJ;
+    const char*  func   = action->call;
+    
+    // load function (should exist in CONTROL_PATH_LUA
+    lua_getglobal(luaState, func);
+
+    // Push AFB client context on the stack
+    LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, func);
+    if (!afbContext) goto OnErrorExit;
+
+    // push argsJ on the stack
+    if (json_object_get_type(argsJ) != json_type_array) { 
+        count+= LuaPushArgument (argsJ);
+    } else {
+        for (int idx=0; idx<json_object_array_length(argsJ); idx++)  {
+            count += LuaPushArgument (json_object_array_get_idx(argsJ, idx));
+        }
+    }
+            
+    // push queryJ on the stack
+    if (json_object_get_type(queryJ) != json_type_array) { 
+        count+= LuaPushArgument (queryJ);
+    } else {
+        for (int idx=0; idx<json_object_array_length(queryJ); idx++)  {
+            count += LuaPushArgument (json_object_array_get_idx(queryJ, idx));
+        }
+    }
+            
+    // effectively exec LUA code (afb_reply/fail done later from callback) 
+    err=lua_pcall(luaState, count+1, 1, 0);
+    if (err)  {
+        AFB_ERROR("LuaCallFunc Fail calling %s error=%s", func, lua_tostring(luaState,-1));
+        goto OnErrorExit;
+    }
+    
+    // return LUA script value
+    int rc= (int)lua_tointeger(luaState, -1); 
+    return rc;
+
+  OnErrorExit:
+    return -1;
+}
+
+// Generated some fake event based on watchdog/counter
+STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
     
     int err, count=0;
 
@@ -581,8 +626,8 @@ PUBLIC void LuaDoAction (LuaDoActionT action, afb_req request) {
         AFB_ERROR ("LUA-DO-EXEC:FAIL query=%s err=%s", json_object_get_string(queryJ), lua_tostring(luaState,-1) );
         goto OnErrorExit;
     }
+    
 
-    return;
     
  OnErrorExit:
     afb_req_fail(request,"LUA:ERROR", lua_tostring(luaState,-1));

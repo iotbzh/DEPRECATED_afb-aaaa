@@ -31,19 +31,8 @@ typedef struct {
   int count;  
 } MyPluginCtxT;
 
-// This tag is mandotory and used as sanity check when loading plugin
-PUBLIC ulong CtlPluginMagic=CTL_PLUGIN_MAGIC;
-
-// Call at initialisation time
-PUBLIC void* CtlPluginOnload(char* label, char* version, char* info) {
-    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)calloc (1, sizeof(MyPluginCtxT));
-    pluginCtx->magic = MY_PLUGIN_MAGIC;
-    pluginCtx->count = 0;
-
-    fprintf(stderr, "*** CONTROLER-PLUGIN-SAMPLE:Install label=%s version=%s info=%s", label, info, version);
-    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Install label=%s version=%s info=%s", label, info, version);
-    return (void*)pluginCtx;
-}
+// Declare this sharelib as a Controller Plugin
+CTL_PLUGIN_REGISTER("MyCtlSamplePlugin");
 
 STATIC const char* jsonToString (json_object *valueJ) {
     const char *value;
@@ -55,18 +44,56 @@ STATIC const char* jsonToString (json_object *valueJ) {
     return value;
 }
 
+// Call at initialisation time
+PUBLIC void* CtlPluginOnload(char* label, char* version, char* info) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)calloc (1, sizeof(MyPluginCtxT));
+    pluginCtx->magic = MY_PLUGIN_MAGIC;
+    pluginCtx->count = -1;
 
-PUBLIC void SamplePolicyCount (afb_req request, DispatchActionT *action, void *context) {
-   
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Onload label=%s version=%s info=%s", label, info, version);
+    return (void*)pluginCtx;
+}
+
+PUBLIC int SamplePolicyInit (afb_req request, DispatchActionT *action, void *context) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
+    
+    pluginCtx->count = 0;
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Init label=%s args=%s\n", action->label, jsonToString(action->argsJ));
+    return 0;
+}
+
+PUBLIC int sampleControlMultimedia (afb_req request, DispatchActionT *action, void *context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
-        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:count (Hoops) Invalid Sample Plugin Context");
-        return;
-        
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia (Hoops) Invalid Sample Plugin Context");
+        return -1;
     };
-    
     pluginCtx->count++;
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+    return 0;
+}
 
-    AFB_INFO ("CONTROLER-PLUGIN-SAMPLE:Count SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+PUBLIC int sampleControlNavigation (afb_req request, DispatchActionT *action, void *context) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
+    
+    if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:sampleControlNavigation (Hoops) Invalid Sample Plugin Context");
+        return -1;
+    };
+    pluginCtx->count++;
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlNavigation SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+    return 0;
+}
+
+PUBLIC int SampleControlEvent (afb_req request, DispatchActionT *action, void *context) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
+    
+    if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:cousampleControlMultimediant (Hoops) Invalid Sample Plugin Context");
+        return -1;
+    };
+    pluginCtx->count++;
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+    return 0;
 }

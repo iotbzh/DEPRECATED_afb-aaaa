@@ -31,17 +31,17 @@
 
 PUBLIC void ctlapi_navigation (afb_req request) {
        
-    ctlapi_dispatch (CTLAPI_NAVIGATION, request);
+    ctlapi_dispatch ("NAVIGATION", request);
 }
 
 PUBLIC void ctlapi_multimedia (afb_req request) {
        
-    ctlapi_dispatch (CTLAPI_MULTIMEDIA, request);
+    ctlapi_dispatch ("MULTIMEDIA", request);
 }
 
 PUBLIC void ctlapi_emergency (afb_req request) {
        
-    ctlapi_dispatch (CTLAPI_EMERGENCY, request);
+    ctlapi_dispatch ("EMERGENCY", request);
 }
 
 PUBLIC void ctlapi_monitor (afb_req request) {

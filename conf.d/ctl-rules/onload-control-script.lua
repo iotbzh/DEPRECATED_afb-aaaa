@@ -78,8 +78,10 @@ function Test_Binder_Call_Sync ()
 
 end
 
-function Ping_Test(...)
 
+function Test_Lua_Engine(request, ...)
+
+    AFB:NOTICE ("In est_Lua_Engine");
     print ("Ping_Test script arguments:");
 
     for i,v in ipairs(arg)
@@ -87,9 +89,8 @@ function Ping_Test(...)
         print(" -- ", tostring(v))
     end
 
-    -- push response to client
-    AFB:success (true, 1234, "ABCD"); 
-
+    -- return OK
+    return 0
 end
 
 
