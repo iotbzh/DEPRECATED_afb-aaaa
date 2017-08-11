@@ -16,29 +16,11 @@
 # limitations under the License.
 ###########################################################################
 
-#[[
 
-# Add target to project dependency list
-PROJECT_TARGET_ADD(hal-unicens-usb)
 
-    # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE UnicensHAL.c UnicensVol.c)
+# Define subproject targets    
+ADD_SUBDIRECTORY(src)
 
-    # Binder exposes a unique public entry point
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	PREFIX "afb-"
-        LABELS "BINDING"
-	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
-        OUTPUT_NAME ${TARGET_NAME}
-    )
 
-    # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(${TARGET_NAME}
-        hal-interface
-        audio-interface
-    )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
-    ]]
+
