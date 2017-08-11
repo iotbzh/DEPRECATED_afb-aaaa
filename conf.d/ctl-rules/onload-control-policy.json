@@ -13,8 +13,11 @@
             {
                 "label": "onload-sample-cb",
                 "info": "Call control sharelib install entrypoint",
-                "callback": "SamplePolicyInstall",
-                "args": {"arg1" : "first_arg", "nextarg": "second arg value"}
+                "callback": "SamplePolicyInit",
+                "args": {
+                    "arg1": "first_arg",
+                    "nextarg": "second arg value"
+                }
             }, {
                 "label": "onload-sample-api",
                 "info": "Assert AlsaCore Presence",   
@@ -30,70 +33,76 @@
         ]
     },
     "controls": 
-            [{
+            [
+                {
                     "label": "multimedia",
                     "actions": [
                         {
                             "label": "multimedia-control-cb",
                             "info": "Call Sharelib Sample Callback",
-                            "callback": "samplePolicyCB",
+                            "callback": "sampleControlMultimedia",
                             "args": {
-                            "arg1": "snoopy",
-                            "arg2": "toto"
+                                "arg1": "snoopy",
+                                "arg2": "toto"
                             }
                         }, {
                             "label": "multimedia-control-ucm",
                             "info": "Subcall AlSA UCM navigation",   
                             "api": "alsacore",
-                            "verb": "ucmset",
+                            "verb": "ping",
                             "args": {
-                                "verb": "multimedia"
+                                "select": "multimedia"
                             }
-                        }
-                    ]
-                },
-                {
-                    "label":"navigation",
-                    "action" : {
-                        "api": "alsacore",
-                        "verb": "ucmset",
-                        "args": {
-                            "verb": "navigation"
-                        },
-                        "optional": true,
-                        "timeout": 100
-                    }
+                        }]
                 }, {
-                    "label":"emergency",
-                    "action": {
-                        "api": "alsacore",
-                        "verb": "ucmset",
-                        "args": {
-                            "verb": "emergency"
-                        }
-                    }
-                }]
-    ,
-    "events": [
-        {
-            "label": "SampleEvent",
-            "comment": "define action when receiving a given event",
-            "actions": [
-                {
-                    "info": "Event Callback-1",
-                    "callback": "ProcessEventCB",
-                    "args": {
-                        "arg": "action-1"
-                    }
+                    "label": "navigation",
+                    "actions": [                        {
+                            "label": "multimedia-control-cb",
+                            "info": "Call Sharelib Sample Callback",
+                            "callback": "sampleControlNavigation",
+                            "args": {
+                                "arg1": "snoopy",
+                                "arg2": "toto"
+                            }
+                        }, {
+                            "label": "navigation-control-ucm",
+                            "api": "alsacore",
+                            "verb": "ping",
+                            "args": {
+                                "select": "navigation"
+                            }
+                        }]
                 }, {
-                    "info": "Event Callback-2",
-                    "callback": "ProcessEventCB",
-                    "args": {
-                        "arg": "action-2"
-                    }
+                    "label": "emergency",
+                    "actions": [{
+                            "label": "emergency-control-ucm",
+                            "api": "alsacore",
+                            "verb": "ping",
+                            "args": {
+                                "select": "emergency"
+                            }
+                        }]
                 }
-            ]
-        }
-    ]
+            ],
+    "events":
+            {
+                "label": "SampleEvent",
+                "info": "define action when receiving a given event",
+                "actions": [
+                    {
+                        "label": "Event Callback-1",
+                        "callback": "SampleControlEvent",
+                        "args": {
+                            "arg": "action-1"
+                        }
+                    }, {
+                        "label": "Event Callback-2",
+                        "callback": "SampleControlEvent",
+                        "args": {
+                            "arg": "action-2"
+                        }
+                    }
+                ]
+            }
 }
 

@@ -224,7 +224,7 @@
           </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="2">
+      <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
           <incDir>
             <pElem>build/Controler-afb</pElem>
@@ -358,7 +358,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -384,7 +384,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -409,7 +409,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -447,7 +447,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -483,7 +483,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -519,7 +519,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -544,7 +544,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
@@ -569,7 +569,7 @@
           <preprocessorList>
             <Elem>CONTROL_CONFIG_FILE="onload-control-policy.json"</Elem>
             <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/usr/local/audio-bindings/config"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/data:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d:/etc/default/audio-bindings/lua:/usr/local/audio-bindings/lua"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/opt/audio-bindings/controler:/usr/lib/audio-bindings"</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>

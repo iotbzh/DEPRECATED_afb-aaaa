@@ -56,7 +56,7 @@ set (gcc_minimal_version 4.9)
 # PKG_CONFIG required packages
 # -----------------------------
 set (PKG_REQUIRED_LIST
-	alsa
+	alsa>=1.1.2
 	libsystemd>=222
         libmicrohttpd>=0.9.55
 	afb-daemon
@@ -71,7 +71,7 @@ set (PKG_REQUIRED_LIST
   add_compile_options(-DCONTROL_CONFIG_FILE="onload-control-policy.json")
   add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/config")
 
-  add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/data:/etc/default/${PROJECT_NAME}/lua:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lua")
+  add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d:/etc/default/${PROJECT_NAME}/lua:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lua")
 
  
   set (CTL_PLUGIN_PRE "audio-")
