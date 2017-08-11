@@ -28,6 +28,7 @@
 #endif
 #define STATIC static
 
+
 // polctl-binding.c
 PUBLIC int CtlBindingInit ();
 
@@ -50,6 +51,10 @@ typedef enum {
     CTL_NONE=-1
 } DispatchCtlEnumT;
 
+typedef enum {
+  CTL_SCAN_FLAT=0,        
+  CTL_SCAN_RECURSIVE=1,
+} CtlScanDirModeT;
 
 typedef enum {
     CTL_MODE_NONE=0,
@@ -74,7 +79,7 @@ PUBLIC void ctlapi_dispatch (DispatchCtlEnumT control, afb_req request);
 
 // ctl-lua.c
 PUBLIC int LuaLibInit ();
-PUBLIC json_object* ScanForConfig (char* searchPath, char * pre, char *ext);
+PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
 PUBLIC void ctlapi_lua_docall (afb_req request);
 PUBLIC void ctlapi_lua_dostring (afb_req request);
 PUBLIC void ctlapi_lua_doscript (afb_req request);

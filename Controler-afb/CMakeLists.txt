@@ -20,8 +20,7 @@
 PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c 
-)
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
@@ -48,7 +47,8 @@ PROJECT_TARGET_ADD(ctl-plugin-sample)
 
     # Alsa Plugin properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	PREFIX "audio-"
+	PREFIX ${CTL_PLUGIN_PRE}
+        SUFFIX ${CTL_PLUGIN_EXT}
         OUTPUT_NAME ${TARGET_NAME}
     )
 
