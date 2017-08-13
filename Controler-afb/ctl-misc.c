@@ -1,0 +1,115 @@
+/*
+ * Copyright (C) 2016 "IoT.bzh"
+ * Author Fulup Ar Foll <fulup@iot.bzh>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <sys/prctl.h>
+#include <dirent.h>
+
+#include "audio-common.h"
+#include "ctl-binding.h"
+
+
+
+// List Avaliable Configuration Files
+PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext) {
+    json_object *responseJ;
+    char *dirPath;
+    char* dirList= strdup(searchPath);
+    size_t extLen=0;        
+    
+    void ScanDir (char *searchPath) {
+    DIR  *dirHandle;
+        struct dirent *dirEnt;
+        dirHandle = opendir (searchPath);
+        if (!dirHandle) {
+            AFB_DEBUG ("CONFIG-SCANNING dir=%s not readable", searchPath);
+            return;
+        } 
+        
+        //AFB_NOTICE ("CONFIG-SCANNING:ctl_listconfig scanning: %s", searchPath);
+        while ((dirEnt = readdir(dirHandle)) != NULL) {
+            
+            // recursively search embedded directories ignoring any directory starting by '.' or '_'
+            if (dirEnt->d_type == DT_DIR && mode == CTL_SCAN_RECURSIVE) {
+                char newpath[CONTROL_MAXPATH_LEN];
+                if (dirEnt->d_name[0]=='.' || dirEnt->d_name[0]=='_') continue;
+                
+                strncpy(newpath, searchPath, sizeof(newpath)); 
+                strncat(newpath, "/", sizeof(newpath)); 
+                strncat(newpath, dirEnt->d_name, sizeof(newpath)); 
+                ScanDir(newpath);
+                continue;
+            }
+            
+            // Unknown type is accepted to support dump filesystems
+            if (dirEnt->d_type == DT_REG || dirEnt->d_type == DT_UNKNOWN) {
+
+                // check prefix and extention
+                size_t extIdx=strlen(dirEnt->d_name)-extLen;
+                if (extIdx <= 0) continue; 
+                if (pre && !strcasestr (dirEnt->d_name, pre)) continue;    
+                if (ext && strcasecmp (ext, &dirEnt->d_name[extIdx])) continue;    
+
+                struct json_object *pathJ = json_object_new_object();
+                json_object_object_add(pathJ, "fullpath", json_object_new_string(searchPath));
+                json_object_object_add(pathJ, "filename", json_object_new_string(dirEnt->d_name));
+                json_object_array_add(responseJ, pathJ);
+            }
+        }
+        closedir(dirHandle);
+    }
+
+    if (ext) extLen=strlen(ext);
+    responseJ = json_object_new_array();
+    
+    // loop recursively on dir
+    for (dirPath= strtok(dirList, ":"); dirPath && *dirPath; dirPath=strtok(NULL,":")) {
+         ScanDir (dirPath);
+    }
+    
+    free (dirList);    
+    return (responseJ);
+}
+
+PUBLIC const char *GetBinderName() {
+    char psName[17];
+    static char *binderName=NULL;
+    
+    if (binderName) return binderName;
+    
+    // retrieve binder name from process name afb-name-trailer
+    prctl(PR_GET_NAME, psName,NULL,NULL,NULL);
+    for (int idx=0; idx < sizeof(psName); idx++) {
+        int  start;
+        if (psName[idx] == '-') {
+            start=idx+1;
+            for (int jdx=start; jdx < sizeof(psName); jdx++) {
+                if (psName[jdx] == '-') {
+                    psName[jdx] = '\0';
+                    binderName=strdup(&psName[start]);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+    return binderName;
+}

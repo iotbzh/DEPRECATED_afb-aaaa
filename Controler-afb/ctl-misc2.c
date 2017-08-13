@@ -68,9 +68,6 @@ PUBLIC int CtlBindingInit () {
     errcount += DispatchInit();
     errcount += LuaLibInit();
     
-    // now that everything is initialised execute the onload action
-    errcount += DispatchOneOnLoad(CONTROL_ONLOAD_DEFAULT);
-    
     AFB_DEBUG ("Audio Policy Control Binding Done errcount=%d", errcount);
     return errcount;
 }

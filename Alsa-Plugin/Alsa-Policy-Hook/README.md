@@ -40,17 +40,17 @@ pcm.MyNavigationHook {
             request {
                 # Request autorisation to write on navigation 
                 RequestNavigation {
-                    api   "polctl"
+                    api   "control"
                     verb  "navigation"
                 } 
                 # subscribe to Audio Agent Event
                 SubscriveEvents {
-                    api   "polctl"
+                    api   "control"
                     verb  "monitor"
                 }
                 # force PCM stop after 10s
                 TestAutoStop {
-                    api   "polctl"
+                    api   "control"
                     verb  "event_test"
                     query "{'label':'stop', 'delay':10000}"
                 }

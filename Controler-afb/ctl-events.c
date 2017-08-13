@@ -143,7 +143,7 @@ PUBLIC void ctlapi_event_test (afb_req request) {
 PUBLIC int TimerEvtInit () {
     
     // create binder event to send test pause/resume
-    afbevt = afb_daemon_make_event("request");
+    afbevt = afb_daemon_make_event("control");
     if (!afb_event_is_valid(afbevt)) {
         AFB_ERROR ("POLCTL_INIT: Cannot register ctl-events");
         return 1;

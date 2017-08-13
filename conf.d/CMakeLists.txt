@@ -17,10 +17,6 @@
 ###########################################################################
 
 
-
-# Define subproject targets    
-ADD_SUBDIRECTORY(ctl-rules)
-
-
-
-
+# Include any directory not starting with _
+# -----------------------------------------------------
+PROJECT_SUBDIRS_ADD(${PROJECT_SRC_DIR_PATTERN})

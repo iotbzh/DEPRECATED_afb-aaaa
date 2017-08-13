@@ -20,9 +20,9 @@
 ##################################################
 # Control Policy Config file
 ##################################################
-PROJECT_TARGET_ADD(control-rules)
+PROJECT_TARGET_ADD(ctl-config.d)
 
-    file(GLOB XML_FILES "*.json" "*.lua")
+    file(GLOB XML_FILES "*.json")
 
     add_custom_target(${TARGET_NAME}
        DEPENDS  ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
@@ -38,7 +38,3 @@ PROJECT_TARGET_ADD(control-rules)
        COMMAND cp -r ${XML_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
     )
 
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
-	LABELS "DATA"
-	OUTPUT_NAME ${TARGET_NAME}
-    )

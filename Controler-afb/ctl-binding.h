@@ -28,6 +28,11 @@
 #endif
 #define STATIC static
 
+#ifndef UNUSED_ARG
+#define UNUSED_ARG(x) UNUSED_ ## x __attribute__((__unused__))
+#define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_ ## x
+#endif
+
 // sharelib ctl-plugin*
 typedef struct {
   long  magic;  
@@ -35,6 +40,9 @@ typedef struct {
 } CtlPluginMagicT;
 
 #define CTL_PLUGIN_REGISTER(pluglabel) CtlPluginMagicT CtlPluginMagic={.magic=CTL_PLUGIN_MAGIC,.label=pluglabel}; struct afb_binding_data_v2;
+
+// ctl-misc.c
+
 
 // polctl-binding.c
 PUBLIC int CtlBindingInit ();
@@ -49,11 +57,13 @@ PUBLIC void ctlapi_event_test (afb_req request);
 
 // ctl-policy
 // -----------
-
 typedef enum {
   CTL_SCAN_FLAT=0,        
   CTL_SCAN_RECURSIVE=1,
 } CtlScanDirModeT;
+
+PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
+PUBLIC const char *GetBinderName();
 
 typedef enum {
     CTL_MODE_NONE=0,
@@ -70,10 +80,12 @@ typedef struct DispatchActionS{
     const char* call;
     json_object *argsJ;
     int timeout;
-    int (*actionCB)(afb_req request, struct DispatchActionS *action, void *context);
+    int (*actionCB)(struct DispatchActionS *action, json_object *queryJ, void *context);
 } DispatchActionT;
 
 PUBLIC int  DispatchInit(void);
+PUBLIC int DispatchOneOnLoad(const char *onLoadLabel);
+PUBLIC void DispatchOneEvent(const char *evtLabel, json_object *eventJ);
 PUBLIC void ctlapi_dispatch (char* control, afb_req request);
 
 // ctl-lua.c
@@ -85,8 +97,7 @@ typedef enum {
 } LuaDoActionT;
 
 PUBLIC int LuaLibInit ();
-PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
-PUBLIC int LuaCallFunc (afb_req request, DispatchActionT *action);
+PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ);
 PUBLIC void ctlapi_lua_docall (afb_req request);
 PUBLIC void ctlapi_lua_dostring (afb_req request);
 PUBLIC void ctlapi_lua_doscript (afb_req request);

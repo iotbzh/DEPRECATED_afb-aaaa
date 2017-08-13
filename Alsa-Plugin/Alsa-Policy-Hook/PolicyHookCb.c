@@ -58,9 +58,8 @@
 #endif
 
 // Currently not implemented
-#define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
-#define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_ ## x
-void OnRequestCB(void* UNUSED(handle) , const char* UNUSED(api), const char* UNUSED(verb), struct afb_wsj1_msg*UNUSED(msg)) {}
+#define UNUSED_ARG(x) UNUSED_ ## x __attribute__((__unused__))    
+void OnRequestCB(void* UNUSED_ARG(handle) , const char* UNUSED_ARG(api), const char* UNUSED_ARG(verb), struct afb_wsj1_msg*UNUSED_ARG(msg)) {}
 
 typedef struct {
     const char *api;
