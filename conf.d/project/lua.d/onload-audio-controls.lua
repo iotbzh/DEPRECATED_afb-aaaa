@@ -37,10 +37,15 @@ end
 
 function Audio_Set_Navigation(args, query)
 
-    AFB:notice ("--LUA:Audio_Set_Use_Case args=%s query=%s", args, query, {myint=1234, mystring="abcd"});
-    -- Print_Table("args", args)
+    AFB:notice ("--LUA:Audio_Set_Use_Case args=%s query=%s", args, query);
 
-    
+    -- synchronous call to alsacore service
+    local error,data= AFB:callsync ('alsacore', 'ping', {})  
+    if (error) then
+      AFB:error ("--LUA:Audio_Set_Use_Case FAIL args=%s", args)
+    else 
+      AFB:notice ("--LUA:Audio_Set_Use_Case DONE args=%s response=%s", args, data["response"])
+    end
 
     -- return OK
     return 0

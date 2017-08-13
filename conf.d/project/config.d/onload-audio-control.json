@@ -39,7 +39,7 @@
                     "actions": [{
                             "label": "multimedia-control-lua",
                             "info": "Call Lua Script function Test_Lua_Engin",   
-                            "lua": "Audio_Set_Use_Case_Multimedia",
+                            "lua": "Audio_Set_Multimedia",
                         }]
                 }, {
                     "label": "navigation",
@@ -61,13 +61,13 @@
                         }, {
                             "label": "navigation-control-lua",
                             "info": "Call Lua Script to set Navigation",   
-                            "lua": "Audio_Set_Use_Case_Navigation",
+                            "lua": "Audio_Set_Navigation",
                         }]
                 }, {
                     "label": "emergency",
                     "actions": [{
                             "label": "emergency-control-ucm",
-                            "lua": "Audio_Set_Use_Case_Emergency",
+                            "lua": "Audio_Set_Emergency",
                         }]
                 }
             ],

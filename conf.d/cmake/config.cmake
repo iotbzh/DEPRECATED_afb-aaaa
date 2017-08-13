@@ -69,6 +69,7 @@ set (PKG_REQUIRED_LIST
 # ---------------------------------------------------------
   add_compile_options(-DCONTROL_ONLOAD_DEFAULT="onload-default")
   add_compile_options(-DCONTROL_MAXPATH_LEN=255)
+  add_compile_options(-DCONTROL_DOSCRIPT_PRE="doscript")
   add_compile_options(-DCONTROL_CONFIG_PRE="onload")
   add_compile_options(-DCONTROL_CONFIG_POST="control" )
   add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/config.d:${CMAKE_INSTALL_PREFIX}/controler/config.d")
