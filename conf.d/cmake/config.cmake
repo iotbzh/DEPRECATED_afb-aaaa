@@ -67,17 +67,19 @@ set (PKG_REQUIRED_LIST
 
 # Define CONTROL_CDEV_NAME should match MOST driver values
 # ---------------------------------------------------------
+  add_compile_options(-DCONTROL_ONLOAD_DEFAULT="onload-default")
   add_compile_options(-DCONTROL_MAXPATH_LEN=255)
-  add_compile_options(-DCONTROL_CONFIG_FILE="onload-control-policy.json")
-  add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/config")
+  add_compile_options(-DCONTROL_CONFIG_PRE="onload")
+  add_compile_options(-DCONTROL_CONFIG_POST="control" )
+  add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/config.d:${CMAKE_INSTALL_PREFIX}/controler/config.d")
 
-  add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d:/etc/default/${PROJECT_NAME}/lua:${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lua")
-
+  add_compile_options(-DCONTROL_LUA_EVENT="luaevt")
+  add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controler/ctl-lua.d")
  
-  set (CTL_PLUGIN_PRE "audio-")
-  set (CTL_PLUGIN_EXT ".ctlso")
+  set (CTL_PLUGIN_PRE "ctl-" cache "Prefix for Controler share plugin")
+  set (CTL_PLUGIN_EXT ".ctlso" cache "Postfix for Controler share plugin")
   add_compile_options(-DCTL_PLUGIN_MAGIC=2468013579)
-  add_compile_options(-DCONTROL_PLUGIN_PATH="${BINDINGS_INSTALL_DIR}/controler:/usr/lib/${PROJECT_NAME}")
+  add_compile_options(-DCONTROL_PLUGIN_PATH="${CMAKE_BINARY_DIR}:${BINDINGS_INSTALL_DIR}/ctlplug:/usr/lib/afb/ctlplug")
   
 # Print a helper message when every thing is finished
 # ----------------------------------------------------

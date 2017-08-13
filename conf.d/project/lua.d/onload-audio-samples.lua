@@ -78,19 +78,16 @@ function Test_Binder_Call_Sync ()
 
 end
 
-
-function Test_Lua_Engine(request, ...)
-
-    AFB:NOTICE ("In est_Lua_Engine");
-    print ("Ping_Test script arguments:");
-
-    for i,v in ipairs(arg)
-    do
-        print(" -- ", tostring(v))
-    end
-
-    -- return OK
-    return 0
+-- return serialised version of printable table
+function Dump_Table(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. Dump_Table(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
 end
-
-

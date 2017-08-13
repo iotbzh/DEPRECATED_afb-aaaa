@@ -3,7 +3,7 @@
     "$schema": "http:iot.bzh/download/openapi/schema-3.0/default-schema.json",
     "info": {
         "description": "",
-        "title": "polctl",
+        "title": "controler",
         "version": "1.0",
         "x-binding-c-generator": {
             "api": "control",
@@ -11,7 +11,7 @@
             "prefix": "ctlapi_",
             "postfix": "",
             "start": null,
-            "onevent": null,
+            "onevent": "DispatchOneEvent",
             "init": "CtlBindingInit",
             "scope": "",
             "private": false
@@ -168,6 +168,52 @@
                         "required": false,
                         "schema": {
                             "type": "interger"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    }
+                }
+            }
+        },
+        "/navigation": {
+            "description": "Request Access to Navigation Audio Channel.",
+            "get": {
+                "x-permissions": {
+                    "$ref": "#/components/x-permissions/navigation"
+                },
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "zone",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    }
+                }
+            }
+        },
+        "/multimedia": {
+            "description": "Request Access to Navigation Audio Channel.",
+            "get": {
+                "x-permissions": {
+                    "$ref": "#/components/x-permissions/navigation"
+                },
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "zone",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],

@@ -1,0 +1,116 @@
+{
+    "$schema": "ToBeDone",
+    "metadata": {
+        "label": "sample-audio-control",
+        "info": "Provide Default Audio Policy for Multimedia, Navigation and Emergency",
+        "version": "1.0"
+    },
+    "onload": [{
+            "label": "onload-default",
+            "info": "onload initialisation config",
+            "plugin": "ctl-audio-plugin-sample.ctlso",
+            "require": ["intel-hda", "jabra-usb", "scarlett-usb"],
+            "actions": [
+                {
+                    "label": "onload-sample-cb",
+                    "info": "Call control sharelib install entrypoint",
+                    "callback": "SamplePolicyInit",
+                    "args": {
+                        "arg1": "first_arg",
+                        "nextarg": "second arg value"
+                    }
+                }, {
+                    "label": "onload-sample-api",
+                    "info": "Assert AlsaCore Presence",   
+                    "api": "alsacore",
+                    "verb": "ping",
+                    "args": "test"
+                }, {
+                    "label": "onload-hal-lua",
+                    "info": "Load avaliable HALs",
+                    "lua": "Audio_Init_Hal"
+                }
+            ]
+        }],
+    "controls": 
+            [
+                {
+                    "label": "multimedia",
+                    "actions": [{
+                            "label": "multimedia-control-lua",
+                            "info": "Call Lua Script function Test_Lua_Engin",   
+                            "lua": "Audio_Set_Use_Case_Multimedia",
+                        }]
+                }, {
+                    "label": "navigation",
+                    "actions": [{
+                            "label": "multimedia-control-cb",
+                            "info": "Call Sharelib Sample Callback",
+                            "callback": "sampleControlNavigation",
+                            "args": {
+                                "arg1": "snoopy",
+                                "arg2": "toto"
+                            }
+                        }, {
+                            "label": "navigation-control-ucm",
+                            "api": "alsacore",
+                            "verb": "ping",
+                            "args": {
+                                "test": "navigation"
+                            }
+                        }, {
+                            "label": "navigation-control-lua",
+                            "info": "Call Lua Script to set Navigation",   
+                            "lua": "Audio_Set_Use_Case_Navigation",
+                        }]
+                }, {
+                    "label": "emergency",
+                    "actions": [{
+                            "label": "emergency-control-ucm",
+                            "lua": "Audio_Set_Use_Case_Emergency",
+                        }]
+                }
+            ],
+    "events":
+            [
+                {
+                    "label": "SampleEvent1",
+                    "info": "define action when receiving a given event",
+                    "actions": [
+                        {
+                            "label": "Event Callback-1",
+                            "callback": "SampleControlEvent",
+                            "args": {
+                                "arg": "action-1"
+                            }
+                        }, {
+                            "label": "Event Callback-2",
+                            "callback": "SampleControlEvent",
+                            "args": {
+                                "arg": "action-2"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "label": "SampleEvent2",
+                    "info": "define action when receiving a given event",
+                    "actions": [
+                        {
+                            "label": "Event Callback-1",
+                            "callback": "SampleControlEvent",
+                            "args": {
+                                "arg": "action-1"
+                            }
+                        }, {
+                            "label": "Event Callback-2",
+                            "callback": "SampleControlEvent",
+                            "args": {
+                                "arg": "action-2"
+                            }
+                        }
+                    ]
+                }
+            ]
+}
+

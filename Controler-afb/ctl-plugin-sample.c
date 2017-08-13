@@ -54,15 +54,19 @@ PUBLIC void* CtlPluginOnload(char* label, char* version, char* info) {
     return (void*)pluginCtx;
 }
 
-PUBLIC int SamplePolicyInit (afb_req request, DispatchActionT *action, void *context) {
+PUBLIC int SamplePolicyInit (DispatchActionT *action, json_object *argsJ, void *context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
+    if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:SamplePolicyInit (Hoops) Invalid Sample Plugin Context");
+        return -1;
+    };
     
     pluginCtx->count = 0;
     AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Init label=%s args=%s\n", action->label, jsonToString(action->argsJ));
     return 0;
 }
 
-PUBLIC int sampleControlMultimedia (afb_req request, DispatchActionT *action, void *context) {
+PUBLIC int sampleControlMultimedia (DispatchActionT *action, json_object *queryJ, void *context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
@@ -70,11 +74,12 @@ PUBLIC int sampleControlMultimedia (afb_req request, DispatchActionT *action, vo
         return -1;
     };
     pluginCtx->count++;
-    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s query=%s count=%d"
+               , action->label, jsonToString(action->argsJ), jsonToString(queryJ), pluginCtx->count);
     return 0;
 }
 
-PUBLIC int sampleControlNavigation (afb_req request, DispatchActionT *action, void *context) {
+PUBLIC int sampleControlNavigation (DispatchActionT *action, json_object *queryJ, void *context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
@@ -82,11 +87,12 @@ PUBLIC int sampleControlNavigation (afb_req request, DispatchActionT *action, vo
         return -1;
     };
     pluginCtx->count++;
-    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlNavigation SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlNavigation SamplePolicyCount action=%s args=%s query=%s count=%d"
+               ,action->label, jsonToString(action->argsJ), jsonToString(queryJ), pluginCtx->count);
     return 0;
 }
 
-PUBLIC int SampleControlEvent (afb_req request, DispatchActionT *action, void *context) {
+PUBLIC int SampleControlEvent (DispatchActionT *action, json_object *queryJ, void *context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
@@ -94,6 +100,7 @@ PUBLIC int SampleControlEvent (afb_req request, DispatchActionT *action, void *c
         return -1;
     };
     pluginCtx->count++;
-    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s count=%d", action->label, jsonToString(action->argsJ), pluginCtx->count);
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s query=%s count=%d"
+               ,action->label, jsonToString(action->argsJ), jsonToString(queryJ), pluginCtx->count);
     return 0;
 }

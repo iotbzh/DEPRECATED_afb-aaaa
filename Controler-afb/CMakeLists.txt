@@ -20,7 +20,7 @@
 PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c ctl-misc.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
@@ -40,7 +40,7 @@ PROJECT_TARGET_ADD(control-afb)
     INSTALL(TARGETS ${TARGET_NAME}
         LIBRARY DESTINATION CMAKE_INSTALL_PREFIX )
 
-PROJECT_TARGET_ADD(ctl-plugin-sample)
+PROJECT_TARGET_ADD(audio-plugin-sample)
 
     # Define targets 
     ADD_LIBRARY(${TARGET_NAME} MODULE ctl-plugin-sample.c)
