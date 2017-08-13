@@ -14,28 +14,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   
- 
-  Simple API script
 --]]
 
-    -- retrieve calling arguments
-    args= ...
 
-    print ("Helloworld script arguments:")
-
-    
-    for key,value in pairs(args) 
-    do 
-      print("args: ", key,value)
-    end
-
-    -- loop on script arguments
-    --for i=1,#args 
-    --do
-    --    print(" -- ", i, args[i])
-    --end
- 
-
-    -- return two arguments on top of status
-    return true, 1234, "ABCD", 5678
-
+-- return serialised version of printable table
+function Dump_Table(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. Dump_Table(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end

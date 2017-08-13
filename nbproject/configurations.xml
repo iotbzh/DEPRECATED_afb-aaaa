@@ -44,7 +44,11 @@
       </df>
       <df name="Controler-afb">
         <in>ctl-binding.c</in>
+        <in>ctl-dispatch.c</in>
+        <in>ctl-events.c</in>
         <in>ctl-lua.c</in>
+        <in>ctl-misc.c</in>
+        <in>ctl-plugin-sample.c</in>
       </df>
       <df name="HAL-afb">
         <df name="HAL-interface">
@@ -136,8 +140,6 @@
               <pElem>/usr/include/p11-kit-1</pElem>
               <pElem>/usr/include/json-c</pElem>
               <pElem>/usr/include/lua5.3</pElem>
-              <pElem>Audio-Common</pElem>
-              <pElem>build/Controler-afb</pElem>
             </incDir>
             <preprocessorList>
               <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
@@ -152,7 +154,6 @@
               <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
               <Elem>MAX_SND_CARD=16</Elem>
               <Elem>TLV_BYTE_SIZE=256</Elem>
-              <Elem>control_afb_EXPORTS</Elem>
             </preprocessorList>
           </cTool>
         </makeTool>
@@ -203,10 +204,67 @@
       </item>
       <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="0">
         <cTool flags="0">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="0">
+      <item path="Controler-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-misc.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>build/Controler-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-interface.c"
@@ -314,8 +372,8 @@
             <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>PIC</Elem>
-            <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>policy_hook_cb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -323,27 +381,31 @@
       <folder path="0/Alsa-afb">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
             <pElem>build/Alsa-afb</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>alsa_lowlevel_EXPORTS</Elem>
-            <Elem>audio_plugin_sample_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/Audio-Common">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
             <pElem>build/Audio-Common</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
           </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/Common">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>/usr/include/alsa</pElem>
             <pElem>build/Common</pElem>
@@ -352,17 +414,14 @@
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
-      <folder path="0/HAL-afb">
+      <folder path="0/Controler-afb">
         <cTool>
-          <incDir>
-            <pElem>build/HAL-afb/HAL-plugin</pElem>
-            <pElem>../../../opt/include/afb</pElem>
-          </incDir>
           <preprocessorList>
-            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -370,18 +429,28 @@
         <cTool>
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/HAL-plugin">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/HAL-plugin</pElem>
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -389,9 +458,11 @@
         <cTool>
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HDA-intel</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>hal_intel_hda_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -400,9 +471,11 @@
         <cTool>
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/Jabra-Solemate</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>hal_jabra_usb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -411,9 +484,11 @@
         <cTool>
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>hal_scalett_usb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -421,17 +496,25 @@
       <folder path="0/HAL-afb/Unicens-USB">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/Unicens-USB</pElem>
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HighLevel-afb">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HighLevel-afb</pElem>
@@ -440,16 +523,20 @@
           </incDir>
           <preprocessorList>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/MostVolume">
         <cTool>
           <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controler-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
           </incDir>
           <preprocessorList>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>

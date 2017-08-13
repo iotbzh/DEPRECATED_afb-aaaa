@@ -42,6 +42,14 @@ typedef struct {
 #define CTL_PLUGIN_REGISTER(pluglabel) CtlPluginMagicT CtlPluginMagic={.magic=CTL_PLUGIN_MAGIC,.label=pluglabel}; struct afb_binding_data_v2;
 
 // ctl-misc.c
+typedef enum {
+  CTL_SCAN_FLAT=0,        
+  CTL_SCAN_RECURSIVE=1,
+} CtlScanDirModeT;
+
+PUBLIC const char *GetMidleName(const char*name);
+PUBLIC const char *GetBinderName();
+PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
 
 
 // polctl-binding.c
@@ -49,21 +57,12 @@ PUBLIC int CtlBindingInit ();
 
 // ctl-timerevt.c
 // ----------------------
-
-
 PUBLIC int TimerEvtInit (void);
 PUBLIC afb_event TimerEvtGet(void);
 PUBLIC void ctlapi_event_test (afb_req request);
 
 // ctl-policy
 // -----------
-typedef enum {
-  CTL_SCAN_FLAT=0,        
-  CTL_SCAN_RECURSIVE=1,
-} CtlScanDirModeT;
-
-PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
-PUBLIC const char *GetBinderName();
 
 typedef enum {
     CTL_MODE_NONE=0,
