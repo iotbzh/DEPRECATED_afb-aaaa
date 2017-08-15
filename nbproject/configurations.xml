@@ -117,8 +117,8 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g -fPIC -fPIC"/>
-        <element flagsID="1" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="1" commonFlags="-g -fPIC -fPIC -g -ggdb"/>
         <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
         <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
         <element flagsID="4"
@@ -133,7 +133,7 @@
           <buildCommand>${MAKE} -f Makefile install</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
-          <cTool flags="0">
+          <cTool flags="-g -fPIC -fPIC">
             <incDir>
               <pElem>../../../opt/include</pElem>
               <pElem>../../../opt/include/alsa</pElem>
@@ -149,7 +149,7 @@
               <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
               <Elem>CONTROL_MAXPATH_LEN=255</Elem>
               <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-              <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+              <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
               <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
               <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
               <Elem>MAX_SND_CARD=16</Elem>
@@ -167,43 +167,43 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="0">
+      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="0">
+        <cTool flags="1">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -214,7 +214,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -225,7 +225,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -236,7 +236,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -247,7 +247,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-misc.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controler-afb</pElem>
@@ -258,7 +258,7 @@
         </cTool>
       </item>
       <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>build/Controler-afb</pElem>
           </incDir>
@@ -271,18 +271,18 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volramp.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
@@ -290,21 +290,21 @@
         </cTool>
       </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/Jabra-Solemate/JabraUsbHAL.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
@@ -373,6 +373,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
             <Elem>PIC</Elem>
             <Elem>policy_hook_cb_EXPORTS</Elem>
           </preprocessorList>
@@ -386,6 +387,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
             <Elem>alsa_lowlevel_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -398,6 +400,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -413,6 +416,7 @@
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
@@ -422,6 +426,7 @@
         <cTool>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -434,6 +439,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -449,6 +455,7 @@
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
@@ -463,6 +470,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
             <Elem>hal_intel_hda_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -476,6 +484,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
             <Elem>hal_jabra_usb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -489,6 +498,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
             <Elem>hal_scalett_usb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -505,6 +515,7 @@
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
@@ -522,6 +533,7 @@
             <pElem>build/HighLevel-afb</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
@@ -535,6 +547,7 @@
             <pElem>build/HAL-afb/HAL-plugin</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>

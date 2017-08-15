@@ -275,7 +275,8 @@ STATIC void LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
                     break;
                     
                 case'%':
-                    targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"%");
+                    message[targetIdx]='%';
+                    targetIdx++;
                     break;
                     
                 case 's':
