@@ -67,6 +67,7 @@ set (PKG_REQUIRED_LIST
 
 # Define CONTROL_CDEV_NAME should match MOST driver values
 # ---------------------------------------------------------
+  set(LUA_COMPILER "luac5.3" CACHE STRING "LUA syntaxe check")
   add_compile_options(-DCONTROL_ONLOAD_DEFAULT="onload-default")
   add_compile_options(-DCONTROL_MAXPATH_LEN=255)
   add_compile_options(-DCONTROL_DOSCRIPT_PRE="doscript")
@@ -77,8 +78,8 @@ set (PKG_REQUIRED_LIST
   add_compile_options(-DCONTROL_LUA_EVENT="luaevt")
   add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controler/ctl-lua.d")
  
-  set (CTL_PLUGIN_PRE "ctl-" cache "Prefix for Controler share plugin")
-  set (CTL_PLUGIN_EXT ".ctlso" cache "Postfix for Controler share plugin")
+  set (CTL_PLUGIN_PRE "ctl-" CACHE STRING "Prefix for Controler share plugin")
+  set (CTL_PLUGIN_EXT ".ctlso" CACHE STRING "Postfix for Controler share plugin")
   add_compile_options(-DCTL_PLUGIN_MAGIC=2468013579)
   add_compile_options(-DCONTROL_PLUGIN_PATH="${CMAKE_BINARY_DIR}:${BINDINGS_INSTALL_DIR}/ctlplug:/usr/lib/afb/ctlplug")
   

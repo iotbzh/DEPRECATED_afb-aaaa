@@ -21,28 +21,40 @@
 -- global counter to keep track of calls
 count=0
 
--- Adjust Volume function of vehicle speed
-function Oncall_Helloworld (request, args)
-  count=count+1
+-- Display receive arguments and echo them to caller
+function Simple_Echo_Args (request, args)
+    count=count+1
+    AFB:notice("LUA OnCall Echo Args count=%d args=%s", count, args)
 
-  AFB:notice("LUA OnCall Helloworld count=%d args=%s", count, args);
-  AFB:success (request, {"count"=count}) 
+    print ("--inlua-- args=", Dump_Table(args))
+
+    local response={
+       ["count"]=count,
+       ["args"]=args,
+    }
+
+    -- fulup Embdeded table ToeDone AFB:success (request, response) 
+    AFB:success (request,  {["func"]="Simple_Echo_Args", ["ret1"]=5678, ["ret2"]="abcd"}) 
 end
 
-function Test_Async_CB (request, result, context) 
+function Test_Async_CB (request, result, context)
+   response={
+     ["result"]=result,
+     ["context"]=context,
+   }
 
    AFB:notice ("Test_Async_CB result=%s context=%s", result, context)
-   AFB:success (request, {"response"=result, "context"=context})
+   AFB:success (request, response)
 end
 
 function Test_Call_Async (request, args) 
    local context={
-     "value1"="abcd",
-     "value2"=1234
+     ["value1"]="abcd",
+     ["value2"]=1234
    }
 
-   AFB:notice ("Test_Call_Async args=%s", args)
-   AFB:service("alsacore","ping", args, "Test_Async_CB", context)
+   AFB:notice ("Test_Call_Async args=%s cb=Test_Async_CB", args)
+   AFB:service("alsacore","ping", "Test_Async_CB", context)
 end
 
 function Test_Call_Sync (request, args) 
@@ -60,7 +72,8 @@ end
 function Test_Event_Make (request, args) 
 
     AFB:notice ("Test_Event_Make args=%s", args)
-    local err eventFD AFB:event (args["evtname"])    
+
+    local err evt_handle= AFB:event (args["evtname"])    
     if (err) then
         AFB:fail ("AFB:Test_Event_Make fail event=%s", args["evtname"]);
     else
@@ -68,11 +81,11 @@ function Test_Event_Make (request, args)
     end
 
     local evtData = {
-        val1="My 1st private Event",
-        val2=5678
+        ["val1"]="My 1st private Event",
+        ["val2"]=5678
     }
 
-    AFB:notify (eventFD, evtData)
+    AFB:notify (evt_handle, evtData)
 end
 
 -- send an event on default binder event

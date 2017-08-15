@@ -19,10 +19,11 @@
 --]]
 
 function Audio_Init_CB (status, result, context)
-    print ("***** result=", Dump_Table(result))
-    print ("***** context=", Dump_Table(context))
+    print ("--inlua:Audio_Init_CB-- result=", Dump_Table(result))
+    print ("--inlua:Audio_Init_CB-- context=", Dump_Table(context))
 
-    -- AFB:notice ("--LUA:Audio_Init_Hal result=%s context=%s", result, context)
+    -- (Fulup Bug) AFB:debug ("Audio_Init_Hal result=%s context=%s", result, context)
+    AFB:debug ("Audio_Init_Hal result=%s context=%s", {["ret1"]=5678, ["ret2"]="abcd"}, context)
    
 end
 
@@ -37,12 +38,12 @@ end
 
 function Audio_Set_Navigation(args, query)
 
-    AFB:notice ("--LUA:Audio_Set_Use_Case args=%s query=%s", args, query);
+    AFB:notice ("LUA:Audio_Set_Use_Case args=%s query=%s", args, query);
 
     -- synchronous call to alsacore service
     local error,data= AFB:callsync ('alsacore', 'ping', {})  
     if (error) then
-      AFB:error ("--LUA:Audio_Set_Use_Case FAIL args=%s", args)
+      AFB:error ("LUA:Audio_Set_Use_Case FAIL args=%s", args)
     else 
       AFB:notice ("--LUA:Audio_Set_Use_Case DONE args=%s response=%s", args, data["response"])
     end
