@@ -29,6 +29,6 @@ extern int wrap_ucs_i2cwrite(uint16_t node, uint8_t *data_ptr, uint8_t data_sz,
 
 /* Synchronous API: functions */
 extern int wrap_ucs_subscribe_sync();
-extern int wrap_ucs_getconfig_sync(const char *config_path);
+extern int wrap_ucs_getconfig_sync(const char *config_path, char **file_found);
 extern int wrap_ucs_initialize_sync(const char* file_name);
 extern int wrap_ucs_i2cwrite_sync(uint16_t node, uint8_t *data_ptr, uint8_t data_sz);

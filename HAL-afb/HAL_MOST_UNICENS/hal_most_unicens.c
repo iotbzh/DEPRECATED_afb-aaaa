@@ -23,10 +23,12 @@
 #include "wrap_unicens.h"
 #include "wrap_volume.h"
 
-#define XML_CONFIG_PATH "/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data/config_multichannel_audio_kit.xml"
-#define ALSA_CARD_NAME  "Microchip MOST:1"
+#ifndef UCS2_CFG_PATH
+# define UCS2_CFG_PATH "/home/agluser/DEVELOPMENT/AGL/BINDING/unicens2-binding/data"
+#endif
 
-#define PCM_MAX_CHANNELS    6
+#define ALSA_CARD_NAME    "Microchip MOST:1"
+#define PCM_MAX_CHANNELS  6
 
 static int master_volume;
 static json_bool master_switch;
@@ -96,6 +98,7 @@ STATIC alsaHalSndCardT alsaHalSndCard  = {
 /* initializes ALSA sound card, UNICENS API */
 STATIC int unicens_service_init() {
     int err = 0;
+    char *config_file = NULL;
     AFB_NOTICE("Initializing HAL-MOST-UNICENS-BINDING");
     
     err = halServiceInit(afbBindingV2.api, &alsaHalSndCard);
@@ -110,13 +113,25 @@ STATIC int unicens_service_init() {
         goto OnErrorExit;
     }
     
+    err = wrap_ucs_getconfig_sync(UCS2_CFG_PATH, &config_file);
+    if (err || (config_file == NULL)) {
+        AFB_ERROR("Failed to retrieve configuration");
+        goto OnErrorExit;
+    }
+    else {
+        AFB_NOTICE("Found configuration: %s", config_file);
+    }
+    
     err = wrap_ucs_subscribe_sync();
     if (err) {
         AFB_ERROR("Failed to subscribe to UNICENS binding");
         goto OnErrorExit;
     }
     
-    err = wrap_ucs_initialize_sync(XML_CONFIG_PATH);
+    err = wrap_ucs_initialize_sync(config_file);
+    free(config_file);
+    config_file = NULL;
+    
     if (err) {
         AFB_ERROR("Failed to initialize UNICENS binding");
         goto OnErrorExit;

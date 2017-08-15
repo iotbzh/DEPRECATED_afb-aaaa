@@ -83,6 +83,8 @@ set (PKG_REQUIRED_LIST
   add_compile_options(-DCTL_PLUGIN_MAGIC=2468013579)
   add_compile_options(-DCONTROL_PLUGIN_PATH="${CMAKE_BINARY_DIR}:${BINDINGS_INSTALL_DIR}/ctlplug:/usr/lib/afb/ctlplug")
   
+  add_compile_options(-DUCS2_CFG_PATH="../../unicens2-binding/data:/etc/default/ucs:../data:./data")
+
 # Print a helper message when every thing is finished
 # ----------------------------------------------------
 set(CLOSING_MESSAGE "Debug in ./buid: afb-daemon --port=1234 --ldpaths=. --workdir=. --roothttp=../htdocs --tracereq=common --token='' --verbose")
