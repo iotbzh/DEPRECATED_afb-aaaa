@@ -238,6 +238,9 @@ STATIC void LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
         message="-- Empty Message ???";
         goto PrintMessage;
     }
+    
+    //AFB_NOTICE("**** responseJ=%s", json_object_get_string(responseJ));
+
         
     // if we have only on argument just return the value.
     if (json_object_get_type(responseJ)!=json_type_array || json_object_array_length(responseJ) <2) {
@@ -256,22 +259,31 @@ STATIC void LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
         
         if (format[idx]=='%' && format[idx] !='\0') {
             json_object *slotJ= json_object_array_get_idx(responseJ, arrayIdx);
+            //if (slotJ) AFB_NOTICE("**** idx=%d slotJ=%s", arrayIdx, json_object_get_string(slotJ));
+            
 
             switch (format[++idx]) {
                 case 'd':
                     if (slotJ) targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"%d", json_object_get_int(slotJ)); 
                     else  targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"nil");
+                    arrayIdx++;
                     break;
                 case 'f':
                     if (slotJ) targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"%f", json_object_get_double(slotJ)); 
                     else  targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"nil");
+                    arrayIdx++;
+                    break;
+                    
+                case'%':
+                    targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"%");
                     break;
                     
                 case 's':
                 default:
                     if (slotJ) targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"%s", json_object_get_string(slotJ));                     
                     else  targetIdx += snprintf (&message[targetIdx], LUA_MSG_MAX_LENGTH-targetIdx,"nil");
-            }
+                    arrayIdx++;
+                }
             
         } else {
             message[targetIdx++] = format[idx];
@@ -497,7 +509,7 @@ STATIC int LuaAfbPushEvent(lua_State* luaState) {
 // Generated some fake event based on watchdog/counter
 PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ) {
     
-    int err, count=0;
+    int err, count;
 
     json_object* argsJ  = action->argsJ;
     const char*  func   = action->call;
@@ -506,29 +518,22 @@ PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ) {
     lua_getglobal(luaState, func);
 
     // push argsJ on the stack
+    count=0;
     if (!argsJ) {
         lua_pushnil(luaState);
         count++;
-    } else if (json_object_get_type(argsJ) != json_type_array) { 
+    } else { 
         count+= LuaPushArgument (argsJ);
-    } else {
-        for (int idx=0; idx<json_object_array_length(argsJ); idx++)  {
-            count += LuaPushArgument (json_object_array_get_idx(argsJ, idx));
-        }
-    } 
+    }
     
     // push queryJ on the stack
     if (!queryJ) {
         lua_pushnil(luaState);
         count++;
-    } else if (json_object_get_type(queryJ) != json_type_array) { 
+    } else { 
         count+= LuaPushArgument (queryJ);
-    } else {
-        for (int idx=0; idx<json_object_array_length(queryJ); idx++)  {
-            count += LuaPushArgument (json_object_array_get_idx(queryJ, idx));
-        }
-    }
-            
+    } 
+
     // effectively exec LUA script code 
     err=lua_pcall(luaState, count, 1, 0);
     if (err)  {
@@ -571,14 +576,14 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
     
         case LUA_DOCALL: {
             const char *func;
-            json_object *args;
-            err= wrap_json_unpack (queryJ, "{s:s, s?o !}", "func",  &func,"args", &args);
+            json_object *argsJ=NULL;
+            
+            err= wrap_json_unpack (queryJ, "{s:s, s?o !}", "func", &func, "args", &argsJ);
             if (err) {
-                AFB_ERROR ("LUA-DOCALL-SYNTAX missing func|args args=%s", json_object_get_string(queryJ));
+                AFB_ERROR ("LUA-DOCALL-SYNTAX missing func|args query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
             }
 
-                
             // load function (should exist in CONTROL_PATH_LUA
             lua_getglobal(luaState, func);
                           
@@ -587,14 +592,13 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             if (!afbContext) goto OnErrorExit;
 
             // push query on the stack
-            if (json_object_get_type(args) != json_type_array) { 
-                count= LuaPushArgument (args);
-            } else {
-                for (int idx=0; idx<json_object_array_length(args); idx++)  {
-                    count += LuaPushArgument (json_object_array_get_idx(args, idx));
-                    if (err) break;
-                }
-            } 
+            if (!argsJ) {
+                lua_pushnil(luaState);
+                count++;
+            } else { 
+                AFB_NOTICE("***** args=%s", json_object_get_string(argsJ));
+                count+= LuaPushArgument (argsJ);
+            }
             
             break;
         }
@@ -611,7 +615,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
 
             err= wrap_json_unpack (queryJ, "{s:s, s?o s?o !}", "script", &script,"args", &args, "arg", &args);
             if (err) {
-                AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing script|(args,arg) args=%s", json_object_get_string(queryJ));
+                AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing script|(args,arg) query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
             }
 
@@ -668,8 +672,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
         AFB_ERROR ("LUA-DO-EXEC:FAIL query=%s err=%s", json_object_get_string(queryJ), lua_tostring(luaState,-1) );
         goto OnErrorExit;
     }
-    
- 
+    return;
     
  OnErrorExit:
     afb_req_fail(request,"LUA:ERROR", lua_tostring(luaState,-1));
@@ -681,7 +684,7 @@ PUBLIC void ctlapi_lua_dostring (afb_req request) {
 }
 
 PUBLIC void ctlapi_lua_docall (afb_req request) {
-    LuaDoAction (LUA_DOSCRIPT, request);
+    LuaDoAction (LUA_DOCALL, request);
 }
 
 PUBLIC void ctlapi_lua_doscript (afb_req request) {
@@ -778,6 +781,6 @@ PUBLIC int LuaLibInit () {
     return 0;
     
  OnErrorExit:    
-    return -1;
+    return 1;
 }
  

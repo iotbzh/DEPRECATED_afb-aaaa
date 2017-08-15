@@ -22,7 +22,7 @@
 ##################################################
 PROJECT_TARGET_ADD(ctl-lua.d)
 
-    file(GLOB XML_FILES "*.lua")
+    file(GLOB LUA_FILES "*.lua")
 
     add_custom_target(${TARGET_NAME}
        DEPENDS  ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
@@ -30,11 +30,11 @@ PROJECT_TARGET_ADD(ctl-lua.d)
 
     # check XML schema before pushing config
     add_custom_command(
-       DEPENDS  ${XML_FILES}
+       DEPENDS  ${LUA_FILES}
        OUTPUT ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       # COMMAND xmllint -schema ${XML_SCHEMA} ${XML_FILES} --noout (Fulup we miss this for JSON)
+       COMMAND ${LUA_COMPILER} ${LUA_FILES}
        COMMAND mkdir -p ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
        COMMAND touch ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}      
-       COMMAND cp -r ${XML_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
+       COMMAND cp -r ${LUA_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
     )
 

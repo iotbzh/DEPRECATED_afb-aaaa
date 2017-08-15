@@ -90,7 +90,7 @@ STATIC int DispatchOneControl (DispatchHandleT **controls, const char* controlLa
                 json_object_get( actions[idx].argsJ); // make sure afb_service_call does not free the argsJ
                 int err = afb_service_call_sync(actions[idx].api, actions[idx].call, actions[idx].argsJ, &returnJ);
                 if (err) {
-                    static const char*format="DispatchOneControl Api api=%s verb=%s args=%s";
+                    static const char*format="DispatchOneControl(Api) api=%s verb=%s args=%s";
                     if (afb_req_is_valid(request))afb_req_fail_f(request, "DISPATCH-CTL-MODE:API", format, actions[idx].label, actions[idx].api, actions[idx].call);
                     else AFB_ERROR (format, actions[idx].api, actions[idx].call, actions[idx].label);
                     goto OnErrorExit;
@@ -101,9 +101,9 @@ STATIC int DispatchOneControl (DispatchHandleT **controls, const char* controlLa
             case CTL_MODE_LUA:
                 err= LuaCallFunc (&actions[idx], queryJ);
                 if (err) {
-                    static const char*format= "DispatchOneControl func=%s args=%s";
-                    if (afb_req_is_valid(request)) afb_req_fail_f(request, "DISPATCH-CTL-MODE:Lua", format, actions[idx].call, json_object_get_string(actions[idx].argsJ));
-                    else AFB_ERROR (format, actions[idx].call, json_object_get_string(actions[idx].argsJ));
+                    static const char*format= "DispatchOneControl(Lua) label=%s func=%s args=%s";
+                    if (afb_req_is_valid(request)) afb_req_fail_f(request, "DISPATCH-CTL-MODE:Lua", format, actions[idx].label, actions[idx].call, json_object_get_string(actions[idx].argsJ));
+                    else AFB_ERROR (format,  actions[idx].label, actions[idx].call, json_object_get_string(actions[idx].argsJ));
                     goto OnErrorExit;
                 }
                 break;
@@ -111,17 +111,17 @@ STATIC int DispatchOneControl (DispatchHandleT **controls, const char* controlLa
             case CTL_MODE_CB:
                 err= (*actions[idx].actionCB) (&actions[idx], queryJ, configHandle->context);
                 if (err) {
-                    static const char*format="DispatchOneControl func=%s args=%s";
-                    if (afb_req_is_valid(request)) afb_req_fail_f(request, "DISPATCH-CTL-MODE:Cb", format, actions[idx].call, json_object_get_string(actions[idx].argsJ));
-                    else AFB_ERROR (format, actions[idx].call, json_object_get_string(actions[idx].argsJ));
+                    static const char*format="DispatchOneControl(Callback) label%s func=%s args=%s";
+                    if (afb_req_is_valid(request)) afb_req_fail_f(request, "DISPATCH-CTL-MODE:Cb", format,  actions[idx].label, actions[idx].call, json_object_get_string(actions[idx].argsJ));
+                    else AFB_ERROR (format,  actions[idx].label, actions[idx].call, json_object_get_string(actions[idx].argsJ));
                     goto OnErrorExit;
                 }
                 break;
                 
             default:{
-                static const char*format="DispatchOneControl unknown mode control=%s action=%s";
-                AFB_ERROR (format, controls[index]->label, actions[idx].label);
-                if (afb_req_is_valid(request))afb_req_fail_f(request, "DISPATCH-CTL-MODE:Unknown", format, controls[index]->label, actions[idx].label);
+                static const char*format="DispatchOneControl(unknown) mode control=%s action=%s";
+                AFB_ERROR (format, controls[index]->label);
+                if (afb_req_is_valid(request))afb_req_fail_f(request, "DISPATCH-CTL-MODE:Unknown", format, controls[index]->label);
             }   
         }
     }
