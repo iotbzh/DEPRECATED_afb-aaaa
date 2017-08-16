@@ -22,6 +22,7 @@ PROJECT_TARGET_ADD(control-afb)
     # Define project Targets
     ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c ctl-misc.c)
 
+    SET_OPENAPI_FILENAME("afb-control-afb")
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	PREFIX "afb-"
