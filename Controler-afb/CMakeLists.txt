@@ -33,7 +33,7 @@ endmacro(SET_TARGET_GENSKEL)
 PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c ctl-misc.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c)
 
     # Generate API-v2 hat from OpenAPI json definition
     SET_TARGET_GENSKEL(${TARGET_NAME} ctl-apidef)
@@ -70,6 +70,7 @@ PROJECT_TARGET_ADD(audio-plugin-sample)
 
     # Library dependencies (include updates automatically)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
+        audio-common 
         ${link_libraries}
     )
 

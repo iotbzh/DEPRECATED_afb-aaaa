@@ -1,7 +1,7 @@
 Alsa-Hook-Plugin
 
 Object: Provide a Hook on Alsa PCM to check permission again AGL Advance Audio Agent
-Status: Working Proof of Concept
+Status: Release Candidate
 Author: Fulup Ar Foll fulup@iot.bzh
 Date  : August-2017
 
@@ -39,21 +39,21 @@ pcm.MyNavigationHook {
             uri   "ws://localhost:1234/api?token='audio-agent-token'"
             request {
                 # Request autorisation to write on navigation 
-                RequestNavigation {
+                navigation-ctl {
                     api   "control"
-                    verb  "navigation"
+                    verb  "request"
                 } 
-                # subscribe to Audio Agent Event
-                SubscriveEvents {
+                # subscribe to Audio Agent Event map them to signal
+                subscribe-evt {
                     api   "control"
                     verb  "monitor"
                 }
-                # force PCM stop after 10s
-                TestAutoStop {
-                    api   "control"
-                    verb  "event_test"
-                    query "{'label':'stop', 'delay':10000}"
-                }
+            }
+            # map event reception to self generated signal
+            event {
+                pause  30
+                resume 31
+                stop   3
             }
         }
     }

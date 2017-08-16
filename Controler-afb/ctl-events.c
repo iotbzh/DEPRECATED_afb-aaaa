@@ -75,7 +75,7 @@ STATIC int DoSendEvent (void *context) {
     else ctx->value =1;
     
     ctlEventJ = json_object_new_object();
-    json_object_object_add(ctlEventJ,"action", json_object_new_string(ctx->label));
+    json_object_object_add(ctlEventJ,"signal", json_object_new_string(ctx->label));
     json_object_object_add(ctlEventJ,"value" , json_object_new_int(ctx->value));
     int done = afb_event_push(afbevt, ctlEventJ);
     

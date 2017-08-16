@@ -178,53 +178,7 @@
                 }
             }
         },
-        "/navigation": {
-            "description": "Request Access to Navigation Audio Channel.",
-            "get": {
-                "x-permissions": {
-                    "$ref": "#/components/x-permissions/navigation"
-                },
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "zone",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/200"
-                    }
-                }
-            }
-        },
-        "/multimedia": {
-            "description": "Request Access to Navigation Audio Channel.",
-            "get": {
-                "x-permissions": {
-                    "$ref": "#/components/x-permissions/navigation"
-                },
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "zone",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/200"
-                    }
-                }
-            }
-        },
-        "/emergency": {
+        "/select": {
             "description": "Request Access to Navigation Audio Channel.",
             "get": {
                 "x-permissions": {

@@ -22,6 +22,8 @@
 #define AFB_BINDING_VERSION 2
 #include <afb/afb-binding.h>
 #include <json-c/json.h>
+#include <filescan-utils.h>
+#include <wrap-json.h>
 
 #ifndef PUBLIC
   #define PUBLIC
@@ -40,16 +42,6 @@ typedef struct {
 } CtlPluginMagicT;
 
 #define CTL_PLUGIN_REGISTER(pluglabel) CtlPluginMagicT CtlPluginMagic={.magic=CTL_PLUGIN_MAGIC,.label=pluglabel}; struct afb_binding_data_v2;
-
-// ctl-misc.c
-typedef enum {
-  CTL_SCAN_FLAT=0,        
-  CTL_SCAN_RECURSIVE=1,
-} CtlScanDirModeT;
-
-PUBLIC const char *GetMidleName(const char*name);
-PUBLIC const char *GetBinderName();
-PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
 
 
 // polctl-binding.c

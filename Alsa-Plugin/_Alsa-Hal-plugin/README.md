@@ -1,7 +1,7 @@
 Hal-Plugin 
 
-Object: provide an ALSA a HAL (Hardware Abstraction Layer) to automotive sound cards
-Status: Current version is proof of concept and not a usable product
+Object: Add virtual soft control to sound card
+Status: Proof of concept and not a usable product
 Author: Fulup Ar Foll
 Date  : June-2017
 

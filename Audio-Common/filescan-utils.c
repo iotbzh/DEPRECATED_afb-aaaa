@@ -23,7 +23,6 @@
 #include <dirent.h>
 
 #include "audio-common.h"
-#include "ctl-binding.h"
 
 
 

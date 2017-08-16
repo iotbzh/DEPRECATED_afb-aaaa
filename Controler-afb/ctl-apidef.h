@@ -37,35 +37,26 @@ static const char _afb_description_v2_control[] =
     "name\":\"delay\",\"required\":false,\"schema\":{\"type\":\"interger\"}},"
     "{\"in\":\"query\",\"name\":\"count\",\"required\":false,\"schema\":{\"ty"
     "pe\":\"interger\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components/res"
-    "ponses/200\"}}}},\"/navigation\":{\"description\":\"Request Access to Na"
-    "vigation Audio Channel.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/compo"
-    "nents/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\"na"
-    "me\":\"zone\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"re"
-    "sponses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/multi"
-    "media\":{\"description\":\"Request Access to Navigation Audio Channel.\""
-    ",\"get\":{\"x-permissions\":{\"$ref\":\"#/components/x-permissions/navig"
-    "ation\"},\"parameters\":[{\"in\":\"query\",\"name\":\"zone\",\"required\""
-    ":false,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$ref"
-    "\":\"#/components/responses/200\"}}}},\"/emergency\":{\"description\":\""
-    "Request Access to Navigation Audio Channel.\",\"get\":{\"x-permissions\""
-    ":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameters\":[{\""
-    "in\":\"query\",\"name\":\"zone\",\"required\":false,\"schema\":{\"type\""
-    ":\"string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components/responses"
-    "/200\"}}}},\"/lua_docall\":{\"description\":\"Execute LUA string script."
-    "\",\"get\":{\"x-permissions\":{\"$ref\":\"#/components/x-permissions/nav"
-    "igation\"},\"parameters\":[{\"in\":\"query\",\"name\":\"func\",\"require"
-    "d\":true,\"schema\":{\"type\":\"string\"}},{\"in\":\"query\",\"name\":\""
-    "args\",\"required\":false,\"schema\":{\"type\":\"array\"}}],\"responses\""
-    ":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_dostring\""
-    ":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permission"
-    "s\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameters\":"
-    "[{\"in\":\"query\",\"required\":true,\"schema\":{\"type\":\"string\"}}],"
-    "\"responses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/l"
-    "ua_doscript\":{\"description\":\"Execute LUA string script.\",\"get\":{\""
-    "x-permissions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"p"
-    "arameters\":[{\"in\":\"query\",\"name\":\"filename\",\"required\":true,\""
-    "schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/co"
-    "mponents/responses/200\"}}}}}}"
+    "ponses/200\"}}}},\"/select\":{\"description\":\"Request Access to Naviga"
+    "tion Audio Channel.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/component"
+    "s/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\"name\""
+    ":\"zone\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"respon"
+    "ses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_docal"
+    "l\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permiss"
+    "ions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameters"
+    "\":[{\"in\":\"query\",\"name\":\"func\",\"required\":true,\"schema\":{\""
+    "type\":\"string\"}},{\"in\":\"query\",\"name\":\"args\",\"required\":fal"
+    "se,\"schema\":{\"type\":\"array\"}}],\"responses\":{\"200\":{\"$ref\":\""
+    "#/components/responses/200\"}}}},\"/lua_dostring\":{\"description\":\"Ex"
+    "ecute LUA string script.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/comp"
+    "onents/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\"r"
+    "equired\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\""
+    ":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_doscript\":{\"descr"
+    "iption\":\"Execute LUA string script.\",\"get\":{\"x-permissions\":{\"$r"
+    "ef\":\"#/components/x-permissions/navigation\"},\"parameters\":[{\"in\":"
+    "\"query\",\"name\":\"filename\",\"required\":true,\"schema\":{\"type\":\""
+    "string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components/responses/20"
+    "0\"}}}}}}"
 ;
 
 static const struct afb_auth _afb_auths_v2_control[] = {
@@ -74,9 +65,7 @@ static const struct afb_auth _afb_auths_v2_control[] = {
 
  void ctlapi_monitor(struct afb_req req);
  void ctlapi_event_test(struct afb_req req);
- void ctlapi_navigation(struct afb_req req);
- void ctlapi_multimedia(struct afb_req req);
- void ctlapi_emergency(struct afb_req req);
+ void ctlapi_select(struct afb_req req);
  void ctlapi_lua_docall(struct afb_req req);
  void ctlapi_lua_dostring(struct afb_req req);
  void ctlapi_lua_doscript(struct afb_req req);
@@ -97,22 +86,8 @@ static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "navigation",
-        .callback = ctlapi_navigation,
-        .auth = &_afb_auths_v2_control[0],
-        .info = NULL,
-        .session = AFB_SESSION_NONE_V2
-    },
-    {
-        .verb = "multimedia",
-        .callback = ctlapi_multimedia,
-        .auth = &_afb_auths_v2_control[0],
-        .info = NULL,
-        .session = AFB_SESSION_NONE_V2
-    },
-    {
-        .verb = "emergency",
-        .callback = ctlapi_emergency,
+        .verb = "select",
+        .callback = ctlapi_select,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2

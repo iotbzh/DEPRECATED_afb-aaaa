@@ -23,7 +23,6 @@
 #include <string.h>
 #include <dlfcn.h>
 
-#include "wrap-json.h"
 #include "ctl-binding.h"
 
 typedef void*(*DispatchPluginInstallCbT)(const char* label, const char*version, const char*info);

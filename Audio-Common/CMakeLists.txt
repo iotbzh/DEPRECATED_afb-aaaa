@@ -20,7 +20,7 @@
 PROJECT_TARGET_ADD(audio-common)
 
     # Define targets 
-    ADD_LIBRARY(${TARGET_NAME} STATIC audio-common.c wrap-json.c)
+    ADD_LIBRARY(${TARGET_NAME} STATIC audio-common.c wrap-json.c filescan-utils)
 
     # Library properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES

@@ -33,6 +33,7 @@
 
 #define LUA_FIST_ARG 2  // when using luaL_newlib calllback receive libtable as 1st arg
 #define LUA_MSG_MAX_LENGTH 255
+#define JSON_ERROR (json_object*)-1
 
 static  lua_State* luaState;
 
@@ -107,7 +108,7 @@ STATIC void LuaCtxFree (LuaAfbContextT *afbContext) {
 // Push a json structure on the stack as a LUA table
 STATIC int LuaPushArgument (json_object *argsJ) {
     
-    AFB_NOTICE("LuaPushArgument argsJ=%s", json_object_get_string(argsJ));
+    //AFB_NOTICE("LuaPushArgument argsJ=%s", json_object_get_string(argsJ));
   
     json_type jtype= json_object_get_type(argsJ);
     switch (jtype) {
@@ -156,6 +157,7 @@ STATIC int LuaPushArgument (json_object *argsJ) {
 }
 
 STATIC  json_object *PopOneArg (lua_State* luaState, int idx);
+
 STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
     int idx;
     
@@ -171,8 +173,8 @@ STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
             snprintf(number, sizeof(number),"%d", idx);
             key=number;
         } 
-         
-        json_object_object_add(tableJ, key, PopOneArg(luaState, -1));
+        json_object *argJ= PopOneArg(luaState, -1);
+        json_object_object_add(tableJ, key, argJ);
         lua_pop(luaState, 1); // removes 'value'; keeps 'key' for next iteration 
     } 
     
@@ -189,9 +191,16 @@ STATIC  json_object *PopOneArg (lua_State* luaState, int idx) {
 
     int luaType = lua_type(luaState, idx);
     switch(luaType)  {
-        case LUA_TNUMBER:
-            value= json_object_new_double(lua_tonumber(luaState, idx));
+        case LUA_TNUMBER: {
+            lua_Number number= lua_tonumber(luaState, idx);;
+            int nombre = (int)number; // evil trick to determine wether n fits in an integer. (stolen from ltcl.c)
+            if (number == nombre) {
+                value= json_object_new_int((int)number);
+            } else {
+                value= json_object_new_double(number);
+            }
             break;
+        }
         case LUA_TBOOLEAN:
             value=  json_object_new_boolean(lua_toboolean(luaState, idx));
             break;
@@ -199,15 +208,23 @@ STATIC  json_object *PopOneArg (lua_State* luaState, int idx) {
            value=  json_object_new_string(lua_tostring(luaState, idx));
             break;
         case LUA_TTABLE: {
-            value= LuaTableToJson(luaState, idx);
+            if (idx > 0) {
+                value= LuaTableToJson(luaState, idx);
+            } else {
+                value= json_object_new_string("UNSUPPORTED_Lua_Nested_Table");
+            }
             break;                
         }    
+        case LUA_TNIL:
+            value=json_object_new_string("nil") ;
+            break;
+            
         default:
             AFB_NOTICE ("PopOneArg: script returned Unknown/Unsupported idx=%d type:%d/%s", idx, luaType, lua_typename(luaState, luaType));
             value=NULL;
     }
 
-    return value;
+    return value;    
 }
     
 static json_object *LuaPopArgs (lua_State* luaState, int start) {    
@@ -223,24 +240,28 @@ static json_object *LuaPopArgs (lua_State* luaState, int start) {
         // loop on remaining return arguments
         responseJ= json_object_new_array();
         for (int idx=start; idx <= stop; idx++) {
-            json_object_array_add(responseJ, PopOneArg (luaState, idx));     
+            json_object *argJ=PopOneArg (luaState, idx);
+            if (!argJ) goto OnErrorExit;
+            json_object_array_add(responseJ, argJ);     
        }
     }
     
     return responseJ;
-}
+    
+  OnErrorExit:
+    return NULL;
+}   
 
-STATIC void LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
+
+STATIC int LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
     char *message;
 
     json_object *responseJ= LuaPopArgs(luaState, LUA_FIST_ARG);
-    if (!responseJ) {
-        message="-- Empty Message ???";
-        goto PrintMessage;
-    }
     
-    //AFB_NOTICE("**** responseJ=%s", json_object_get_string(responseJ));
-
+    if (!responseJ) {
+        luaL_error(luaState,"LuaFormatMessage empty message");
+        goto OnErrorExit;
+    }
         
     // if we have only on argument just return the value.
     if (json_object_get_type(responseJ)!=json_type_array || json_object_array_length(responseJ) <2) {
@@ -290,6 +311,7 @@ STATIC void LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
             message[targetIdx++] = format[idx];
         }
     }
+    message[targetIdx]='\0';
 
 PrintMessage:    
     switch (action) {
@@ -309,31 +331,35 @@ PrintMessage:
         default:
             AFB_ERROR (message);            
     }
+    return 0;  // nothing return to lua
+    
+  OnErrorExit: // on argument to return (the error message)
+    return 1;
 }
 
 STATIC int LuaPrintInfo(lua_State* luaState) { 
-    LuaFormatMessage (luaState, AFB_MSG_INFO);
-    return 0; // no value return
+    int err=LuaFormatMessage (luaState, AFB_MSG_INFO);
+    return err; 
 }
 
 STATIC int LuaPrintError(lua_State* luaState) { 
-    LuaFormatMessage (luaState, AFB_MSG_ERROR);
-    return 0; // no value return
+    int err=LuaFormatMessage (luaState, AFB_MSG_ERROR);
+    return err; // no value return
 }
 
 STATIC int LuaPrintWarning(lua_State* luaState) { 
-    LuaFormatMessage (luaState, AFB_MSG_WARNING);
-    return 0; // no value return
+    int err=LuaFormatMessage (luaState, AFB_MSG_WARNING);
+    return err;
 }
 
 STATIC int LuaPrintNotice(lua_State* luaState) { 
-    LuaFormatMessage (luaState, AFB_MSG_NOTICE);
-    return 0; // no value return
+    int err=LuaFormatMessage (luaState, AFB_MSG_NOTICE);
+    return err;
 }
 
 STATIC int LuaPrintDebug(lua_State* luaState) { 
-    LuaFormatMessage (luaState, AFB_MSG_DEBUG);
-    return 0; // no value return
+    int err=LuaFormatMessage (luaState, AFB_MSG_DEBUG);
+    return err;
 }
 
 STATIC int LuaAfbSuccess(lua_State* luaState) {
@@ -342,6 +368,7 @@ STATIC int LuaAfbSuccess(lua_State* luaState) {
     
     // ignore context argument
     json_object *responseJ= LuaPopArgs(luaState, LUA_FIST_ARG+1);
+    if (responseJ == JSON_ERROR) return 1;
         
     afb_req_success(afbContext->request, responseJ, NULL);
 
@@ -358,6 +385,7 @@ STATIC int LuaAfbFail(lua_State* luaState) {
     if (!afbContext) goto OnErrorExit;
     
     json_object *responseJ= LuaPopArgs(luaState, LUA_FIST_ARG+1);
+    if (responseJ == JSON_ERROR) return 1;
 
     afb_req_fail(afbContext->request, afbContext->info, json_object_get_string(responseJ));
     
@@ -400,6 +428,7 @@ STATIC int LuaAfbService(lua_State* luaState) {
     const char *api = lua_tostring(luaState,2);
     const char *verb= lua_tostring(luaState,3);
     json_object *queryJ= LuaTableToJson(luaState, 4);
+    if (queryJ == JSON_ERROR) return 1;
     
     LuaCallServiceT *contextCB = calloc (1, sizeof(LuaCallServiceT));  
     contextCB->callback= lua_tostring(luaState, 5);
@@ -597,7 +626,6 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
                 lua_pushnil(luaState);
                 count++;
             } else { 
-                AFB_NOTICE("***** args=%s", json_object_get_string(argsJ));
                 count+= LuaPushArgument (argsJ);
             }
             
@@ -606,15 +634,17 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             
         case LUA_DOSCRIPT: {   // Fulup need to fix argument passing
             const char *script;
+            char*func;
+            char *filename; char*fullpath;
             char luaScriptPath[CONTROL_MAXPATH_LEN];
-            json_object *args;
+            json_object *argsJ;
             int index;
             
             // scan luascript search path once
             static json_object *luaScriptPathJ =NULL;
             if (!luaScriptPathJ)  luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE, CONTROL_DOSCRIPT_PRE, "lua");
 
-            err= wrap_json_unpack (queryJ, "{s:s, s?o s?o !}", "script", &script,"args", &args, "arg", &args);
+            err= wrap_json_unpack (queryJ, "{s:s, s?s s?o s?o !}", "script", &script,"func", &func, "arg", &argsJ);
             if (err) {
                 AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing script|(args,arg) query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
@@ -623,7 +653,6 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             // search for filename=script in CONTROL_LUA_PATH
             for (index=0; index < json_object_array_length(luaScriptPathJ); index++) {
                 json_object *entryJ=json_object_array_get_idx(luaScriptPathJ, index);  
-                char *filename; char*fullpath;
                 
                 err= wrap_json_unpack (entryJ, "{s:s, s:s !}", "fullpath",  &fullpath,"filename", &filename);
                 if (err) {
@@ -649,15 +678,27 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
                 goto OnErrorExit;
             }
             
-            // push query on the stack
-            if (json_object_get_type(args) != json_type_array) { 
-                count= LuaPushArgument (args);
-            } else {
-                for (int idx=0; idx<json_object_array_length(args); idx++)  {
-                    count += LuaPushArgument (json_object_array_get_idx(args, idx));
-                    if (err) break;
-                }
-            } 
+            // if no func name given try to deduct from filename
+            if (!func) func= (char*)GetMidleName(filename);
+            if (!func) {
+                AFB_ERROR ("LUA-DOSCRIPT:FAIL to deduct funcname from %s", filename);
+                goto OnErrorExit;                
+            }
+            
+            // load function (should exist in CONTROL_PATH_LUA
+            lua_getglobal(luaState, func);
+                          
+            // Push AFB client context on the stack
+            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, func);
+            if (!afbContext) goto OnErrorExit;
+            
+            // push function arguments
+            if (!argsJ) {
+                lua_pushnil(luaState);
+                count++;
+            } else { 
+                count+= LuaPushArgument (argsJ);
+            }
             
             break;
         }

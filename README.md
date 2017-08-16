@@ -33,6 +33,10 @@ git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
   OpenSuse
      - LUA-5.3-devel  https://software.opensuse.org//download.html?project=devel%3Alanguages%3Alua&package=lua53
      - Alsa-devel zypper --install alsa-devel # 42.3 is shipped default with 1.1.4 
+
+  Fedora 26 (out of the box)
+     - Lua 5.3 
+     - Alsa-devel 1.1.4
 ```
 
 
@@ -137,6 +141,7 @@ Note: remote-target-populate will
  - create a script to remotely start the binder on the target in ./build/target/start-on-target-name.sh
  - create a gdbinit file to transparently debug remotely in source code with gdb -x ./build/target/gdb-on-target-name.ini
  - to run and debug directly from your IDE just configure the run and debug properties with the corresponding filename
+ - run a generic control and pass virtual channel as a parameter (check remaning PCM in plugin)
 
 Note that Netbeans impose to set debug directory to ./build/pkgout or it won't find binding symbols for source debugging
 

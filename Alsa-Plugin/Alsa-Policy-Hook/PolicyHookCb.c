@@ -50,6 +50,7 @@
 
 // this should be more than enough
 #define MAX_API_CALL 10
+#define MAX_EVT_CALL 10
     
 // timeout in ms    
 #define REQUEST_DEFAULT_TIMEOUT 100
@@ -73,6 +74,11 @@ typedef struct {
 } afbRequestT;
 
 typedef struct {
+    const char *name;
+    int  signal;
+} afbEventT;
+
+typedef struct {
     snd_pcm_t *pcm;
     const char *uri;
     struct afb_wsj1 *wsj1;
@@ -82,6 +88,7 @@ typedef struct {
     int count;
     int error;
     afbRequestT **request;
+    afbEventT **event;
 } afbClientT;
 
 
@@ -117,81 +124,40 @@ typedef enum {
     HOOK_CLOSE,
 } hookActionT;
 
-// supported action
-typedef enum {
-    ACTION_PAUSE,
-    ACTION_START,
-    ACTION_STOP,
-    ACTION_RESUME,
-            
-    ACTION_NONE
-} evtActionEnumT;
-
-// action label/enum map
-const char *evtActionLabels[] ={
-    [ACTION_PAUSE] = "pause",
-    [ACTION_START] = "start",
-    [ACTION_STOP]  = "stop",
-    [ACTION_RESUME]= "resume",
-    
-    [ACTION_NONE]=NULL
-};
-
-static evtActionEnumT getActionEnum (const char *label) {
-    int idx;
-    
-    if (!label) return ACTION_NONE;
-    
-    for (idx = 0; evtActionLabels[idx] != NULL; idx++) {
-        if (! strcmp(evtActionLabels[idx], label)) break;
-    }
-    
-    if (evtActionLabels[idx]) return idx;
-    else return ACTION_NONE;
-}
 
 void OnEventCB(void *handle, const char *event, struct afb_wsj1_msg *msg) {
     afbClientT *afbClient = (afbClientT*) handle;
+    afbEventT **afbEvent = afbClient->event;
     json_object *eventJ, *tmpJ, *dataJ;
-    const char *action;
-    int err, value, done;
-    
+    const char *label;
+    int value, done, index;
     
     eventJ = afb_wsj1_msg_object_j(msg);
     done= json_object_object_get_ex(eventJ,"data", &dataJ);
     if (!done) {
-        SNDERR ("PCM_HOOK: uri=%s empty event action", afbClient->uri);  
+        SNDERR ("PCM_HOOK: uri=%s empty event label", afbClient->uri);  
         goto OnErrorExit;
     }   
 
-    json_object_object_get_ex(dataJ,"action", &tmpJ);
-    action=json_object_get_string(tmpJ);
+    json_object_object_get_ex(dataJ,"signal", &tmpJ);
+    label=json_object_get_string(tmpJ);
     
     json_object_object_get_ex(dataJ,"value", &tmpJ);
     value=json_object_get_int(tmpJ);
     
-    switch (getActionEnum(action)) {
-        case ACTION_PAUSE:
-            err = snd_pcm_pause (afbClient->pcm, value);
-            if (err < 0) SNDERR ("PCM_HOOK: Fail to pause value=%d\n", value);
-            break;
-            
-        case ACTION_STOP:    
-            err = snd_pcm_drop (afbClient->pcm);
-            if (err < 0) SNDERR ("PCM_HOOK: Fail to close\n");
-            break;
-            
-        case ACTION_START:    
-            err = snd_pcm_resume (afbClient->pcm);
-            if (err < 0) SNDERR ("PCM_HOOK: Fail to start\n");
-            break;
-            
-        default:
-            SNDERR ("PCM_HOOK: Unsupported Event uri=%s action=%s", afbClient->uri, action);         
-            goto OnErrorExit;
+    for (index=0; afbEvent[index]!= NULL; index++) {
+        if (!strcmp(afbEvent[index]->name, label)) break;
     }
     
-    if (afbClient->verbose) printf("ON-EVENT action=%s value=%d\n", action, value);
+    if (!afbEvent[index] || !afbEvent[index]->signal) {
+        SNDERR ("PCM_HOOK: Unsupported uri=%s label=%s", afbClient->uri, label); 
+        return;
+    }
+
+    // send signal to self process
+    kill (getpid(), afbEvent[index]->signal);
+    
+    if (afbClient->verbose) printf("ON-EVENT label=%s signal=%d\n", label, value);
     return;
     
 OnErrorExit:
@@ -349,11 +315,11 @@ OnErrorExit:
 
 // Function call when Plugin PCM is OPEN
 int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
-    afbRequestT **afbRequest;
     snd_pcm_hook_t *h_close = NULL;
     snd_config_iterator_t it, next;
     afbClientT *afbClient = malloc(sizeof (afbClientT));
-    afbRequest = malloc(MAX_API_CALL * sizeof (afbRequestT));
+    afbRequestT **afbRequest = malloc(MAX_API_CALL * sizeof(afbRequestT*));
+    afbEventT **afbEvent= malloc(MAX_EVT_CALL * sizeof(afbEventT*));
     int err;
 
     // start populating client handle
@@ -415,7 +381,7 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
                 ctype = snd_config_get_type(ctlconfig);
                 if (ctype != SND_CONFIG_TYPE_COMPOUND) {
                     snd_config_get_string(node, &callConf);
-                    SNDERR("Invalid call element for %s", callLabel);
+                    SNDERR("Invalid call element for %s value=%s", callLabel, callConf);
                     goto OnErrorExit;
                 }
 
@@ -486,6 +452,53 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
                     goto OnErrorExit;                    
                 }
                 afbRequest[callCount]=NULL; // afbRequest array is NULL terminated
+
+            } 
+            continue;
+        }
+        if (strcmp(id, "event") == 0) {
+            const char *callConf, *callLabel;
+            snd_config_type_t ctype;
+            snd_config_iterator_t currentCall, follow;
+            int callCount=0;
+
+            ctype = snd_config_get_type(node);
+            if (ctype != SND_CONFIG_TYPE_COMPOUND) {
+                snd_config_get_string(node, &callConf);
+                SNDERR("Invalid compound type for %s", callConf);
+                goto OnErrorExit;
+            }
+
+
+            // loop on each call 
+            snd_config_for_each(currentCall, follow, node) {
+                snd_config_t *ctlconfig = snd_config_iterator_entry(currentCall);
+                long sigval;
+                
+                // ignore empty line
+                if (snd_config_get_id(ctlconfig, &callLabel) < 0) continue;
+
+                // each clt should be a valid config compound
+                ctype = snd_config_get_type(ctlconfig);
+                if (ctype != SND_CONFIG_TYPE_INTEGER) {
+                    snd_config_get_string(ctlconfig, &callConf);
+                    SNDERR("Invalid signal number for %s value=%s", callLabel, callConf);
+                    goto OnErrorExit;
+                }
+                
+                // allocate an empty call request
+                snd_config_get_integer(ctlconfig, &sigval);
+                afbEvent[callCount] = calloc(1, sizeof (afbEventT));
+                afbEvent[callCount]->name=strdup(callLabel);
+                afbEvent[callCount]->signal= (int)sigval;
+
+                // move to next call if any
+                callCount ++;
+                if (callCount == MAX_EVT_CALL) {
+                    SNDERR("Too Many call MAX_EVT_CALL=%d", MAX_EVT_CALL);
+                    goto OnErrorExit;                    
+                }
+                afbEvent[callCount]=NULL; // afbEvent array is NULL terminated
 
             } 
             continue;

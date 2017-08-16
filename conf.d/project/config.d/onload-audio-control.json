@@ -36,13 +36,27 @@
             [
                 {
                     "label": "multimedia",
-                    "actions": [{
+                    "actions": {
                             "label": "multimedia-control-lua",
                             "info": "Call Lua Script function Test_Lua_Engin",   
-                            "lua": "Audio_Set_Multimedia",
-                        }]
+                            "lua": "Audio_Set_Multimedia"
+                        }
                 }, {
                     "label": "navigation",
+                    "actions": {
+                            "label": "navigation-control-lua",
+                            "info": "Call Lua Script to set Navigation",   
+                            "lua": "Audio_Set_Navigation"
+                        }
+                }, {
+                    "label": "emergency",
+                    "actions": {
+                            "label": "emergency-control-ucm",
+                            "lua": "Audio_Set_Emergency"
+                        }
+                }, {
+                    "label": "multi-step-sample",
+                    "info" : "all actions must succeed for control to be accepted",
                     "actions": [{
                             "label": "multimedia-control-cb",
                             "info": "Call Sharelib Sample Callback",
@@ -61,13 +75,7 @@
                         }, {
                             "label": "navigation-control-lua",
                             "info": "Call Lua Script to set Navigation",   
-                            "lua": "Audio_Set_Navigation",
-                        }]
-                }, {
-                    "label": "emergency",
-                    "actions": [{
-                            "label": "emergency-control-ucm",
-                            "lua": "Audio_Set_Emergency",
+                            "lua": "Audio_Set_Navigation"
                         }]
                 }
             ],
