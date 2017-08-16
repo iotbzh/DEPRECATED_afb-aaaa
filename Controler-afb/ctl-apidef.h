@@ -31,7 +31,7 @@ static const char _afb_description_v2_control[] =
     " End\",\"get\":{\"x-permissions\":{\"$ref\":\"#/components/x-permissions"
     "/monitor\"},\"parameters\":[{\"in\":\"query\",\"name\":\"event_patern\","
     "\"required\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"20"
-    "0\":{\"$ref\":\"#/components/responses/200\"}}}},\"/event_test\":{\"desc"
+    "0\":{\"$ref\":\"#/components/responses/200\"}}}},\"/timer_test\":{\"desc"
     "ription\":\"Pause Resume Test\",\"get\":{\"x-permissions\":{\"$ref\":\"#"
     "/components/x-permissions/monitor\"},\"parameters\":[{\"in\":\"query\",\""
     "name\":\"delay\",\"required\":false,\"schema\":{\"type\":\"interger\"}},"
@@ -64,7 +64,7 @@ static const struct afb_auth _afb_auths_v2_control[] = {
 };
 
  void ctlapi_monitor(struct afb_req req);
- void ctlapi_event_test(struct afb_req req);
+ void ctlapi_timer_test(struct afb_req req);
  void ctlapi_dispatch(struct afb_req req);
  void ctlapi_lua_docall(struct afb_req req);
  void ctlapi_lua_dostring(struct afb_req req);
@@ -79,8 +79,8 @@ static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "event_test",
-        .callback = ctlapi_event_test,
+        .verb = "timer_test",
+        .callback = ctlapi_timer_test,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2

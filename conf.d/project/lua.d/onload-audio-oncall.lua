@@ -68,34 +68,3 @@ function Test_Call_Sync (request, args)
     end
 end
 
--- create a new event name
-function Test_Event_Make (request, args) 
-
-    AFB:notice ("Test_Event_Make args=%s", args)
-
-    local err evt_handle= AFB:event (args["evtname"])    
-    if (err) then
-        AFB:fail ("AFB:Test_Event_Make fail event=%s", args["evtname"]);
-    else
-        AFB:success (request, {})
-    end
-
-    local evtData = {
-        ["val1"]="My 1st private Event",
-        ["val2"]=5678
-    }
-
-    AFB:notify (evt_handle, evtData)
-end
-
--- send an event on default binder event
-function Test_Event_Notify (request, args) 
-
-    AFB:notice ("Test_Event_Notify args=%s", args)
-    local err AFB:notify (args)    
-    if (err) then
-        AFB:fail ("AFB:Test_Event_Make fail event=%s", args["evtname"]);
-    else
-        AFB:success (request, {})
-    end
-end

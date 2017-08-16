@@ -25,19 +25,10 @@
 
 #define DEFAULT_PAUSE_DELAY 3000
 #define DEFAULT_TEST_COUNT 1
-typedef int (*timerCallbackT)(void *context);
 typedef struct {
     int value;
     const char *label;
 } AutoTestCtxT;
-
-typedef struct TimerHandleS {
-    int count;
-    int delay;
-    AutoTestCtxT *context;
-    timerCallbackT callback;
-    sd_event_source *evtSource;
-} TimerHandleT;
 
 static afb_event afbevt;
 
@@ -48,12 +39,16 @@ STATIC int TimerNext (sd_event_source* source, uint64_t timer, void* handle) {
 
     // Rearm timer if needed
     timerHandle->count --;
-    if (timerHandle->count == 0) sd_event_source_unref(source);
+    if (timerHandle->count == 0) {
+        sd_event_source_unref(source);
+        free (handle);
+        return 0;
+    }
     else {
         // otherwise validate timer for a new run    
         sd_event_now(afb_daemon_get_event_loop(), CLOCK_MONOTONIC, &usec);
         sd_event_source_set_enabled(source, SD_EVENT_ONESHOT);
-        sd_event_source_set_time(source, usec + timerHandle->delay);
+        sd_event_source_set_time(source, usec + timerHandle->delay*1000);
     }
 
     done= timerHandle->callback(timerHandle->context);
@@ -62,8 +57,31 @@ STATIC int TimerNext (sd_event_source* source, uint64_t timer, void* handle) {
     return 0;
 
 OnErrorExit:
-    AFB_WARNING("TimerNext Callback Fail Tag=%s", timerHandle->context->label);
+    AFB_WARNING("TimerNext Callback Fail Tag=%s", timerHandle->label);
     return -1;  
+}
+
+PUBLIC void TimerEvtStop(TimerHandleT *timerHandle) {
+
+    sd_event_source_unref(timerHandle->evtSource);
+    free (timerHandle);
+}
+
+
+PUBLIC void TimerEvtStart(TimerHandleT *timerHandle, timerCallbackT callback, void *context) {
+    uint64_t usec;
+    
+    // populate CB handle
+    timerHandle->callback=callback;
+    timerHandle->context=context;
+    
+    // set a timer with ~250us accuracy 
+    sd_event_now(afb_daemon_get_event_loop(), CLOCK_MONOTONIC, &usec);
+    sd_event_add_time(afb_daemon_get_event_loop(), &timerHandle->evtSource, CLOCK_MONOTONIC, usec+timerHandle->delay*1000, 250, TimerNext, timerHandle);
+}
+
+PUBLIC afb_event TimerEvtGet(void) {
+    return afbevt;
 }
 
 
@@ -84,25 +102,8 @@ STATIC int DoSendEvent (void *context) {
     return (done);
 }
 
-STATIC void TimerEvtStart(TimerHandleT *timerHandle, void *context) {
-    uint64_t usec;
-    
-    // populate CB handle
-    timerHandle->callback=DoSendEvent;
-    timerHandle->context=context;
-    
-    // set a timer with ~250us accuracy 
-    sd_event_now(afb_daemon_get_event_loop(), CLOCK_MONOTONIC, &usec);
-    sd_event_add_time(afb_daemon_get_event_loop(), &timerHandle->evtSource, CLOCK_MONOTONIC, usec+timerHandle->delay, 250, TimerNext, timerHandle);
-}
-
-PUBLIC afb_event TimerEvtGet(void) {
-    return afbevt;
-}
-
-
 // Generated some fake event based on watchdog/counter
-PUBLIC void ctlapi_event_test (afb_req request) {
+PUBLIC void ctlapi_timer_test (afb_req request) {
     json_object *queryJ, *tmpJ;
     TimerHandleT *timerHandle = malloc (sizeof (TimerHandleT));
     AutoTestCtxT *context = calloc (1, sizeof (AutoTestCtxT));
@@ -119,7 +120,7 @@ PUBLIC void ctlapi_event_test (afb_req request) {
          afb_req_fail_f(request, "TEST-LABEL-MISSING", "label is mandatory for event_test");
         goto OnErrorExit;
     }
-    context->label = strdup(json_object_get_string (tmpJ));
+    timerHandle->label = strdup(json_object_get_string (tmpJ));
     
     json_object_object_get_ex(queryJ, "delay", &tmpJ);
     timerHandle->delay = json_object_get_int (tmpJ) * 1000;
@@ -130,7 +131,7 @@ PUBLIC void ctlapi_event_test (afb_req request) {
     if (timerHandle->count == 0) timerHandle->count=DEFAULT_TEST_COUNT;
     
     // start a lool timer  
-    TimerEvtStart (timerHandle, context);
+    TimerEvtStart (timerHandle, DoSendEvent, context);
     
     afb_req_success(request, NULL, NULL);
     return;

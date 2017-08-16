@@ -24,6 +24,8 @@
 #include <json-c/json.h>
 #include <filescan-utils.h>
 #include <wrap-json.h>
+#include <systemd/sd-event.h>
+
 
 #ifdef CONTROL_SUPPORT_LUA
 #include "lua.h"
@@ -46,9 +48,22 @@ PUBLIC int CtlBindingInit ();
 
 // ctl-timerevt.c
 // ----------------------
+typedef int (*timerCallbackT)(void *context);
+
+typedef struct TimerHandleS {
+    int count;
+    int delay;
+    const char*label;
+    void *context;
+    timerCallbackT callback;
+    sd_event_source *evtSource;
+} TimerHandleT;
+
 PUBLIC int TimerEvtInit (void);
 PUBLIC afb_event TimerEvtGet(void);
 PUBLIC void ctlapi_event_test (afb_req request);
+PUBLIC void TimerEvtStart(TimerHandleT *timerHandle, timerCallbackT callback, void *context);
+PUBLIC void TimerEvtStop(TimerHandleT *timerHandle);
 
 // ctl-policy
 // -----------

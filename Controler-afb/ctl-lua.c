@@ -31,6 +31,8 @@
 #define LUA_FIST_ARG 2  // when using luaL_newlib calllback receive libtable as 1st arg
 #define LUA_MSG_MAX_LENGTH 512
 #define JSON_ERROR (json_object*)-1
+static afb_req NULL_AFBREQ = {};
+
 
 static  lua_State* luaState;
 
@@ -47,12 +49,14 @@ static LuaAfbEvent *luaDefaultEvt;
 typedef struct {
     int ctxMagic;
     afb_req request;
+    void *handle;
     char *info;
 } LuaAfbContextT;
 
 typedef struct {
   const char *callback; 
   json_object *context;  
+  void *handle;  
 } LuaCallServiceT;
 
 typedef enum {
@@ -83,7 +87,7 @@ STATIC LuaAfbContextT *LuaCtxCheck (lua_State *luaState, int index) {
   return afbContext;
 }
 
-STATIC LuaAfbContextT *LuaCtxPush (lua_State *luaState, afb_req request, const char* info) {
+STATIC LuaAfbContextT *LuaCtxPush (lua_State *luaState, afb_req request, void *handle, const char* info) {
   // LuaAfbContextT *afbContext = (LuaAfbContextT *)lua_newuserdata(luaState, sizeof(LuaAfbContextT));
   // luaL_setmetatable(luaState, CTX_TOKEN);
   LuaAfbContextT *afbContext = (LuaAfbContextT *)calloc(1, sizeof(LuaAfbContextT));
@@ -95,11 +99,13 @@ STATIC LuaAfbContextT *LuaCtxPush (lua_State *luaState, afb_req request, const c
   afbContext->ctxMagic=CTX_MAGIC;
   afbContext->info=strdup(info);
   afbContext->request= request;
+  afbContext->handle= handle;
   return afbContext;
 }
 
 STATIC void LuaCtxFree (LuaAfbContextT *afbContext) {   
-    free (afbContext->info);
+    free(afbContext->info);
+    free(afbContext);
 }
 
 // Push a json structure on the stack as a LUA table
@@ -153,7 +159,7 @@ STATIC int LuaPushArgument (json_object *argsJ) {
     return 1;
 }
 
-STATIC  json_object *PopOneArg (lua_State* luaState, int idx);
+STATIC  json_object *LuaPopOneArg (lua_State* luaState, int idx);
 
 STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
     int idx;
@@ -173,7 +179,7 @@ STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
             snprintf(number, sizeof(number),"%d", idx);
             key=number;
         } 
-        json_object *argJ= PopOneArg(luaState, LUA_VALUE_INDEX);
+        json_object *argJ= LuaPopOneArg(luaState, LUA_VALUE_INDEX);
         json_object_object_add(tableJ, key, argJ);
         lua_pop(luaState, 1); // removes 'value'; keeps 'key' for next iteration 
     } 
@@ -186,7 +192,7 @@ STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
     return tableJ;
 }
 
-STATIC  json_object *PopOneArg (lua_State* luaState, int idx) {
+STATIC  json_object *LuaPopOneArg (lua_State* luaState, int idx) {
     json_object *value=NULL;
 
     int luaType = lua_type(luaState, idx);
@@ -205,7 +211,7 @@ STATIC  json_object *PopOneArg (lua_State* luaState, int idx) {
             value=  json_object_new_boolean(lua_toboolean(luaState, idx));
             break;
         case LUA_TSTRING:
-           value=  json_object_new_string(lua_tostring(luaState, idx));
+           value=  json_object_new_string(lua_tostring(luaState, idx)); 
             break;
         case LUA_TTABLE: 
             value= LuaTableToJson(luaState, idx);
@@ -213,9 +219,12 @@ STATIC  json_object *PopOneArg (lua_State* luaState, int idx) {
         case LUA_TNIL:
             value=json_object_new_string("nil") ;
             break;
+        case LUA_TUSERDATA:
+            value=json_object_new_int64((int64_t)lua_touserdata(luaState, idx)); // store userdata as int !!!
+            break;
             
         default:
-            AFB_NOTICE ("PopOneArg: script returned Unknown/Unsupported idx=%d type:%d/%s", idx, luaType, lua_typename(luaState, luaType));
+            AFB_NOTICE ("LuaPopOneArg: script returned Unknown/Unsupported idx=%d type:%d/%s", idx, luaType, lua_typename(luaState, luaType));
             value=NULL;
     }
 
@@ -230,12 +239,12 @@ static json_object *LuaPopArgs (lua_State* luaState, int start) {
     
     // start at 2 because we are using a function array lib
     if (start == stop) {
-        responseJ=PopOneArg (luaState, start);
+        responseJ=LuaPopOneArg (luaState, start);
     } else {
         // loop on remaining return arguments
         responseJ= json_object_new_array();
         for (int idx=start; idx <= stop; idx++) {
-            json_object *argJ=PopOneArg (luaState, idx);
+            json_object *argJ=LuaPopOneArg (luaState, idx);
             if (!argJ) goto OnErrorExit;
             json_object_array_add(responseJ, argJ);     
        }
@@ -413,6 +422,8 @@ STATIC void LuaAfbServiceCB(void *handle, int iserror, struct json_object *respo
     if (err) {
         AFB_ERROR ("LUA-SERICE-CB:FAIL response=%s err=%s", json_object_get_string(responseJ), lua_tostring(luaState,-1) );
     }
+    
+    free (contextCB);
 }
 
 
@@ -472,64 +483,101 @@ STATIC int LuaAfbServiceSync(lua_State* luaState) {
         return 1;
 }
 
-STATIC int LuaAfbMakeEvent(lua_State* luaState) {
-    int count = lua_gettop(luaState);
-    LuaAfbEvent *afbevt=calloc(1,sizeof(LuaAfbEvent));
+STATIC int LuaAfbEventPush(lua_State* luaState) {
+    LuaAfbEvent *afbevt;
+    int index;
     
-    if (count != 1 || !lua_isstring(luaState, 1)) {
-        lua_pushliteral (luaState, "LuaAfbMakeEvent-Syntax is evtHandle= AFB:event ('myEventName')");
+    // if no private event handle then use default binding event
+    if (lua_islightuserdata(luaState, LUA_FIST_ARG)) {
+        afbevt = (LuaAfbEvent*) lua_touserdata(luaState, LUA_FIST_ARG);
+        index=LUA_FIST_ARG+1;
+    } else {
+        index=LUA_FIST_ARG;
+        afbevt=luaDefaultEvt;
+    }
+
+    if (!afb_event_is_valid(afbevt->event)) {
+        lua_pushliteral (luaState, "LuaAfbMakePush-Fail invalid event");
+        goto OnErrorExit;
+    }
+    
+    json_object *ctlEventJ= LuaTableToJson(luaState, index);
+    if (!ctlEventJ) {
+        lua_pushliteral (luaState, "LuaAfbEventPush-Syntax is AFB:signal ([evtHandle], {lua table})");
         goto OnErrorExit;        
     }
     
-    // event name should be the only argument
-    afbevt->name= strdup (lua_tostring(luaState,1));
-
-    // create a new binder event
-    afbevt->event = afb_daemon_make_event(afbevt->name);
-    if (!afb_event_is_valid(afbevt->event)) {
-        lua_pushliteral (luaState, "LuaAfbMakeEvent-Fail to Create Binder event");
+    int done = afb_event_push(afbevt->event, ctlEventJ);
+    if (!done) {
+        lua_pushliteral (luaState, "LuaAfbEventPush-Fail No Subscriber to event");
+        AFB_ERROR ("LuaAfbEventPush-Fail name subscriber event=%s count=%d", afbevt->name, afbevt->count);
         goto OnErrorExit;
     }
-
-    // push event handler as a LUA opaque handle
-    lua_pushlightuserdata(luaState, afbevt);
-    return 1; 
+    afbevt->count++;
+    return 0; 
  
   OnErrorExit:  
         lua_error(luaState);
         return 1;
 }
 
-STATIC int LuaAfbPushEvent(lua_State* luaState) {
+STATIC int LuaAfbEventSubscribe(lua_State* luaState) {
     LuaAfbEvent *afbevt;
-    int index;
-
+    
+    LuaAfbContextT *afbContext= LuaCtxCheck(luaState, LUA_FIST_ARG);
+    if (!afbContext) {
+        lua_pushliteral (luaState, "LuaAfbEventSubscribe-Fail Invalid request handle");
+        goto OnErrorExit;
+    }
+    
     // if no private event handle then use default binding event
-    if (lua_islightuserdata(luaState, 1)) {
-        afbevt = (LuaAfbEvent*) lua_touserdata(luaState, 1);
-        index=1;
+    if (lua_islightuserdata(luaState, LUA_FIST_ARG+1)) {
+        afbevt = (LuaAfbEvent*) lua_touserdata(luaState, LUA_FIST_ARG+1);
     } else {
-        index=2;
         afbevt=luaDefaultEvt;
     }
 
-    if (!lua_isstring(luaState, index)) {
-        lua_pushliteral (luaState, "LuaAfbPushEvent-Syntax is AFB:signal ([evtHandle], 'myEventName', 'data-1', ... 'data-n')");
-        goto OnErrorExit;        
+    if (!afb_event_is_valid(afbevt->event)) {
+        lua_pushliteral (luaState, "LuaAfbMakePush-Fail invalid event handle");
+        goto OnErrorExit;
     }
-    
-    // use every other arguments as event parameters
-    index++;
-    json_object *ctlEventJ= LuaTableToJson(luaState, index);
-    
-    int done = afb_event_push(afbevt->event, ctlEventJ);
-    if (!done) {
-        lua_pushliteral (luaState, "LuaAfbPushEvent-Fail to Push Binder event");
-        AFB_ERROR ("LuaAfbPushEvent-Fail to Push Binder event=%s count=%d", afbevt->name, afbevt->count);
+       
+    int err = afb_req_subscribe(afbContext->request, afbevt->event);
+    if (err) {
+        lua_pushliteral (luaState, "LuaAfbEventSubscribe-Fail No Subscriber to event");
+        AFB_ERROR ("LuaAfbEventPush-Fail name subscriber event=%s count=%d", afbevt->name, afbevt->count);
         goto OnErrorExit;
     }
     afbevt->count++;
     return 0; 
+ 
+  OnErrorExit:  
+        lua_error(luaState);
+        return 1;
+}
+
+STATIC int LuaAfbEventMake(lua_State* luaState) {
+    int count = lua_gettop(luaState);
+    LuaAfbEvent *afbevt=calloc(1,sizeof(LuaAfbEvent));
+    
+    if (count != LUA_FIST_ARG || !lua_isstring(luaState, LUA_FIST_ARG)) {
+        lua_pushliteral (luaState, "LuaAfbEventMake-Syntax is evtHandle= AFB:event ('myEventName')");
+        goto OnErrorExit;        
+    }
+    
+    // event name should be the only argument
+    afbevt->name= strdup (lua_tostring(luaState,LUA_FIST_ARG));
+
+    // create a new binder event
+    afbevt->event = afb_daemon_make_event(afbevt->name);
+    if (!afb_event_is_valid(afbevt->event)) {
+        lua_pushliteral (luaState, "LuaAfbEventMake-Fail to Create Binder event");
+        goto OnErrorExit;
+    }
+
+    // push event handler as a LUA opaque handle
+    lua_pushlightuserdata(luaState, afbevt);
+    return 1; 
  
   OnErrorExit:  
         lua_error(luaState);
@@ -608,7 +656,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
                 goto OnErrorExit;
             }
             // Push AFB client context on the stack
-            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, script);
+            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request,NULL,script);
             if (!afbContext) goto OnErrorExit;
             
             break;
@@ -628,7 +676,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             lua_getglobal(luaState, func);
                           
             // Push AFB client context on the stack
-            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, func);
+            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, NULL, func);
             if (!afbContext) goto OnErrorExit;
 
             // push query on the stack
@@ -702,7 +750,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             lua_getglobal(luaState, func);
                           
             // Push AFB client context on the stack
-            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, func);
+            LuaAfbContextT *afbContext= LuaCtxPush(luaState, request, NULL, func);
             if (!afbContext) goto OnErrorExit;
             
             // push function arguments
@@ -746,6 +794,131 @@ PUBLIC void ctlapi_lua_doscript (afb_req request) {
     LuaDoAction (LUA_DOSCRIPT, request);
 }
 
+STATIC int LuaTimerClear (lua_State* luaState) {
+    
+    // Get Timer Handle
+    LuaAfbContextT *afbContext= LuaCtxCheck(luaState, LUA_FIST_ARG);
+    if (!afbContext) goto OnErrorExit;
+    
+    // retrieve useful information opaque handle 
+    TimerHandleT *timerHandle = (TimerHandleT*)afbContext->handle;
+    
+    AFB_NOTICE ("LuaTimerClear timer=%s", timerHandle->label);
+    TimerEvtStop(timerHandle);
+    
+    return 0; //happy end
+   
+OnErrorExit:
+    return 1;
+}
+STATIC int LuaTimerGet (lua_State* luaState) {
+    
+    // Get Timer Handle
+    LuaAfbContextT *afbContext= LuaCtxCheck(luaState, LUA_FIST_ARG);
+    if (!afbContext) goto OnErrorExit;
+    
+    // retrieve useful information opaque handle 
+    TimerHandleT *timerHandle = (TimerHandleT*)afbContext->handle;
+    
+    // create response as a JSON object
+    json_object *responseJ= json_object_new_object();
+    json_object_object_add(responseJ,"label", json_object_new_string(timerHandle->label));   
+    json_object_object_add(responseJ,"delay", json_object_new_int(timerHandle->delay));   
+    json_object_object_add(responseJ,"count", json_object_new_int(timerHandle->count));   
+    
+    // return JSON object as Lua table
+    int count=LuaPushArgument(responseJ);
+    
+    // free json object
+    json_object_put(responseJ);
+    
+    return count; // return argument
+   
+OnErrorExit:
+    return 0;
+}
+
+// Timer Callback
+
+// Set timer 
+STATIC int LuaTimerSetCB (void *handle) {
+    LuaCallServiceT *contextCB =(LuaCallServiceT*) handle;
+    TimerHandleT *timerHandle = (TimerHandleT*) contextCB->handle;
+    int count;
+    
+    // push timer handle and user context on Lua stack
+    lua_getglobal(luaState, contextCB->callback);
+    
+    // Push timer handle
+    LuaAfbContextT *afbContext= LuaCtxPush(luaState, NULL_AFBREQ, contextCB->handle, timerHandle->label);
+    if (!afbContext) goto OnErrorExit;
+    count=1;
+    
+    // Push user Context
+    count+= LuaPushArgument(contextCB->context);  
+    
+    int err=lua_pcall(luaState, count, LUA_MULTRET, 0); 
+    if (err) {
+        AFB_ERROR ("LUA-TIMER-CB:FAIL response=%s err=%s", json_object_get_string(contextCB->context), lua_tostring(luaState,-1));
+        goto OnErrorExit;
+    }
+    
+    // get return parameter
+    if (!lua_isboolean(luaState, -1)) {
+        return (lua_toboolean(luaState, -1)); 
+    }
+
+    // timer last run free context resource
+    if (timerHandle->count == 1) {
+        LuaCtxFree(afbContext);
+    }
+    return 0;  // By default we are happy
+ 
+ OnErrorExit:
+    return 1;  // stop timer
+}
+
+STATIC int LuaTimerSet(lua_State* luaState) {
+    const char *label=NULL, *info=NULL;
+    int delay=0, count=0;
+
+    json_object *timerJ = LuaPopOneArg(luaState, LUA_FIST_ARG);
+    const char *callback = lua_tostring(luaState, LUA_FIST_ARG + 1);
+    json_object *contextJ = LuaPopOneArg(luaState, LUA_FIST_ARG + 2);
+
+    if (lua_gettop(luaState) != LUA_FIST_ARG+2 || !timerJ || !callback || !contextJ) {
+        lua_pushliteral(luaState, "LuaTimerSet-Syntax timerset (timerT, 'callback', contextT)");
+        goto OnErrorExit;
+    }
+    
+    int err = wrap_json_unpack(timerJ, "{ss, s?s si, si !}", "label", &label, "info", &info, "delay", &delay, "count", &count);
+    if (err) {
+        lua_pushliteral(luaState, "LuaTimerSet-Syntax timerT={label:xxx delay:ms, count:xx}");
+        goto OnErrorExit;
+    }
+    
+    // everything look fine create timer structure
+    TimerHandleT *timerHandle = malloc (sizeof (TimerHandleT));
+    timerHandle->delay=delay;
+    timerHandle->count=count;
+    timerHandle->label=label;
+
+    // Allocate handle to store context and callback
+    LuaCallServiceT *contextCB = calloc (1, sizeof(LuaCallServiceT));  
+    contextCB->callback= callback;
+    contextCB->context = contextJ;
+    contextCB->handle  = timerHandle;
+
+    // fire timer
+    TimerEvtStart (timerHandle, LuaTimerSetCB, contextCB);
+    
+    return 0;  // Happy No Return Function
+
+OnErrorExit:
+    lua_error(luaState);
+    return 1; // return error code
+}
+
 // Register a new L2c list of LUA user plugin commands
 PUBLIC void LuaL2cNewLib(const char *label, luaL_Reg *l2cFunc, int count) {
     // luaL_newlib(luaState, l2cFunc); macro does not work with pointer :(
@@ -756,17 +929,21 @@ PUBLIC void LuaL2cNewLib(const char *label, luaL_Reg *l2cFunc, int count) {
 }
 
 static const luaL_Reg afbFunction[] = {
-    {"notice" , LuaPrintNotice},
-    {"info"   , LuaPrintInfo},
-    {"warning", LuaPrintWarning},
-    {"debug"  , LuaPrintDebug},
-    {"error"  , LuaPrintError},
-    {"callsync", LuaAfbServiceSync},
-    {"service", LuaAfbService},
-    {"success", LuaAfbSuccess},
-    {"fail"   , LuaAfbFail},
-    {"event"  , LuaAfbMakeEvent},
-    {"signal" , LuaAfbPushEvent},
+    {"timerclear", LuaTimerClear},
+    {"timerget"  , LuaTimerGet},
+    {"timerset"  , LuaTimerSet},
+    {"notice"    , LuaPrintNotice},
+    {"info"      , LuaPrintInfo},
+    {"warning"   , LuaPrintWarning},
+    {"debug"     , LuaPrintDebug},
+    {"error"     , LuaPrintError},
+    {"callsync"  , LuaAfbServiceSync},
+    {"service"   , LuaAfbService},
+    {"success"   , LuaAfbSuccess},
+    {"fail"      , LuaAfbFail},
+    {"subscribe" , LuaAfbEventSubscribe},
+    {"evtmake"   , LuaAfbEventMake},
+    {"evtpush"   , LuaAfbEventPush},
     
     {NULL, NULL}  /* sentinel */
 };

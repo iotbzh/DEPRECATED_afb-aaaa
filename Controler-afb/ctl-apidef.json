@@ -147,7 +147,7 @@
                 }
             }
         },
-        "/event_test": {
+        "/timer_test": {
             "description": "Pause Resume Test",
             "get": {
                 "x-permissions": {
