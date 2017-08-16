@@ -589,8 +589,7 @@ PUBLIC int DispatchInit() {
     int index, err, luaLoaded = 0;
     char controlFile [CONTROL_MAXPATH_LEN];
 
-    strncpy(controlFile, CONTROL_CONFIG_PRE, CONTROL_MAXPATH_LEN);
-    strncat(controlFile, "-", CONTROL_MAXPATH_LEN);
+    strncpy(controlFile, CONTROL_CONFIG_PRE "-", CONTROL_MAXPATH_LEN);
     strncat(controlFile, GetBinderName(), CONTROL_MAXPATH_LEN);
 
     // search for default dispatch config file

@@ -595,7 +595,6 @@ PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ) {
 STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
     
     int err, count=0;
-    const char *middleName=NULL;
         
     json_object* queryJ = afb_req_json(request);  
     
@@ -645,23 +644,23 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             
         case LUA_DOSCRIPT: {   // Fulup need to fix argument passing
             const char *script;
-            char*func;
+            char*func=NULL;
             char *filename; char*fullpath;
             char luaScriptPath[CONTROL_MAXPATH_LEN];
-            json_object *argsJ;
+            json_object *argsJ=NULL;
             int index;
             
             // scan luascript search path once
             static json_object *luaScriptPathJ =NULL;
-            if (!luaScriptPathJ)  luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE, CONTROL_DOSCRIPT_PRE, "lua");
 
-            err= wrap_json_unpack (queryJ, "{s:s, s?s s?o s?o !}", "script", &script,"func", &func, "arg", &argsJ);
+            err= wrap_json_unpack (queryJ, "{s:s, s?s s?o !}", "script", &script,"func", &func, "args", &argsJ);
             if (err) {
                 AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing script|(args,arg) query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
             }
 
             // search for filename=script in CONTROL_LUA_PATH
+            if (!luaScriptPathJ)  luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE,CONTROL_DOSCRIPT_PRE "-", script);
             for (index=0; index < json_object_array_length(luaScriptPathJ); index++) {
                 json_object *entryJ=json_object_array_get_idx(luaScriptPathJ, index);  
                 
@@ -671,17 +670,20 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
                     goto OnErrorExit;
                 }
                 
-                if (!middleName && !strcmp (filename, script)) {
-                    middleName= GetMidleName(script);
+                if (index > 0) AFB_WARNING("LUA-DOSCRIPT-SCAN:Ignore second script=%s path=%s", filename, fullpath);
+                else {
                     strncpy (luaScriptPath, fullpath, sizeof(luaScriptPath));
                     strncat (luaScriptPath, "/", sizeof(luaScriptPath));
-                    strncat (luaScriptPath, filename, sizeof(luaScriptPath));
-                    
-                } else {
-                    AFB_WARNING("LUA-DOSCRIPT-SCAN:Ignore second script=%s path=%s", filename, fullpath);
-                }       
+                    strncat (luaScriptPath, filename, sizeof(luaScriptPath)); 
+                }               
             }
             
+            err= luaL_loadfile(luaState, luaScriptPath);   
+            if (err) {
+                AFB_ERROR ("LUA-DOSCRIPT HOOPs Error in LUA loading scripts=%s err=%s", luaScriptPath, lua_tostring(luaState,-1));
+                goto OnErrorExit;
+            }
+        
             // script was loaded we need to parse to make it executable
             err=lua_pcall(luaState, 0, 0, 0);
             if (err) {
@@ -708,7 +710,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
                 lua_pushnil(luaState);
                 count++;
             } else { 
-                count+= LuaPushArgument (argsJ);
+                count+= LuaPushArgument(argsJ);
             }
             
             break;
@@ -722,7 +724,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
     // effectively exec LUA code (afb_reply/fail done later from callback) 
     err=lua_pcall(luaState, count+1, 0, 0);
     if (err) {
-        AFB_ERROR ("LUA-DO-EXEC:FAIL query=%s err=%s", json_object_get_string(queryJ), lua_tostring(luaState,-1) );
+        AFB_ERROR ("LUA-DO-EXEC:FAIL query=%s err=%s", json_object_get_string(queryJ), lua_tostring(luaState,-1));
         goto OnErrorExit;
     }
     return;
@@ -775,8 +777,7 @@ PUBLIC int LuaLibInit () {
     
     // search for default policy config file
     char fullprefix[CONTROL_MAXPATH_LEN];
-    strncpy (fullprefix, CONTROL_CONFIG_PRE, sizeof(fullprefix));
-    strncat (fullprefix, "-", sizeof(fullprefix));
+    strncpy (fullprefix, CONTROL_CONFIG_PRE "-", sizeof(fullprefix));
     strncat (fullprefix, GetBinderName(), sizeof(fullprefix));
     strncat (fullprefix, "-", sizeof(fullprefix));
     

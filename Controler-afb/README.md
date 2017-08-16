@@ -95,6 +95,15 @@ Controler support tree categories of actions. Each action return a status status
 Note: Lua added functions systematically prefix. AGL standard AppFw functions are prefixed with AGL: (eg: AGL:notice(), AGL_success(), ...). 
 User Lua functions added though the plugin and CTLP_Lua2C are prefix with plugin label (eg: MyPlug:HelloWorld1).
 
+### Debugging Facilities
+
+Controler Lua script are check for syntax from CMAKE template with Luac. When needed to go further an developer API allow to
+execute directly Lua command within controller context from Rest/Ws (api=control, verb=lua_doscript). DoScript API takes two
+other optional arguments func=xxxx where xxxx is the function to execute within Lua script and args a JSON object to provide
+input parameter. When funcname is not given by default the controller try to execute middle filename doscript-xxxx-????.lua.
+
+When executed from controller Lua script may use any AppFw Apis as well as any L2C user defined commands in plugin.
+
 ## Config Sample
 
 Here after a simple configuration sample.
