@@ -16,13 +16,13 @@
 # limitations under the License.
 ###########################################################################
 
-#[[
+ADD_SUBDIRECTORY(ucs2-vol)
 
 # Add target to project dependency list
-PROJECT_TARGET_ADD(hal-intel-hda)
+PROJECT_TARGET_ADD(hal-most-unicens)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE IntelHdaHAL.c)
+    ADD_LIBRARY(hal-most-unicens MODULE hal_most_unicens.c wrap-json.c wrap_unicens.c wrap_volume.c)
 
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
@@ -33,12 +33,17 @@ PROJECT_TARGET_ADD(hal-intel-hda)
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} 
         hal-interface
         audio-common
+        ucs2-volume
     )
 
     # installation directory
     INSTALL(TARGETS ${TARGET_NAME}
         LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
-    ]]
+
+    # Define properties to expose when others use this target
+    TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME}
+       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ucs2-vol/inc
+    )
