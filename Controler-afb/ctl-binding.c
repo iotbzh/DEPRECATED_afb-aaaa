@@ -29,21 +29,6 @@
 #include "ctl-apidef.h"
 
 
-PUBLIC void ctlapi_navigation (afb_req request) {
-       
-    ctlapi_dispatch ("NAVIGATION", request);
-}
-
-PUBLIC void ctlapi_multimedia (afb_req request) {
-       
-    ctlapi_dispatch ("MULTIMEDIA", request);
-}
-
-PUBLIC void ctlapi_emergency (afb_req request) {
-       
-    ctlapi_dispatch ("EMERGENCY", request);
-}
-
 PUBLIC void ctlapi_monitor (afb_req request) {
     
     // subscribe Client to event 
@@ -66,11 +51,13 @@ PUBLIC int CtlBindingInit () {
     
     errcount += TimerEvtInit();
     errcount += DispatchInit();
+#ifdef CONTROL_SUPPORT_LUA    
     errcount += LuaLibInit();
+#endif
     
     // now that everything is initialised execute the onload action
     if (!errcount)
-        errcount += DispatchOneOnLoad(CONTROL_ONLOAD_DEFAULT);
+        errcount += DispatchOnLoad(CONTROL_ONLOAD_DEFAULT);
     
     AFB_DEBUG ("Audio Policy Control Binding Done errcount=%d", errcount);
     return errcount;

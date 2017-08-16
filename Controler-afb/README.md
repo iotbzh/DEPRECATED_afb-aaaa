@@ -12,12 +12,12 @@ Controler AAAA(AGL Advance Audio Controler) and more.
  - Actions can either be:
    + Invocation to an other binding API, either internal or external (eg: a policy service, Alsa UCM, ...)
    + C routines from a user provider plugin (eg: policy routine, proprietary code, ...)
-   + LUA script function. LUA provides access to every AGL appfw functionalities and can be extended from C user provided plugins.
+   + Lua script function. Lua provides access to every AGL appfw functionalities and can be extended from C user provided plugins.
 
 ## Installation
  - Controler is a native part of AGL Advance Audio Framework but may be used independently with any other service or application binder.
  - Dependencies: the only dependencies are audio-common for JSON-WRAP and Filescan-utils capabilities.
- - Controler relies on LUA-5.3, when not needed LUA might be removed at compilation time.
+ - Controler relies on Lua-5.3, when not needed Lua might be removed at compilation time.
 
 ## Config
 
@@ -49,8 +49,9 @@ Defines startup time configuration. Onload may provide multiple initialisation p
  * info is optional
  * plugin provides optional unique plugin name. Plugin should follow "onload-bindername-xxxxx.ctlso" patern
    and are search into CONTROL_PLUGIN_PATH. When defined controller will execute user provided function context=CTLP_ONLOAD(label,version,info).
-   The context returned by this routine is provided back to any C routines call later by the controller.
- * lua2c list of LUA commands shipped with provided plugin.
+   The context returned by this routine is provided back to any C routines call later by the controller. Note that Lua2C function
+   are prefix in Lua script with plugin label (eg: MyPlug: in following config sample)
+ * lua2c list of Lua commands shipped with provided plugin.
  * require list of binding that should be initialised before the controller starts. Note that some listed requirer binding might be absent,
    nevertheless any present binding from this list will be started before controller binding, missing ones generate a warning.
  * action the list of action to execute during loadtime. Any failure in action will prevent controller binding from starting.
@@ -61,7 +62,7 @@ Defines a list of controls that are accessible through (api="control", verb="req
 
  * label mandatory
  * info optional
- * privileges needed privileges to request this control
+ * permissions Cynara needed privileges to request this control (same as AppFw-V2)
  * action the list of actions
 
 ### Event section
@@ -84,12 +85,15 @@ Controler support tree categories of actions. Each action return a status status
        in JSON configuration file. Controler client may also provided its own arguments from the query list. Targeted
        binding receives both arguments defined in the config file and the argument provided by controller client. 
  * C-API, when defined in the onload section, the plugin may provided C native API with CTLP-CAPI(apiname, label, args, query, context).
-   Plugin may also create LUA command with  CTLP-LUA2C(LuaFuncName, label, args, query, context). Where args+query are JSONC object
+   Plugin may also create Lua command with  CTLP-Lua2C(LuaFuncName, label, args, query, context). Where args+query are JSONC object
    and context the value return from CTLP_ONLOAD function. Any missing value is set to NULL.
- * LUA-API, when compiled with LUA option, the controller support action defined directly in LUA script. During "onload" phase the
-   controller search in CONTROL_LUA_PATH file with pattern "onload-bindername-xxxx.lua". Any file corresponding to this pattern
-   is automatically loaded. Any function defined in those LUA script can be called through a controller action. LUA functions receive
+ * Lua-API, when compiled with Lua option, the controller support action defined directly in Lua script. During "onload" phase the
+   controller search in CONTROL_Lua_PATH file with pattern "onload-bindername-xxxx.lua". Any file corresponding to this pattern
+   is automatically loaded. Any function defined in those Lua script can be called through a controller action. Lua functions receive
    three parameters (label, args, query).
+
+Note: Lua added functions systematically prefix. AGL standard AppFw functions are prefixed with AGL: (eg: AGL:notice(), AGL_success(), ...). 
+User Lua functions added though the plugin and CTLP_Lua2C are prefix with plugin label (eg: MyPlug:HelloWorld1).
 
 ## Config Sample
 
@@ -106,7 +110,11 @@ Here after a simple configuration sample.
     "onload": [{
             "label": "onload-default",
             "info": "onload initialisation config",
-            "plugin": "ctl-audio-plugin-sample.ctlso",
+                        "plugin": {
+                "label" : "MyPlug",
+                "sharelib": "ctl-audio-plugin-sample.ctlso",
+                "lua2c": ["Lua2cHelloWorld1", "Lua2cHelloWorld2"]
+            },
             "require": ["intel-hda", "jabra-usb", "scarlett-usb"],
             "actions": [
                 {
@@ -134,6 +142,7 @@ Here after a simple configuration sample.
             [
                 {
                     "label": "multimedia",
+                    "permissions": "urn:AGL:permission:audio:public:mutimedia",
                     "actions": {
                             "label": "multimedia-control-lua",
                             "info": "Call Lua Script function Test_Lua_Engin",   
@@ -141,6 +150,7 @@ Here after a simple configuration sample.
                         }
                 }, {
                     "label": "navigation",
+                    "permissions": "urn:AGL:permission:audio:public:navigation",
                     "actions": {
                             "label": "navigation-control-lua",
                             "info": "Call Lua Script to set Navigation",   
@@ -148,6 +158,7 @@ Here after a simple configuration sample.
                         }
                 }, {
                     "label": "emergency",
+                    "permissions": "urn:AGL:permission:audio:public:emergency",
                     "actions": {
                             "label": "emergency-control-ucm",
                             "lua": "Audio_Set_Emergency"

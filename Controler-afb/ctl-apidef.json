@@ -178,7 +178,7 @@
                 }
             }
         },
-        "/select": {
+        "/dispatch": {
             "description": "Request Access to Navigation Audio Channel.",
             "get": {
                 "x-permissions": {

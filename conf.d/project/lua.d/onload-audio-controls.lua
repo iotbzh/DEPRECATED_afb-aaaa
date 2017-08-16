@@ -21,37 +21,34 @@
 function Audio_Init_CB (status, result, context)
     print ("--inlua:Audio_Init_CB-- result=", Dump_Table(result))
     print ("--inlua:Audio_Init_CB-- context=", Dump_Table(context))
-
-  
-    -- AFB:notice ("Audio_Init_Hal result='%s' context='%s'", result, context)
-    -- AFB:debug ("Audio_Init_Hal result=%s context=%s", {["ret1"]=5678, ["ret2"]="abcd"}, context)
-   
+ 
+    AFB:notice("Audio_Init_Hal_CB result='%s' context='%s'", result, context)
+      
 end
 
 -- Function call at binding load time
 function Audio_Init_Hal(args, query)
 
-   local nextT = {
+   local nested = {
     ["next1"]=1234,
     ["next2"]="nested",
     ["next3"]=9999,
    }
-
-   local response = {
+   local context = {
     ["arg1"]=1234,
-    ["arg2"]=nextT,
+    ["arg2"]=nested,
     ["arg3"]=5678,
    }
 
-   print ("--inlua:Audio_Init-- response=", Dump_Table(response))
+    print ("--inlua:Audio_Init-- response=", Dump_Table(responseT))
 
-    AFB:notice ("**** in-lua table='%s' ****", response)
+    print("myplug=",  Dump_Table(MyPlug));
 
-
-    AFB:notice ("--LUA:Audio_Init_Hal args=%s query=%s", args, query);
+    -- This routine is defined in C sample plugin
+    local status=MyPlug:Lua2cHelloWorld1(nested)
     
     -- query asynchronously loaded HAL
-    AFB:service ('alsacore', 'hallist', {}, "Audio_Init_CB", {arg1=1234, arg2="toto"})
+    AFB:service ('alsacore', 'hallist', {}, "Audio_Init_CB", context)
  
 end
 

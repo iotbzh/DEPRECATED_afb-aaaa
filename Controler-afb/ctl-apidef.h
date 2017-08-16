@@ -37,20 +37,20 @@ static const char _afb_description_v2_control[] =
     "name\":\"delay\",\"required\":false,\"schema\":{\"type\":\"interger\"}},"
     "{\"in\":\"query\",\"name\":\"count\",\"required\":false,\"schema\":{\"ty"
     "pe\":\"interger\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components/res"
-    "ponses/200\"}}}},\"/select\":{\"description\":\"Request Access to Naviga"
-    "tion Audio Channel.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/component"
-    "s/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\"name\""
-    ":\"zone\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"respon"
-    "ses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_docal"
-    "l\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permiss"
-    "ions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameters"
-    "\":[{\"in\":\"query\",\"name\":\"func\",\"required\":true,\"schema\":{\""
-    "type\":\"string\"}},{\"in\":\"query\",\"name\":\"args\",\"required\":fal"
-    "se,\"schema\":{\"type\":\"array\"}}],\"responses\":{\"200\":{\"$ref\":\""
-    "#/components/responses/200\"}}}},\"/lua_dostring\":{\"description\":\"Ex"
-    "ecute LUA string script.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/comp"
-    "onents/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\"r"
-    "equired\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\""
+    "ponses/200\"}}}},\"/dispatch\":{\"description\":\"Request Access to Navi"
+    "gation Audio Channel.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/compone"
+    "nts/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\"name"
+    "\":\"zone\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"resp"
+    "onses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_doc"
+    "all\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permi"
+    "ssions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"paramete"
+    "rs\":[{\"in\":\"query\",\"name\":\"func\",\"required\":true,\"schema\":{"
+    "\"type\":\"string\"}},{\"in\":\"query\",\"name\":\"args\",\"required\":f"
+    "alse,\"schema\":{\"type\":\"array\"}}],\"responses\":{\"200\":{\"$ref\":"
+    "\"#/components/responses/200\"}}}},\"/lua_dostring\":{\"description\":\""
+    "Execute LUA string script.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/co"
+    "mponents/x-permissions/navigation\"},\"parameters\":[{\"in\":\"query\",\""
+    "required\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\""
     ":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_doscript\":{\"descr"
     "iption\":\"Execute LUA string script.\",\"get\":{\"x-permissions\":{\"$r"
     "ef\":\"#/components/x-permissions/navigation\"},\"parameters\":[{\"in\":"
@@ -65,7 +65,7 @@ static const struct afb_auth _afb_auths_v2_control[] = {
 
  void ctlapi_monitor(struct afb_req req);
  void ctlapi_event_test(struct afb_req req);
- void ctlapi_select(struct afb_req req);
+ void ctlapi_dispatch(struct afb_req req);
  void ctlapi_lua_docall(struct afb_req req);
  void ctlapi_lua_dostring(struct afb_req req);
  void ctlapi_lua_doscript(struct afb_req req);
@@ -86,8 +86,8 @@ static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "select",
-        .callback = ctlapi_select,
+        .verb = "dispatch",
+        .callback = ctlapi_dispatch,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2

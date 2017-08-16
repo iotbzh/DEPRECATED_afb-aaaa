@@ -65,9 +65,9 @@ set (PKG_REQUIRED_LIST
         lua>=5.3
 )
 
+
 # Define CONTROL_CDEV_NAME should match MOST driver values
 # ---------------------------------------------------------
-  set(LUA_COMPILER "luac5.3" CACHE STRING "LUA syntaxe check")
   add_compile_options(-DCONTROL_ONLOAD_DEFAULT="onload-default")
   add_compile_options(-DCONTROL_MAXPATH_LEN=255)
   add_compile_options(-DCONTROL_DOSCRIPT_PRE="doscript")
@@ -75,9 +75,17 @@ set (PKG_REQUIRED_LIST
   add_compile_options(-DCONTROL_CONFIG_POST="control" )
   add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/config.d:${CMAKE_INSTALL_PREFIX}/controler/config.d")
 
-  add_compile_options(-DCONTROL_LUA_EVENT="luaevt")
-  add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controler/ctl-lua.d")
- 
+  
+  set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
+  if(CONTROL_SUPPORT_LUA)
+    set(LUA_COMPILER "luac5.3" CACHE STRING "LUA syntaxe check")
+    add_compile_options(-DCONTROL_SUPPORT_LUA)
+    add_compile_options(-DCONTROL_LUA_EVENT="luaevt")
+    add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controler/ctl-lua.d")
+  else(CONTROL_SUPPORT_LUA) 
+    message(STATUS "Warning: LUA Without Support ")
+  endif(CONTROL_SUPPORT_LUA)
+
   set (CTL_PLUGIN_PRE "ctl-" CACHE STRING "Prefix for Controler share plugin")
   set (CTL_PLUGIN_EXT ".ctlso" CACHE STRING "Postfix for Controler share plugin")
   add_compile_options(-DCTL_PLUGIN_MAGIC=2468013579)

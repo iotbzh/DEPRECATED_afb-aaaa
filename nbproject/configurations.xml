@@ -207,6 +207,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -237,6 +238,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -267,6 +269,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -297,6 +300,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -337,6 +341,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -465,6 +470,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -496,6 +502,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -526,6 +533,7 @@
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -602,6 +610,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>NATIVE_LINUX</Elem>
           </preprocessorList>
         </cTool>
@@ -632,6 +641,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>NATIVE_LINUX</Elem>
             <Elem>hal_intel_hda_EXPORTS</Elem>
           </preprocessorList>
@@ -646,6 +656,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>NATIVE_LINUX</Elem>
             <Elem>hal_jabra_usb_EXPORTS</Elem>
           </preprocessorList>
@@ -660,6 +671,7 @@
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>NATIVE_LINUX</Elem>
             <Elem>hal_scalett_usb_EXPORTS</Elem>
           </preprocessorList>

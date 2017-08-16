@@ -26,14 +26,19 @@ macro(SET_TARGET_GENSKEL TARGET_NAME API_DEF_NAME)
     )
     add_custom_target(${API_DEF_NAME}_OPENAPI DEPENDS ${API_DEF_NAME}.h)
     add_dependencies(${TARGET_NAME} ${API_DEF_NAME}_OPENAPI)
-    
 endmacro(SET_TARGET_GENSKEL)
+
+# Include LUA only when requested    
+if(CONTROL_SUPPORT_LUA)
+   message(STATUS "Notice: LUA Controler Support Selected")
+   set(CTL_LUA_SOURCE ctl-lua.c)
+endif(CONTROL_SUPPORT_LUA)
 
 # Add target to project dependency list
 PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ${CTL_LUA_SOURCE})
 
     # Generate API-v2 hat from OpenAPI json definition
     SET_TARGET_GENSKEL(${TARGET_NAME} ctl-apidef)

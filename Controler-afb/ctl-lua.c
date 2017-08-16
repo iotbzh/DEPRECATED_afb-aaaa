@@ -24,15 +24,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
 
 #include "ctl-binding.h"
 #include "wrap-json.h"
 
 #define LUA_FIST_ARG 2  // when using luaL_newlib calllback receive libtable as 1st arg
-#define LUA_MSG_MAX_LENGTH 255
+#define LUA_MSG_MAX_LENGTH 512
 #define JSON_ERROR (json_object*)-1
 
 static  lua_State* luaState;
@@ -160,20 +157,23 @@ STATIC  json_object *PopOneArg (lua_State* luaState, int idx);
 
 STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
     int idx;
+    #define LUA_KEY_INDEX -2
+    #define LUA_VALUE_INDEX -1
     
     json_object *tableJ= json_object_new_object();
     const char *key;
     char number[3];
     lua_pushnil(luaState); // 1st key
+    if (index < 0) index--; // nested table https://stackoverflow.com/questions/45699144/lua-nested-table-from-lua-to-c
     for (idx=1; lua_next(luaState, index) != 0; idx++) {
 
         // uses 'key' (at index -2) and 'value' (at index -1)
-        if (lua_type(luaState,-2) == LUA_TSTRING) key= lua_tostring(luaState, -2);
+        if (lua_type(luaState,LUA_KEY_INDEX) == LUA_TSTRING) key= lua_tostring(luaState, LUA_KEY_INDEX);
         else {
             snprintf(number, sizeof(number),"%d", idx);
             key=number;
         } 
-        json_object *argJ= PopOneArg(luaState, -1);
+        json_object *argJ= PopOneArg(luaState, LUA_VALUE_INDEX);
         json_object_object_add(tableJ, key, argJ);
         lua_pop(luaState, 1); // removes 'value'; keeps 'key' for next iteration 
     } 
@@ -207,14 +207,9 @@ STATIC  json_object *PopOneArg (lua_State* luaState, int idx) {
         case LUA_TSTRING:
            value=  json_object_new_string(lua_tostring(luaState, idx));
             break;
-        case LUA_TTABLE: {
-            if (idx > 0) {
-                value= LuaTableToJson(luaState, idx);
-            } else {
-                value= json_object_new_string("UNSUPPORTED_Lua_Nested_Table");
-            }
+        case LUA_TTABLE: 
+            value= LuaTableToJson(luaState, idx);
             break;                
-        }    
         case LUA_TNIL:
             value=json_object_new_string("nil") ;
             break;
@@ -308,7 +303,13 @@ STATIC int LuaFormatMessage(lua_State* luaState, LuaAfbMessageT action) {
                 }
             
         } else {
-            message[targetIdx++] = format[idx];
+            if (targetIdx >= LUA_MSG_MAX_LENGTH) {
+                AFB_WARNING ("LuaFormatMessage: message[%s] owerverflow LUA_MSG_MAX_LENGTH=%d", format, LUA_MSG_MAX_LENGTH);
+                targetIdx --; // move backward for EOL
+                break;
+            } else {
+                message[targetIdx++] = format[idx];
+            }
         }
     }
     message[targetIdx]='\0';
@@ -357,7 +358,7 @@ STATIC int LuaPrintNotice(lua_State* luaState) {
     return err;
 }
 
-STATIC int LuaPrintDebug(lua_State* luaState) { 
+STATIC int LuaPrintDebug(lua_State* luaState) {
     int err=LuaFormatMessage (luaState, AFB_MSG_DEBUG);
     return err;
 }
@@ -535,6 +536,16 @@ STATIC int LuaAfbPushEvent(lua_State* luaState) {
         return 1;
 }
 
+// Function call from LUA when lua2c plugin L2C is used 
+PUBLIC int Lua2cWrapper(lua_State* luaState, char *funcname, Lua2cFunctionT callback, void *context) {
+    
+    json_object *argsJ= LuaPopArgs(luaState, LUA_FIST_ARG);
+    int response = (*callback) (funcname, argsJ, context);
+    
+    // push response to LUA
+    lua_pushinteger(luaState, response);
+    return 1; 
+}
 
 // Generated some fake event based on watchdog/counter
 PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ) {
@@ -731,6 +742,15 @@ PUBLIC void ctlapi_lua_docall (afb_req request) {
 
 PUBLIC void ctlapi_lua_doscript (afb_req request) {
     LuaDoAction (LUA_DOSCRIPT, request);
+}
+
+// Register a new L2c list of LUA user plugin commands
+PUBLIC void LuaL2cNewLib(const char *label, luaL_Reg *l2cFunc, int count) {
+    // luaL_newlib(luaState, l2cFunc); macro does not work with pointer :(
+    luaL_checkversion(luaState);
+    lua_createtable(luaState, 0, count+1);
+    luaL_setfuncs(luaState,l2cFunc,0);
+    lua_setglobal(luaState, label);
 }
 
 static const luaL_Reg afbFunction[] = {

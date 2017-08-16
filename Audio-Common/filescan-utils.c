@@ -115,7 +115,7 @@ PUBLIC const char *GetBinderName() {
     
     // retrieve binder name from process name afb-name-trailer
     prctl(PR_GET_NAME, psName,NULL,NULL,NULL);
-    binderName=GetMidleName(psName);
+    binderName=(char*)GetMidleName(psName);
     
     return binderName;
 }

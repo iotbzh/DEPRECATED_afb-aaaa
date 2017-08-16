@@ -31,9 +31,6 @@ typedef struct {
   int count;  
 } MyPluginCtxT;
 
-// Declare this sharelib as a Controller Plugin
-CTL_PLUGIN_REGISTER("MyCtlSamplePlugin");
-
 STATIC const char* jsonToString (json_object *valueJ) {
     const char *value;
     if (valueJ)
@@ -44,8 +41,11 @@ STATIC const char* jsonToString (json_object *valueJ) {
     return value;
 }
 
+// Declare this sharelib as a Controller Plugin
+CTLP_REGISTER("MyCtlSamplePlugin");
+
 // Call at initialisation time
-PUBLIC void* CtlPluginOnload(char* label, char* version, char* info) {
+PUBLIC CTLP_ONLOAD(label, version, info) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)calloc (1, sizeof(MyPluginCtxT));
     pluginCtx->magic = MY_PLUGIN_MAGIC;
     pluginCtx->count = -1;
@@ -54,7 +54,7 @@ PUBLIC void* CtlPluginOnload(char* label, char* version, char* info) {
     return (void*)pluginCtx;
 }
 
-PUBLIC int SamplePolicyInit (DispatchActionT *action, json_object *argsJ, void *context) {
+PUBLIC CTLP_CAPI (SamplePolicyInit, label, argsJ, queryJ, context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
         AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:SamplePolicyInit (Hoops) Invalid Sample Plugin Context");
@@ -62,11 +62,11 @@ PUBLIC int SamplePolicyInit (DispatchActionT *action, json_object *argsJ, void *
     };
     
     pluginCtx->count = 0;
-    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Init label=%s args=%s\n", action->label, jsonToString(action->argsJ));
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Init label=%s args=%s\n", label, jsonToString(argsJ));
     return 0;
 }
 
-PUBLIC int sampleControlMultimedia (DispatchActionT *action, json_object *queryJ, void *context) {
+PUBLIC CTLP_CAPI (sampleControlMultimedia,label, argsJ,queryJ,context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
@@ -75,11 +75,11 @@ PUBLIC int sampleControlMultimedia (DispatchActionT *action, json_object *queryJ
     };
     pluginCtx->count++;
     AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s query=%s count=%d"
-               , action->label, jsonToString(action->argsJ), jsonToString(queryJ), pluginCtx->count);
+               , label, jsonToString(argsJ), jsonToString(queryJ), pluginCtx->count);
     return 0;
 }
 
-PUBLIC int sampleControlNavigation (DispatchActionT *action, json_object *queryJ, void *context) {
+PUBLIC  CTLP_CAPI (sampleControlNavigation, label, argsJ, queryJ, context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
@@ -88,11 +88,11 @@ PUBLIC int sampleControlNavigation (DispatchActionT *action, json_object *queryJ
     };
     pluginCtx->count++;
     AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlNavigation SamplePolicyCount action=%s args=%s query=%s count=%d"
-               ,action->label, jsonToString(action->argsJ), jsonToString(queryJ), pluginCtx->count);
+               ,label, jsonToString(argsJ), jsonToString(queryJ), pluginCtx->count);
     return 0;
 }
 
-PUBLIC int SampleControlEvent (DispatchActionT *action, json_object *queryJ, void *context) {
+PUBLIC  CTLP_CAPI (SampleControlEvent, label, argsJ, queryJ, context) {
     MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
     
     if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
@@ -101,6 +101,34 @@ PUBLIC int SampleControlEvent (DispatchActionT *action, json_object *queryJ, voi
     };
     pluginCtx->count++;
     AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:sampleControlMultimedia SamplePolicyCount action=%s args=%s query=%s count=%d"
-               ,action->label, jsonToString(action->argsJ), jsonToString(queryJ), pluginCtx->count);
+               ,label, jsonToString(argsJ), jsonToString(queryJ), pluginCtx->count);
+    return 0;
+}
+
+// This function is a LUA function. Lua2CHelloWorld label should be declare in the "onload" section of JSON config file
+PUBLIC CTLP_LUA2C (Lua2cHelloWorld1, label, argsJ, context) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
+    
+    if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:Lua2cHelloWorld1 (Hoops) Invalid Sample Plugin Context");
+        return -1;
+    };
+    pluginCtx->count++;
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Lua2cHelloWorld1 SamplePolicyCount action=%s args=%s count=%d"
+               ,label, jsonToString(argsJ), pluginCtx->count);
+    return 0;
+}
+
+// This function is a LUA function. Lua2CHelloWorld label should be declare in the "onload" section of JSON config file
+PUBLIC CTLP_LUA2C (Lua2cHelloWorld2, label, argsJ, context) {
+    MyPluginCtxT *pluginCtx= (MyPluginCtxT*)context;
+    
+    if (!context || pluginCtx->magic != MY_PLUGIN_MAGIC) {
+        AFB_ERROR("CONTROLER-PLUGIN-SAMPLE:Lua2cHelloWorld2 (Hoops) Invalid Sample Plugin Context");
+        return -1;
+    };
+    pluginCtx->count++;
+    AFB_NOTICE ("CONTROLER-PLUGIN-SAMPLE:Lua2cHelloWorld2 SamplePolicyCount action=%s args=%s count=%d"
+               ,label, jsonToString(argsJ), pluginCtx->count);
     return 0;
 }

@@ -8,7 +8,11 @@
     "onload": [{
             "label": "onload-default",
             "info": "onload initialisation config",
-            "plugin": "ctl-audio-plugin-sample.ctlso",
+            "plugin": {
+                "label" : "MyPlug",
+                "sharelib": "ctl-audio-plugin-sample.ctlso",
+                "lua2c": ["Lua2cHelloWorld1", "Lua2cHelloWorld2"]
+            },
             "require": ["intel-hda", "jabra-usb", "scarlett-usb"],
             "actions": [
                 {

@@ -41,7 +41,9 @@ pcm.MyNavigationHook {
                 # Request autorisation to write on navigation 
                 navigation-ctl {
                     api   "control"
-                    verb  "request"
+                    verb  "dispatch"
+                    target "navigation"
+                    args "{'any_valid': 'json object'}"
                 } 
                 # subscribe to Audio Agent Event map them to signal
                 subscribe-evt {
