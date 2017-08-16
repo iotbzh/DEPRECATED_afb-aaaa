@@ -43,6 +43,7 @@ PROJECT_TARGET_ADD(control-afb)
     # Generate API-v2 hat from OpenAPI json definition
     SET_TARGET_GENSKEL(${TARGET_NAME} ctl-apidef)
 
+    SET_OPENAPI_FILENAME("afb-control-afb")
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	PREFIX "afb-"
