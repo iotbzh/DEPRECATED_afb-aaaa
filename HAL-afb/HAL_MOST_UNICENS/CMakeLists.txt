@@ -35,7 +35,7 @@ PROJECT_TARGET_ADD(hal-most-unicens)
     # Library dependencies (include updates automatically)
     TARGET_LINK_LIBRARIES(${TARGET_NAME} 
         hal-interface
-        audio-interface
+        audio-common
         ucs2-volume
     )
 

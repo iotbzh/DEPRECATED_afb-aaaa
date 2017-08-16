@@ -16,10 +16,10 @@
  * 
  */
 #define _GNU_SOURCE 
+#include <string.h>
 #include "hal-interface.h"
-#include "audio-interface.h"
+#include "audio-common.h"
 #include "wrap-json.h"
-#include "string.h"
 #include "wrap_unicens.h"
 #include "wrap_volume.h"
 
@@ -34,7 +34,7 @@ static int master_volume;
 static json_bool master_switch;
 static int pcm_volume[PCM_MAX_CHANNELS];
 
-void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
+void unicens_master_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
     const char *j_str = json_object_to_json_string(j_obj);
     
@@ -47,7 +47,7 @@ void unicens_master_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* hand
     } 
 }
 
-void unicens_master_switch_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
+void unicens_master_switch_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
     const char *j_str = json_object_to_json_string(j_obj);
     
@@ -59,7 +59,7 @@ void unicens_master_switch_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* h
     }    
 }
 
-void unicens_pcm_vol_cb(halCtlsEnumT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
+void unicens_pcm_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
     const char *j_str = json_object_to_json_string(j_obj);
     

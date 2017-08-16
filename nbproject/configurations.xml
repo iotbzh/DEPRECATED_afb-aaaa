@@ -60,20 +60,6 @@
         <df name="HAL-plugin">
           <in>HalPlugPcm.c</in>
         </df>
-        <df name="HAL_MOST_UNICENS">
-          <df name="ucs2-vol">
-            <df name="src">
-              <in>device_container.cpp</in>
-              <in>device_value.cpp</in>
-              <in>libmostvolume.cpp</in>
-              <in>setup.cpp</in>
-            </df>
-          </df>
-          <in>hal_most_unicens.c</in>
-          <in>wrap-json.c</in>
-          <in>wrap_unicens.c</in>
-          <in>wrap_volume.c</in>
-        </df>
         <df name="HDA-intel">
           <in>IntelHdaHAL.c</in>
         </df>
@@ -92,8 +78,23 @@
         <in>HighLevelApiConf.c</in>
         <in>HighLevelBinding.c</in>
       </df>
-      <df name="Shared-Interface">
-        <in>audio-interface.c</in>
+      <df name="MostVolume">
+        <df name="external">
+          <in>ConnectionInfo.cpp</in>
+          <in>Console.c</in>
+          <in>MacAddr.cpp</in>
+          <in>MostIpc.cpp</in>
+          <in>MostMsg.cpp</in>
+          <in>MostMsgTx.cpp</in>
+          <in>MsgAddr.cpp</in>
+          <in>MsgFilter.cpp</in>
+          <in>Shadow_NetworkMaster.cpp</in>
+          <in>Thread.cpp</in>
+        </df>
+        <in>DeviceContainer.cpp</in>
+        <in>DeviceValue.cpp</in>
+        <in>Mediator.cpp</in>
+        <in>libmostvolume.cpp</in>
       </df>
     </df>
     <logicalFolder name="ExternalFiles"
@@ -389,166 +390,7 @@
         <cTool flags="4">
           <incDir>
             <pElem>Shared-Interface</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>build/HAL-afb/HAL-interface</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>build/HAL-afb/HAL-interface</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL-plugin/HalPlugCb.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>HAL-afb/HAL-plugin</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>build/HAL-afb/HAL-plugin</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL-plugin/HalPlugCtl.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>HAL-afb/HAL-plugin</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>build/HAL-afb/HAL-plugin</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>HAL-afb/HAL-plugin</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>build/HAL-afb/HAL-plugin</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
-            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-          </preprocessorList>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/hal_most_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-          <incDir>
-            <pElem>/opt/AGL/include/afb</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>build/HAL-afb/Unicens-USB</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/device_container.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/device_value.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/libmostvolume.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/setup.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-        <ccTool flags="1">
-          <incDir>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/wrap-json.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>build/HAL-afb/Unicens-USB</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-          <incDir>
-            <pElem>/opt/AGL/include/afb</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/HAL-afb/HAL_MOST_UNICENS</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_volume.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>/opt/AGL/include/afb</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
-            <pElem>build/HAL-afb/HAL_MOST_UNICENS</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
-      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
-      <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
-          <incDir>
-            <pElem>Shared-Interface</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
-            <pElem>/opt/AGL/include</pElem>
             <pElem>build/HAL-afb/Unicens-USB</pElem>
           </incDir>
         </cTool>
@@ -557,7 +399,6 @@
         <cTool flags="4">
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>/usr/lib64/gcc/x86_64-suse-linux/5/include</pElem>
             <pElem>build/HAL-afb/Unicens-USB</pElem>
           </incDir>
         </cTool>
@@ -570,8 +411,51 @@
         <cTool flags="3">
         </cTool>
       </item>
-      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/ConnectionInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <folder path="0/Alsa-Plugin">
+        <cTool>
+          <incDir>
+            <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>PIC</Elem>
+            <Elem>policy_hook_cb_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/Alsa-afb">
@@ -977,27 +861,6 @@
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/hal_most_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_unicens.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
-      <item path="HAL-afb/HAL_MOST_UNICENS/wrap_volume.c"
-            ex="false"
-            tool="0"
-            flavor2="3">
-        <cTool flags="4">
-        </cTool>
-      </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
         <cTool flags="3">
         </cTool>
@@ -1053,8 +916,50 @@
           </incDir>
         </cTool>
       </item>
-      <item path="Shared-Interface/audio-interface.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/ConnectionInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <folder path="0/Alsa-Plugin">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-Plugin/Alsa-Hook-Callback</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-Plugin/Alsa-Hook-Callback</pElem>
+          </incDir>
         </cTool>
       </folder>
       <folder path="0/Alsa-afb">
@@ -1118,18 +1023,6 @@
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/alsa</pElem>
-          </incDir>
-        </cTool>
-      </folder>
-      <folder path="0/HAL-afb/HAL_MOST_UNICENS">
-        <cTool>
-          <incDir>
-            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
         </cTool>
       </folder>
