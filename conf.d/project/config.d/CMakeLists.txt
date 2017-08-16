@@ -24,5 +24,7 @@ PROJECT_TARGET_ADD(ctl-config.d)
 
     file(GLOB XML_FILES "*.json")
 
-    add_input_files(${XML_FILES})
+    add_input_files("${XML_FILES}")
 
+	SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+	LABELS "DATA")

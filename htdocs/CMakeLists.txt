@@ -25,17 +25,7 @@ PROJECT_TARGET_ADD(htdocs)
 
     file(GLOB SOURCE_FILES "*.html" "*.js" "*.jpg" "*.css")
 
-    add_custom_target(${TARGET_NAME} 
-       DEPENDS  ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    ) 
-
-    add_custom_command(
-       DEPENDS  ${SOURCE_FILES}
-       OUTPUT ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND mkdir -p ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND touch ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND cp -r ${SOURCE_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    )
+	add_input_files("${SOURCE_FILES}")
 
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	LABELS "HTDOCS"

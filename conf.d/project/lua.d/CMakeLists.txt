@@ -22,19 +22,9 @@
 ##################################################
 PROJECT_TARGET_ADD(ctl-lua.d)
 
-    file(GLOB LUA_FILES "*.lua")
+	file(GLOB LUA_FILES "*.lua")
 
-    add_custom_target(${TARGET_NAME}
-       DEPENDS  ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    )
+	add_input_files("${LUA_FILES}")
 
-    # check XML schema before pushing config
-    add_custom_command(
-       DEPENDS  ${LUA_FILES}
-       OUTPUT ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND ${LUA_COMPILER} ${LUA_FILES}
-       COMMAND mkdir -p ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND touch ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}      
-       COMMAND cp -r ${LUA_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    )
-
+	SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+		LABELS "DATA")
