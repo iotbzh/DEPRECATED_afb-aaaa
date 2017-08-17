@@ -147,37 +147,6 @@
                 }
             }
         },
-        "/timer_test": {
-            "description": "Pause Resume Test",
-            "get": {
-                "x-permissions": {
-                    "$ref": "#/components/x-permissions/monitor"
-                },
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "delay",
-                        "required": false,
-                        "schema": {
-                            "type": "interger"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "count",
-                        "required": false,
-                        "schema": {
-                            "type": "interger"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/200"
-                    }
-                }
-            }
-        },
         "/dispatch": {
             "description": "Request Access to Navigation Audio Channel.",
             "get": {

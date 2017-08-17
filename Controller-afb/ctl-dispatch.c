@@ -27,13 +27,9 @@
 
 typedef void*(*DispatchPluginInstallCbT)(const char* label, const char*version, const char*info);
 
+
 static afb_req NULL_AFBREQ = {};
 
-typedef enum {
-    CTL_DISPATCH_ONLOAD,
-    CTL_DISPATCH_CONTROL,
-    CTL_DISPATCH_EVENT,
-} DispatchClassT;
 
 typedef struct {
     const char* label;
@@ -72,7 +68,7 @@ STATIC int DispatchControlToIndex(DispatchHandleT **controls, const char* contro
     return -1;
 }
 
-STATIC int DispatchOneControl(DispatchHandleT **controls, const char* controlLabel, json_object *queryJ, afb_req request) {
+STATIC int DispatchOneControl(DispatchSourceT source, DispatchHandleT **controls, const char* controlLabel, json_object *queryJ, afb_req request) {
     int err;
     
     if (!configHandle) {
@@ -105,8 +101,23 @@ STATIC int DispatchOneControl(DispatchHandleT **controls, const char* controlLab
             {
                 json_object *returnJ;
 
-                json_object_get(actions[idx].argsJ); // make sure afb_service_call does not free the argsJ
-                int err = afb_service_call_sync(actions[idx].api, actions[idx].call, actions[idx].argsJ, &returnJ);
+                // if query is empty increment usage count and pass args
+                if (!queryJ || json_object_get_type(queryJ) != json_type_object) {
+                    json_object_get(actions[idx].argsJ);                    
+                    queryJ= actions[idx].argsJ;
+                } else if (actions[idx].argsJ) {
+                    
+                    // Merge queryJ and argsJ before sending request
+                    if (json_object_get_type(actions[idx].argsJ) ==  json_type_object) {
+                        json_object_object_foreach(actions[idx].argsJ, key, val) {
+                        json_object_object_add(queryJ, key, val);
+                        }
+                    } else {
+                        json_object_object_add(queryJ, "args", actions[idx].argsJ);
+                    }
+                }
+                
+                int err = afb_service_call_sync(actions[idx].api, actions[idx].call, queryJ, &returnJ);
                 if (err) {
                     static const char*format = "DispatchOneControl(Api) api=%s verb=%s args=%s";
                     if (afb_req_is_valid(request))afb_req_fail_f(request, "DISPATCH-CTL-MODE:API", format, actions[idx].label, actions[idx].api, actions[idx].call);
@@ -118,7 +129,7 @@ STATIC int DispatchOneControl(DispatchHandleT **controls, const char* controlLab
 
 #ifdef CONTROL_SUPPORT_LUA
             case CTL_MODE_LUA:
-                err = LuaCallFunc(&actions[idx], queryJ);
+                err = LuaCallFunc(source, &actions[idx], queryJ);
                 if (err) {
                     static const char*format = "DispatchOneControl(Lua) label=%s func=%s args=%s";
                     if (afb_req_is_valid(request)) afb_req_fail_f(request, "DISPATCH-CTL-MODE:Lua", format, actions[idx].label, actions[idx].call, json_object_get_string(actions[idx].argsJ));
@@ -129,7 +140,7 @@ STATIC int DispatchOneControl(DispatchHandleT **controls, const char* controlLab
 #endif
 
             case CTL_MODE_CB:
-                err = (*actions[idx].actionCB) (actions[idx].label, actions[idx].argsJ, queryJ, configHandle->plugin->context);
+                err = (*actions[idx].actionCB) (source, actions[idx].label, actions[idx].argsJ, queryJ, configHandle->plugin->context);
                 if (err) {
                     static const char*format = "DispatchOneControl(Callback) label%s func=%s args=%s";
                     if (afb_req_is_valid(request)) afb_req_fail_f(request, "DISPATCH-CTL-MODE:Cb", format, actions[idx].label, actions[idx].call, json_object_get_string(actions[idx].argsJ));
@@ -161,7 +172,7 @@ OnErrorExit:
 PUBLIC void DispatchOneEvent(const char *evtLabel, json_object *eventJ) {
     DispatchHandleT **events = configHandle->events;
 
-    (void) DispatchOneControl(events, evtLabel, eventJ, NULL_AFBREQ);
+    (void) DispatchOneControl(CTL_SOURCE_EVENT, events, evtLabel, eventJ, NULL_AFBREQ);
 }
 
 // Event name is mapped on control label and executed as a standard control
@@ -169,23 +180,24 @@ PUBLIC void DispatchOneEvent(const char *evtLabel, json_object *eventJ) {
 PUBLIC int DispatchOnLoad(const char *onLoadLabel) {
     DispatchHandleT **onloads = configHandle->onloads;
 
-    int err = DispatchOneControl(onloads, onLoadLabel, NULL, NULL_AFBREQ);
+    int err = DispatchOneControl(CTL_SOURCE_ONLOAD, onloads, onLoadLabel, NULL, NULL_AFBREQ);
     return err;
 }
 
 PUBLIC void ctlapi_dispatch(afb_req request) {
     DispatchHandleT **controls = configHandle->controls;
-    json_object *queryJ, *argsJ;
+    json_object *queryJ, *argsJ=NULL;
     const char *target;
-
+    DispatchSourceT source= CTL_SOURCE_UNKNOWN;
+    
     queryJ = afb_req_json(request);
-    int err = wrap_json_unpack(queryJ, "{s:s, s:o !}", "target", &target, "args", &argsJ);
+    int err = wrap_json_unpack(queryJ, "{s:s, s?i s?o !}", "target", &target, "source", &source, "args", &argsJ);
     if (err) {
         afb_req_fail_f(request, "CTL-DISPTACH-INVALID", "missing target or args not a valid json object query=%s", json_object_get_string(queryJ));
         goto OnErrorExit;
     }
-
-    (void) DispatchOneControl(controls, target, argsJ, request);
+    
+    (void) DispatchOneControl(source, controls, target, argsJ, request);
 
 OnErrorExit:
     return;
@@ -208,12 +220,15 @@ PUBLIC int DispatchOneL2c(lua_State* luaState, char *funcname, Lua2cFunctionT ca
 PUBLIC void ctlapi_config(struct afb_req request) {
     json_object*tmpJ;
     char *dirList;
+    
 
     json_object* queryJ = afb_req_json(request);
     if (queryJ && json_object_object_get_ex(queryJ, "cfgpath", &tmpJ)) {
         dirList = strdup(json_object_get_string(tmpJ));
     } else {
-        dirList = strdup(CONTROL_CONFIG_PATH);
+        
+        dirList = getenv("CONTROL_CONFIG_PATH");
+        if (!dirList) dirList = strdup(CONTROL_CONFIG_PATH);
         AFB_NOTICE("CONFIG-MISSING: use default CONTROL_CONFIG_PATH=%s", CONTROL_CONFIG_PATH);
     }
 
@@ -339,7 +354,7 @@ STATIC DispatchHandleT *DispatchLoadOnload(DispatchConfigT *controlConfig, json_
     int err;
 
     DispatchHandleT *dispatchHandle = calloc(1, sizeof (DispatchHandleT));
-    err = wrap_json_unpack(onloadJ, "{ss,s?s,s?o,s?o,s?o !}",
+    err = wrap_json_unpack(onloadJ, "{ss,s?s, s?o,s?o,s?o !}",
             "label", &dispatchHandle->label, "info", &dispatchHandle->info, "plugin", &pluginJ, "require", &requireJ, "actions", &actionsJ);
     if (err) {
         AFB_ERROR("DISPATCH-LOAD-CONFIG:ONLOAD Missing something label|[info]|[plugin]|[actions] in %s", json_object_get_string(onloadJ));
@@ -370,18 +385,22 @@ STATIC DispatchHandleT *DispatchLoadOnload(DispatchConfigT *controlConfig, json_
         json_object *lua2csJ = NULL;
         DispatchPluginT *dPlugin= calloc(1, sizeof(DispatchPluginT));
         controlConfig->plugin = dPlugin;
+        const char*ldSearchPath=NULL;
 
-        err = wrap_json_unpack(pluginJ, "{ss,s?s,ss,s?o!}",
-                "label", &dPlugin->label, "info", &dPlugin->info, "sharelib", &dPlugin->sharelib, "lua2c", &lua2csJ);
+        err = wrap_json_unpack(pluginJ, "{ss,s?s,s?s,ss,s?o!}",
+                "label", &dPlugin->label, "info", &dPlugin->info, "ldpath", &ldSearchPath, "sharelib", &dPlugin->sharelib, "lua2c", &lua2csJ);
         if (err) {
             AFB_ERROR("DISPATCH-LOAD-CONFIG:ONLOAD Plugin missing label|[info]|sharelib|[lua2c] in %s", json_object_get_string(onloadJ));
             goto OnErrorExit;
         }
 
+        // if search path not in Json config file, then try default
+        if (!ldSearchPath) ldSearchPath=CONTROL_PLUGIN_PATH;
+        
         // search for default policy config file
-        json_object *pluginPathJ = ScanForConfig(CONTROL_PLUGIN_PATH, CTL_SCAN_RECURSIVE, dPlugin->sharelib, NULL);
+        json_object *pluginPathJ = ScanForConfig(ldSearchPath, CTL_SCAN_RECURSIVE, dPlugin->sharelib, NULL);
         if (!pluginPathJ || json_object_array_length(pluginPathJ) == 0) {
-            AFB_ERROR("DISPATCH-LOAD-CONFIG:PLUGIN Missing plugin=%s in path=%s", dPlugin->sharelib, CONTROL_PLUGIN_PATH);
+            AFB_ERROR("DISPATCH-LOAD-CONFIG:PLUGIN Missing plugin=%s in path=%s", dPlugin->sharelib, ldSearchPath);
             goto OnErrorExit;
         }
 
@@ -588,12 +607,15 @@ OnErrorExit:
 PUBLIC int DispatchInit() {
     int index, err, luaLoaded = 0;
     char controlFile [CONTROL_MAXPATH_LEN];
+    
+    const char *dirList= getenv("CONTROL_CONFIG_PATH");
+    if (!dirList) dirList=CONTROL_CONFIG_PATH;
 
     strncpy(controlFile, CONTROL_CONFIG_PRE "-", CONTROL_MAXPATH_LEN);
     strncat(controlFile, GetBinderName(), CONTROL_MAXPATH_LEN);
 
     // search for default dispatch config file
-    json_object* responseJ = ScanForConfig(CONTROL_CONFIG_PATH, CTL_SCAN_RECURSIVE, controlFile, "json");
+    json_object* responseJ = ScanForConfig(dirList, CTL_SCAN_RECURSIVE, controlFile, "json");
 
     // We load 1st file others are just warnings   
     for (index = 0; index < json_object_array_length(responseJ); index++) {

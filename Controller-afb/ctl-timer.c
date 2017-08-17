@@ -85,61 +85,6 @@ PUBLIC afb_event TimerEvtGet(void) {
 }
 
 
-STATIC int DoSendEvent (void *context) {
-    AutoTestCtxT *ctx= (AutoTestCtxT*)context;
-    json_object *ctlEventJ;
-    
-    if (ctx->value) ctx->value =0;
-    else ctx->value =1;
-    
-    ctlEventJ = json_object_new_object();
-    json_object_object_add(ctlEventJ,"signal", json_object_new_string(ctx->label));
-    json_object_object_add(ctlEventJ,"value" , json_object_new_int(ctx->value));
-    int done = afb_event_push(afbevt, ctlEventJ);
-    
-    AFB_NOTICE ("DoSendEvent {action: '%s', value:%d} status=%d", ctx->label, ctx->value, done);
-    
-    return (done);
-}
-
-// Generated some fake event based on watchdog/counter
-PUBLIC void ctlapi_timer_test (afb_req request) {
-    json_object *queryJ, *tmpJ;
-    TimerHandleT *timerHandle = malloc (sizeof (TimerHandleT));
-    AutoTestCtxT *context = calloc (1, sizeof (AutoTestCtxT));
-    int done;
-       
-    queryJ= afb_req_json(request);
-    
-    // Closing call only has one parameter
-    done=json_object_object_get_ex(queryJ, "closing", &tmpJ);
-    if (done) return;
-    
-    done=json_object_object_get_ex(queryJ, "label", &tmpJ);
-    if (!done) {
-         afb_req_fail_f(request, "TEST-LABEL-MISSING", "label is mandatory for event_test");
-        goto OnErrorExit;
-    }
-    timerHandle->label = strdup(json_object_get_string (tmpJ));
-    
-    json_object_object_get_ex(queryJ, "delay", &tmpJ);
-    timerHandle->delay = json_object_get_int (tmpJ) * 1000;
-    if (timerHandle->delay == 0) timerHandle->delay=DEFAULT_PAUSE_DELAY * 1000;
-    
-    json_object_object_get_ex(queryJ, "count", &tmpJ);
-    timerHandle->count = json_object_get_int (tmpJ);
-    if (timerHandle->count == 0) timerHandle->count=DEFAULT_TEST_COUNT;
-    
-    // start a lool timer  
-    TimerEvtStart (timerHandle, DoSendEvent, context);
-    
-    afb_req_success(request, NULL, NULL);
-    return;
-    
- OnErrorExit:    
-    return;
-}
-
 // Create Binding Event at Init
 PUBLIC int TimerEvtInit () {
     

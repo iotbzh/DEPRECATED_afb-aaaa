@@ -18,18 +18,18 @@
   Provide sample LUA routines to be used with AGL control "lua_docall" API
 --]]
 
--- global counter to keep track of calls
-count=0
+--global counter to keep track of calls
+_count=0
 
 -- Display receive arguments and echo them to caller
-function Simple_Echo_Args (request, args)
-    count=count+1
+function _Simple_Echo_Args (request, args)
+    _count=_count+1
     AFB:notice("LUA OnCall Echo Args count=%d args=%s", count, args)
 
     print ("--inlua-- args=", Dump_Table(args))
 
     local response={
-       ["count"]=count,
+       ["count"]=_count,
        ["args"]=args,
     }
 
@@ -37,7 +37,7 @@ function Simple_Echo_Args (request, args)
     AFB:success (request,  {["func"]="Simple_Echo_Args", ["ret1"]=5678, ["ret2"]="abcd"}) 
 end
 
-function Test_Async_CB (request, result, context)
+local function Test_Async_CB (request, result, context)
    response={
      ["result"]=result,
      ["context"]=context,
@@ -47,7 +47,7 @@ function Test_Async_CB (request, result, context)
    AFB:success (request, response)
 end
 
-function Test_Call_Async (request, args) 
+function _Test_Call_Async (request, args) 
    local context={
      ["value1"]="abcd",
      ["value2"]=1234
@@ -57,7 +57,7 @@ function Test_Call_Async (request, args)
    AFB:service("alsacore","ping", "Test_Async_CB", context)
 end
 
-function Test_Call_Sync (request, args) 
+function _Test_Call_Sync (request, args) 
 
     AFB:notice ("Test_Call_Sync args=%s", args)
     local err, response= AFB:service_sync ("alsacore","ping", args)

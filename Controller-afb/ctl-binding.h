@@ -16,8 +16,8 @@
  */
 
 
-#ifndef CONTROLER_BINDING_INCLUDE
-#define CONTROLER_BINDING_INCLUDE
+#ifndef CONTROLLER_BINDING_INCLUDE
+#define CONTROLLER_BINDING_INCLUDE
 
 #define AFB_BINDING_VERSION 2
 #include <afb/afb-binding.h>
@@ -61,7 +61,6 @@ typedef struct TimerHandleS {
 
 PUBLIC int TimerEvtInit (void);
 PUBLIC afb_event TimerEvtGet(void);
-PUBLIC void ctlapi_event_test (afb_req request);
 PUBLIC void TimerEvtStart(TimerHandleT *timerHandle, timerCallbackT callback, void *context);
 PUBLIC void TimerEvtStop(TimerHandleT *timerHandle);
 
@@ -75,6 +74,15 @@ typedef enum {
     CTL_MODE_LUA,        
 } CtlRequestModeT;
 
+
+typedef enum {
+    CTL_SOURCE_CLOSE=-1,
+    CTL_SOURCE_UNKNOWN=0,
+    CTL_SOURCE_ONLOAD=1,
+    CTL_SOURCE_OPEN=2,
+    CTL_SOURCE_EVENT=3,
+} DispatchSourceT;
+
 typedef struct DispatchActionS{
     const char *info;
     const char* label;
@@ -83,8 +91,9 @@ typedef struct DispatchActionS{
     const char* call;
     json_object *argsJ;
     int timeout;
-    int (*actionCB)(const char*label,  json_object *argsJ, json_object *queryJ, void *context);
+    int (*actionCB)(DispatchSourceT source, const char*label,  json_object *argsJ, json_object *queryJ, void *context);
 } DispatchActionT;
+
 typedef int (*Lua2cFunctionT)(char *funcname, json_object *argsJ, void*context);
 
 PUBLIC int  DispatchInit(void);
@@ -97,7 +106,7 @@ PUBLIC void ctlapi_dispatch (afb_req request);
 // ctl-lua.c
 typedef int (*Lua2cWrapperT) (lua_State* luaState, char *funcname, Lua2cFunctionT callback);
 
-#define CTLP_LUA2C(FuncName,label,argsJ, context) static int FuncName(char*label,json_object*argsJ, void*context);\
+#define CTLP_LUA2C(FuncName, label,argsJ, context) static int FuncName(char*label,json_object*argsJ, void*context);\
         int lua2c_ ## FuncName(lua_State* luaState){return((*Lua2cWrap)(luaState, MACRO_STR_VALUE(FuncName), FuncName));};\
         static int FuncName(char* label, json_object* argsJ, void* context)
 
@@ -110,7 +119,7 @@ typedef enum {
 PUBLIC int LuaLibInit ();
 PUBLIC void LuaL2cNewLib(const char *label, luaL_Reg *l2cFunc, int count);
 PUBLIC int Lua2cWrapper(lua_State* luaState, char *funcname, Lua2cFunctionT callback, void *context);
-PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ);
+PUBLIC int LuaCallFunc (DispatchSourceT source, DispatchActionT *action, json_object *queryJ) ;
 PUBLIC void ctlapi_lua_docall (afb_req request);
 PUBLIC void ctlapi_lua_dostring (afb_req request);
 PUBLIC void ctlapi_lua_doscript (afb_req request);
@@ -130,8 +139,8 @@ typedef struct {
 #define MACRO_STR_VALUE(arg) #arg
 #define CTLP_REGISTER(pluglabel) CtlPluginMagicT CtlPluginMagic={.magic=CTL_PLUGIN_MAGIC,.label=pluglabel}; struct afb_binding_data_v2; Lua2cWrapperT Lua2cWrap;
 #define CTLP_ONLOAD(label,version,info) void* CtlPluginOnload(char* label, char* version, char* info) 
-#define CTLP_CAPI(funcname,label,argsJ, queryJ, context) int funcname(char* label, json_object* argsJ, json_object* queryJ, void* context)
+#define CTLP_CAPI(funcname,source, label,argsJ, queryJ, context) int funcname(DispatchSourceT source, char* label, json_object* argsJ, json_object* queryJ, void* context)
 
 
 
-#endif // CONTROLER_BINDING_INCLUDE
+#endif // CONTROLLER_BINDING_INCLUDE

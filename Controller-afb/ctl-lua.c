@@ -14,10 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ref: 
- *  http://www.troubleshooters.com/codecorn/lua/lua_c_calls_lua.htm#_Anatomy_of_a_Lua_Call
- *  http://acamara.es/blog/2012/08/passing-variables-from-lua-5-2-to-c-and-vice-versa/
- *  https://john.nachtimwald.com/2014/07/12/wrapping-a-c-library-in-lua/
- *  https://gist.github.com/SONIC3D/10388137
+ *  (manual) https://www.lua.org/manual/5.3/manual.html 
+ *  (lua->C) http://www.troubleshooters.com/codecorn/lua/lua_c_calls_lua.htm#_Anatomy_of_a_Lua_Call
+ *  (lua/C Var) http://acamara.es/blog/2012/08/passing-variables-from-lua-5-2-to-c-and-vice-versa/
+ *  (Lua/C Lib)https://john.nachtimwald.com/2014/07/12/wrapping-a-c-library-in-lua/
+ *  (Lua/C Table) https://gist.github.com/SONIC3D/10388137
+ *  (Lua/C Nested table) https://stackoverflow.com/questions/45699144/lua-nested-table-from-lua-to-c
+ *  (Lua/C Wrapper) https://stackoverflow.com/questions/45699950/lua-passing-handle-to-function-created-with-newlib
+ *  
  */
 
 #define _GNU_SOURCE
@@ -170,7 +174,7 @@ STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
     const char *key;
     char number[3];
     lua_pushnil(luaState); // 1st key
-    if (index < 0) index--; // nested table https://stackoverflow.com/questions/45699144/lua-nested-table-from-lua-to-c
+    if (index < 0) index--; 
     for (idx=1; lua_next(luaState, index) != 0; idx++) {
 
         // uses 'key' (at index -2) and 'value' (at index -1)
@@ -587,7 +591,7 @@ STATIC int LuaAfbEventMake(lua_State* luaState) {
 // Function call from LUA when lua2c plugin L2C is used 
 PUBLIC int Lua2cWrapper(lua_State* luaState, char *funcname, Lua2cFunctionT callback, void *context) {
     
-    json_object *argsJ= LuaPopArgs(luaState, LUA_FIST_ARG);
+    json_object *argsJ= LuaPopArgs(luaState, LUA_FIST_ARG+1);
     int response = (*callback) (funcname, argsJ, context);
     
     // push response to LUA
@@ -596,7 +600,7 @@ PUBLIC int Lua2cWrapper(lua_State* luaState, char *funcname, Lua2cFunctionT call
 }
 
 // Generated some fake event based on watchdog/counter
-PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ) {
+PUBLIC int LuaCallFunc (DispatchSourceT source, DispatchActionT *action, json_object *queryJ) {
     
     int err, count;
 
@@ -606,8 +610,11 @@ PUBLIC int LuaCallFunc (DispatchActionT *action, json_object *queryJ) {
     // load function (should exist in CONTROL_PATH_LUA
     lua_getglobal(luaState, func);
 
+    // push source on the stack
+    count=1;
+    lua_pushinteger(luaState, source);    
+    
     // push argsJ on the stack
-    count=0;
     if (!argsJ) {
         lua_pushnil(luaState);
         count++;
@@ -937,7 +944,7 @@ static const luaL_Reg afbFunction[] = {
     {"warning"   , LuaPrintWarning},
     {"debug"     , LuaPrintDebug},
     {"error"     , LuaPrintError},
-    {"callsync"  , LuaAfbServiceSync},
+    {"servsync"  , LuaAfbServiceSync},
     {"service"   , LuaAfbService},
     {"success"   , LuaAfbSuccess},
     {"fail"      , LuaAfbFail},

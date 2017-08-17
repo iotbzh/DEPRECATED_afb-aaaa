@@ -19,11 +19,10 @@
 --]]
 
 -- Create event on Lua script load
-print ("*** Create MyTestEvent ***")
-MyEventHandle= AFB:evtmake("MyTestEvent")
+local MyEventHandle=AFB:evtmake("MyTestEvent")
 
 -- Call count time every delay/ms 
-function Timer_Test_CB (timer, context) 
+local function Timer_Test_CB (timer, context) 
 
    local evtinfo= AFB:timerget(timer)
    print ("timer=", Dump_Table(evtinfo))
@@ -37,7 +36,7 @@ function Timer_Test_CB (timer, context)
 end
 
 -- sendback event depending on count and delay
-function Simple_Timer_Test (request, args)
+function _Simple_Timer_Test (request, args)
  
     local context = {
         ["info"]="My 1st private Event",
@@ -68,6 +67,3 @@ function Simple_Timer_Test (request, args)
 
     return 0
 end
-
-
-

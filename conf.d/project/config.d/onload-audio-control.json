@@ -9,7 +9,7 @@
             "label": "onload-default",
             "info": "onload initialisation config",
             "plugin": {
-                "label" : "MyPlug",
+                "label" : "_MyPlug",
                 "sharelib": "ctl-audio-plugin-sample.ctlso",
                 "lua2c": ["Lua2cHelloWorld1", "Lua2cHelloWorld2"]
             },
@@ -28,11 +28,11 @@
                     "info": "Assert AlsaCore Presence",   
                     "api": "alsacore",
                     "verb": "ping",
-                    "args": "test"
+                    "args": {"data": "none"}
                 }, {
                     "label": "onload-hal-lua",
                     "info": "Load avaliable HALs",
-                    "lua": "Audio_Init_Hal"
+                    "lua": "_Alsa_Get_Hal"
                 }
             ]
         }],
@@ -43,20 +43,20 @@
                     "actions": {
                             "label": "multimedia-control-lua",
                             "info": "Call Lua Script function Test_Lua_Engin",   
-                            "lua": "Audio_Set_Multimedia"
+                            "lua": "_Audio_Set_Multimedia"
                         }
                 }, {
                     "label": "navigation",
                     "actions": {
                             "label": "navigation-control-lua",
                             "info": "Call Lua Script to set Navigation",   
-                            "lua": "Audio_Set_Navigation"
+                            "lua": "_Audio_Set_Navigation"
                         }
                 }, {
                     "label": "emergency",
                     "actions": {
                             "label": "emergency-control-ucm",
-                            "lua": "Audio_Set_Emergency"
+                            "lua": "_Audio_Set_Emergency"
                         }
                 }, {
                     "label": "multi-step-sample",
@@ -79,7 +79,7 @@
                         }, {
                             "label": "navigation-control-lua",
                             "info": "Call Lua Script to set Navigation",   
-                            "lua": "Audio_Set_Navigation"
+                            "lua": "_Audio_Set_Navigation"
                         }]
                 }
             ],

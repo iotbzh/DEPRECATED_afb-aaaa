@@ -53,11 +53,14 @@
 #define MAX_EVT_CALL 10
     
 // timeout in ms    
-#define REQUEST_DEFAULT_TIMEOUT 100
+#define REQUEST_DEFAULT_TIMEOUT 500
 #ifndef MAINLOOP_WATCHDOG
-#define MAINLOOP_WATCHDOG 60000
+#define MAINLOOP_WATCHDOG 100000
 #endif
 
+// closing message is added to query when PCM is closed
+#define CLOSING_MSG ",\"source\":-1}"
+    
 // Currently not implemented
 #define UNUSED_ARG(x) UNUSED_ ## x __attribute__((__unused__))    
 void OnRequestCB(void* UNUSED_ARG(handle) , const char* UNUSED_ARG(api), const char* UNUSED_ARG(verb), struct afb_wsj1_msg*UNUSED_ARG(msg)) {}
@@ -67,6 +70,7 @@ typedef struct {
     const char *verb;
     long timeout;
     char *query;
+    size_t length;
     
     sd_event_source *evtSource;
     char *callIdTag;
@@ -101,7 +105,7 @@ static void *LoopInThread(void *handle) {
     /* loop until end */
     for (;;) {
         
-        if (afbClient->verbose) printf("ON-MAINLOOP Active count=%d\n", count++);
+        if (afbClient->verbose) printf("ON-MAINLOOP ping=%d\n", count++);
         sd_event_run(afbClient->sdLoop, watchdog);
     }
 
@@ -214,7 +218,6 @@ int OnTimeoutCB (sd_event_source* source, uint64_t timer, void* handle) {
 static int CallWithTimeout(afbClientT *afbClient, afbRequestT *afbRequest, int count, hookActionT action) {
     uint64_t usec;
     int err;
-    const char *query;
 
     // create a unique tag for request
     (void) asprintf(&afbRequest->callIdTag, "%d:%s/%s", count, afbRequest->api, afbRequest->verb);
@@ -223,9 +226,19 @@ static int CallWithTimeout(afbClientT *afbClient, afbRequestT *afbRequest, int c
     sd_event_now(afbClient->sdLoop, CLOCK_MONOTONIC, &usec);
     sd_event_add_time(afbClient->sdLoop, &afbRequest->evtSource, CLOCK_MONOTONIC, usec+afbRequest->timeout*1000, 250, OnTimeoutCB, afbClient);
 
-    if (action == HOOK_INSTALL) query=afbRequest->query;
-    else query="{'closing': 1}";
-    err = afb_wsj1_call_s(afbClient->wsj1, afbRequest->api, afbRequest->verb, query, OnResponseCB, afbRequest);    
+    if (afbClient->verbose) printf("CALL-REQUEST api=%s/%s tag=%s\n", afbRequest->api, afbRequest->verb, afbRequest->callIdTag);
+    
+    // on PCM close replace last '}' by CLOSING_MSG 
+    if (action == HOOK_CLOSE) {
+        for (size_t index=afbRequest->length; index >0; index--) {
+            if (afbRequest->query[index] == '}') {
+                strcpy (&afbRequest->query[index], CLOSING_MSG);
+                break;
+            }
+        }
+    }
+
+    err = afb_wsj1_call_s(afbClient->wsj1, afbRequest->api, afbRequest->verb, afbRequest->query, OnResponseCB, afbRequest);    
     if (err) goto OnErrorExit;
     
     // save client handle in request
@@ -421,18 +434,22 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
                 if (!err) {
                     const char *query;
                     if (snd_config_get_string(itemConf, &query) < 0) {
-                        SNDERR("Invalid query string %s", id);
+                        SNDERR("Invalid args string %s", id);
                         goto OnErrorExit;
                     }
+                    // reserve enough space to ad closing message
+                    afbRequest[callCount]->length= strlen(query);
+                    afbRequest[callCount]->query = malloc (afbRequest[callCount]->length+strlen(CLOSING_MSG)+1);
+                    strcpy (afbRequest[callCount]->query, query);
+                    
                     // cleanup string for json_tokener
-                    afbRequest[callCount]->query = strdup(query);
                     for (int idx = 0; query[idx] != '\0'; idx++) {
                         if (query[idx] == '\'') afbRequest[callCount]->query[idx] = '"';
                         else afbRequest[callCount]->query[idx] = query[idx];
                     }
-                    json_object *queryJ = json_tokener_parse(query);
+                    json_object *queryJ = json_tokener_parse(afbRequest[callCount]->query);
                     if (!queryJ) {
-                        SNDERR("Invalid Json %s query=%s format \"{'tok1':'val1', 'tok2':'val2'}\" ", id, query);
+                        SNDERR("Invalid Json %s args=%s should be args=\"{'tok1':'val1', 'tok2':'val2'}\" ", id, afbRequest[callCount]->query);
                         goto OnErrorExit;
                     }
                 }
@@ -520,7 +537,7 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
     // wait for all call request to return
     sem_wait(&afbClient->semaphore);
     if (afbClient->error) {
-        fprintf (stderr, "PCM Authorisation from Audio Agent Refused\n");
+        fprintf (stderr, "PCM Authorisation Deny from AAAA Controller (AGL Advanced Audio Agent)\n");
         goto OnErrorExit;        
     }
 
@@ -528,7 +545,7 @@ int PLUGIN_ENTRY_POINT (snd_pcm_t *pcm, snd_config_t *conf) {
     return 0;
 
 OnErrorExit:
-    fprintf(stderr, "\nAlsaPcmHook Plugin Install Fail PCM=%s\n", snd_pcm_name(afbClient->pcm));
+    fprintf(stderr, "\nAlsaPcmHook Plugin Install Fail PCM=%s\n", snd_pcm_name(pcm));
     if (h_close)
         snd_pcm_hook_remove(h_close);
 

@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "onload": {
-        "info": "controler initialisation config",
+        "info": "controller initialisation config",
         "plugin": "sample-audio-policy.so",
         "actions": [
             {

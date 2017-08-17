@@ -49,12 +49,12 @@ pcm_hook_type.MyHookPlugin {
     lib "/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Alsa-Plugin/Alsa-Policy-Hook/policy_hook_cb.so"
 }
 
+
 # Define a HookedPCM that point to Hook_type sharelib
 # ----------------------------------------------------
 pcm.MyNavigationHook {
     type hooks
     slave.pcm "MyMixerPCM"
-
     # Defined used hook sharelib and provide arguments/config to install func
     hooks.0 {
         type "MyHookPlugin"
@@ -66,30 +66,16 @@ pcm.MyNavigationHook {
             request {
                 # Request autorisation to write on navigation 
                 RequestNavigation {
-                    api   "polctl"
-                    verb  "navigation"
+                    api    "control"
+                    verb   "dispatch"
+	            query  "{'target':'navigation', 'args':{'device':'Jabra SOLEMATE v1.34.0'}}"
                 } 
-                # subscribe to Audio Agent Event
-                SubscriveEvents {
-                    api   "polctl"
-                    verb  "monitor"
-                }
-                TestAutoStop {
-                    api   "polctl"
-                    verb  "event_test"
-                    query "{'label':'stop', 'delay':10000}"
-                }
-                TestAutoStart {
-                    api   "polctl"
-                    verb  "event_test"
-                    query "{'label':'stop', 'delay':20000}"
-                }
-                # start a test pause/resume not supported by every hardware
-                TestPauseResume {
-                    api   "polctl"
-                    verb  "event_test"
-                    query "{'label':'pause', 'delay':3000, 'count':10}"
-                } 
+            }
+            # map event reception to self generated signal
+            event {
+                pause  30
+                resume 31
+                stop   3
             }
         }
     }

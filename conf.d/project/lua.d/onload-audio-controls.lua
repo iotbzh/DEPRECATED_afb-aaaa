@@ -18,54 +18,145 @@
   Provide sample policy function for AGL Advance Audio Agent
 --]]
 
-function Audio_Init_CB (status, result, context)
-    print ("--inlua:Audio_Init_CB-- result=", Dump_Table(result))
-    print ("--inlua:Audio_Init_CB-- context=", Dump_Table(context))
- 
-    AFB:notice("Audio_Init_Hal_CB result='%s' context='%s'", result, context)
+-- Global HAL registry
+_Audio_Hal_Registry={}
+
+-- Callback when receiving HAL registry
+function _Alsa_Get_Hal_CB (error, result, context)
+   -- Initialise an empty table
+   local registry={}
+
+    -- Only process when response is valid
+    if (error) then 
+         AFB_ErrOr ("[Audio_Init_CB] ErrOr result=%s", result)
+        return
+    end
+
+    -- Extract response from result
+    local response=result["response"]
+
+    -- Index HAL Bindings APIs by shortname
+    for key,value in pairs(response) do
+        registry[value["shortname"]]=value["api"]
+    end
+    
+    -- store Exiting HAL for further use
+    printf ("-- [Audio_Init_CB] -- Audio_register_Hal=%s", Dump_Table(registry))
+    _Audio_Hal_Registry=registry
       
 end
 
 -- Function call at binding load time
-function Audio_Init_Hal(args, query)
+function _Alsa_Get_Hal(args)
 
-   local nested = {
-    ["next1"]=1234,
-    ["next2"]="nested",
-    ["next3"]=9999,
-   }
-   local context = {
-    ["arg1"]=1234,
-    ["arg2"]=nested,
-    ["arg3"]=5678,
-   }
-
-    print ("--inlua:Audio_Init-- response=", Dump_Table(responseT))
-
-    print("myplug=",  Dump_Table(MyPlug));
-
-    -- This routine is defined in C sample plugin
-    local status=MyPlug:Lua2cHelloWorld1(nested)
+    printf ("[-- Audio_Get_Hal --] args=%s", Dump_Table(argsT))
     
-    -- query asynchronously loaded HAL
-    AFB:service ('alsacore', 'hallist', {}, "Audio_Init_CB", context)
+    -- Query AlsaCore for Active HALs (no query, no context)
+    AFB:service ('alsacore', 'hallist', {}, "_Alsa_Get_Hal_CB", {})
  
 end
 
-function Audio_Set_Navigation(args, query)
+-- In sample configuration Query/Args parsing is common to all audio control
+local function Audio_Parse_Request (source, args, query)
 
-    AFB:notice ("LUA:Audio_Set_Use_Case args=%s query=%s", args, query);
+    local apihal={}
 
-    -- synchronous call to alsacore service
-    local error,data= AFB:callsync ('alsacore', 'ping', {})  
-    if (error) then
-      AFB:error ("LUA:Audio_Set_Use_Case FAIL args=%s", args)
-    else 
-      AFB:notice ("--LUA:Audio_Set_Use_Case DONE args=%s response=%s", args, data["response"])
+    -- In this test we expect targeted device to be given from query (could come for args as well)
+    if (query == nil ) then
+        AFB:error ("--LUA:Audio_Set_Navigation query should contain and args with targeted apihal|device")
+        return  -- refuse control
     end
 
-    -- return OK
-    return 0
+    -- Alsa Hook plugin asound sample config provides target sound card by name
+    if (query["device"] ~= nil) then 
+        apihal=_Audio_Hal_Registry[query["device"]]
+    end
+
+    -- HTML5 test page provides directly HAL api.
+    if (query["apihal"] ~= nil) then
+       apihal= query["apihal"]
+    end
+
+    -- if requested HAL is not found then deny the control
+    if (apihal == nil) then
+        AFB:error ("--LUA:Audio_Set_Navigation No Active HAL Found")
+        return  -- refuse control
+    end
+
+    -- return api or nil when not found
+    return apihal
+end
+
+-- Set Navigation lower sound when play
+function _Audio_Set_Navigation(source, args, query)
+
+    -- in strict mode every variables should be declared
+    local err=0
+    local ctlhal={}
+    local response={}
+    local apihal={}
+
+    AFB:notice ("LUA:Audio_Set_Use_Case source=%d args=%s query=%s", source, args, query);
+   
+    -- Parse Query/Args and if HAL not found then refuse access
+    apihal= Audio_Parse_Request (source, args, query)
+    if (apihal == nil) then return 1 end
+
+
+    -- if source < 0 then Alsa HookPlugin is closing PCM
+    if (source < 0) then
+        -- Ramp Up Multimedia channel synchronously
+        ctlhal={['label']='Master_Playback_Volume', ['val']=100}
+        err, response= AFB:servsync (apihal, 'ctlset',ctlhal)
+    else
+        -- Ramp Down Multimedia channel synchronously
+        ctlhal={['label']='Master_Playback_Volume', ['val']=50}
+        err, response= AFB:servsync (apihal, 'ctlset',ctlhal)
+    end
+
+    if (err) then 
+        AFB:error("--LUA:Audio_Set_Navigation halapi=%s refuse ctl=%s", apihal, ctlhal)
+        return 1 -- control refused
+    end
+
+
+    return 0 -- control accepted
 end
 
 
+-- Select Multimedia mode
+function _Audio_Set_Multimedia (source, args, query)
+
+    -- in strict mode every variables should be declared
+    local err=0
+    local ctlhal={}
+    local response={}
+    local apihal={}
+
+    AFB:notice ("LUA:Audio_Set_Use_Case source=%d args=%s query=%s", source, args, query);
+   
+    -- Parse Query/Args and if HAL not found then refuse access
+    apihal= Audio_Parse_Request (source, args, query)
+    if (apihal == nil) then return 1 end
+
+
+    -- if Mumtimedia control only increase volume on open
+    if (source >= 0) then
+        -- Ramp Down Multimedia channel synchronously
+        ctlhal={['label']='Master_Playback_Volume', ['val']=100}
+        err, response= AFB:servsync (apihal, 'ctlset',ctlhal)
+    end
+
+    if (err) then 
+        AFB:error("--LUA:Audio_Set_Navigation halapi=%s refuse ctl=%s", apihal, ctlhal)
+        return 1 -- control refused
+    end
+
+
+    return 0 -- control accepted
+end
+
+-- Select Emergency Mode
+function _Audio_Set_Emergency(source, args, query)
+    return 1 -- Always refuse in this test
+end

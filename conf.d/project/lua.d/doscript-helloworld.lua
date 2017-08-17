@@ -21,7 +21,7 @@
 
 --]]
 
-function helloworld (request, query) 
+local function helloworld (request, query) 
 
     AFB:notice ("LUA HelloWorld: Simple test  query=%s", query);
 

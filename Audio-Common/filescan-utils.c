@@ -27,7 +27,7 @@
 
 
 // List Avaliable Configuration Files
-PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, const char *pre, const char *ext) {
+PUBLIC json_object* ScanForConfig (const char* searchPath, CtlScanDirModeT mode, const char *pre, const char *ext) {
     json_object *responseJ;
     char *dirPath;
     char* dirList= strdup(searchPath);
@@ -94,7 +94,7 @@ PUBLIC const char *GetMidleName(const char*name) {
         int start;
         if (fullname[idx] == '-') {
             start = idx + 1;
-            for (int jdx = start; fullname[jdx] != '\0'; jdx++) {
+            for (int jdx = start; ; jdx++) {
                 if (fullname[jdx] == '-' || fullname[jdx] == '.' || fullname[jdx] == '\0') {
                     fullname[jdx] = '\0';
                     return &fullname[start];
