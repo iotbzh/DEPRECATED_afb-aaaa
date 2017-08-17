@@ -183,6 +183,17 @@ input parameter. When funcname is not given by default the controller try to exe
 
 When executed from controller Lua script may use any AppFw Apis as well as any L2C user defined commands in plugin.
 
+### Running as Standalone Controller
+
+Controller is a standard binding and can then be started independently of AAAA. When started with from build repository with
+```
+afb-daemon --port=1234 --workdir=. --roothttp=../htdocs --tracereq=common --token= --verbose --binding=./Controller-afb/afb-control-afb.so
+```
+
+Afb-Daemon only load controller bindings without search for the other binding. In this case the name of the process is not change
+to afb-audio and controller binding will search for a configuration file name 'onload-daemon-xxx.json'. This model can be used
+to implement for testing purpose or simply to act as the glue in between a UI and other binder/services.
+
 ## Config Sample
 
 Here after a simple configuration sample.
