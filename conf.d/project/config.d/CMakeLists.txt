@@ -24,17 +24,9 @@ PROJECT_TARGET_ADD(ctl-config.d)
 
     file(GLOB XML_FILES "*.json")
 
-    add_custom_target(${TARGET_NAME}
-       DEPENDS  ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-    )
+    add_input_files("${XML_FILES}")
 
-    # check XML schema before pushing config
-    add_custom_command(
-       DEPENDS  ${XML_FILES}
-       OUTPUT ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       # COMMAND xmllint -schema ${XML_SCHEMA} ${XML_FILES} --noout (Fulup we miss this for JSON)
-       COMMAND mkdir -p ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
-       COMMAND touch ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}      
-       COMMAND cp -r ${XML_FILES} ${PROJECT_PKG_BUILD_DIR}/${TARGET_NAME}
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
+	LABELS "DATA"
+	OUTPUT_NAME ${TARGET_NAME}
     )
-

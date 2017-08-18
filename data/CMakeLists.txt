@@ -25,20 +25,7 @@ PROJECT_TARGET_ADD(Control_config)
 
     file(GLOB XML_FILES "*.json")
 
-    add_custom_target(${TARGET_NAME}
-       DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-    )
-
-    # check XML schema before pushing config
-    add_custom_command(
-       DEPENDS  ${XML_FILES}
-       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-       # COMMAND xmllint -schema ${XML_SCHEMA} ${XML_FILES} --noout (Fulup we miss this for JSON)
-       COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-       COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}      
-       COMMAND cp -r ${XML_FILES} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}
-    )
+    add_input_files("${XML_FILES}")
 
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	LABELS "DATA"
