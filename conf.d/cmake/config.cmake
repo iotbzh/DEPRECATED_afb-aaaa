@@ -41,12 +41,6 @@ set(PROJECT_SRC_DIR_PATTERN "[^_]*")
 # ----------------------------------
 set(CMAKE_BUILD_TYPE "DEBUG")
 
-# Static constante definition
-# -----------------------------
-add_compile_options(-DMAX_SND_CARD=16)        # should be more than enough even in luxury vehicule 
-add_compile_options(-DMAX_LINEAR_DB_SCALE=24) # until 24db volume normalisation use a simple linear scale
-add_compile_options(-DTLV_BYTE_SIZE=256)       # Alsa use 4096 as default but 256 should fit most sndcards 
-
 # Compiler selection if needed. Overload the detected compiler.
 # -----------------------------------------------
 set (gcc_minimal_version 4.9)
@@ -65,36 +59,49 @@ set (PKG_REQUIRED_LIST
         lua>=5.3
 )
 
+# Controller project needed variables.
+# Compilation options specific to that target set
+# in the CMakeLists.txt of that target to correctly
+# expand variables.
+# ----------------------------------------------------
+set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
+set (CTL_PLUGIN_PRE "ctl-" CACHE STRING "Prefix for Controller share plugin")
+set (CTL_PLUGIN_EXT ".ctlso" CACHE STRING "Postfix for Controller share plugin")
 
-# Define CONTROL_CDEV_NAME should match MOST driver values
-# ---------------------------------------------------------
-  add_compile_options(-DCONTROL_ONLOAD_DEFAULT="onload-default")
-  add_compile_options(-DCONTROL_MAXPATH_LEN=255)
-  add_compile_options(-DCONTROL_DOSCRIPT_PRE="doscript")
-  add_compile_options(-DCONTROL_CONFIG_PRE="onload")
-  add_compile_options(-DCONTROL_CONFIG_POST="control" )
-  add_compile_options(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/config.d:${CMAKE_INSTALL_PREFIX}/controller/config.d")
+# Compilation options definition
+# Use CMake generator expressions to specify only for a specific language
+# Values are prefilled with default options that is currently used.
+# Either separate options with ";", or each options must be quoted separately
+# DO NOT PUT ALL OPTION QUOTED AT ONCE , COMPILATION COULD FAILED !
+# ----------------------------------------------------------------------------
+set(COMPILE_OPTIONS 
+-Wall
+-Wextra
+-Wconversion
+-Wno-unused-parameter
+-Wno-sign-compare
+-Wno-sign-conversion
+-Werror=maybe-uninitialized
+-Werror=implicit-function-declaration
+-ffunction-sections
+-fdata-sections
+-fPIC
+# Personal compilation options
+-DMAX_SND_CARD=16        # should be more than enough even in luxury vehicule
+-DMAX_LINEAR_DB_SCALE=24 # until 24db volume normalisation use a simple linear scale
+-DTLV_BYTE_SIZE=256      # Alsa use 4096 as default but 256 should fit most sndcards
+-DCONTROL_MAXPATH_LEN=255
+ CACHE STRING "Compilation flags")
+#set(C_COMPILE_OPTIONS "" CACHE STRING "Compilation flags for C language.")
+#set(CXX_COMPILE_OPTIONS "" CACHE STRING "Compilation flags for C++ language.")
+#set(PROFILING_COMPILE_OPTIONS -g -O0 -pg -Wp,-U_FORTIFY_SOURCE CACHE STRING "Compilation flags for PROFILING build type.")
+#set(DEBUG_COMPILE_OPTIONS -g -ggdb -Wp,-U_FORTIFY_SOURCE CACHE STRING "Compilation flags for DEBUG build type.")
+#set(CCOV_COMPILE_OPTIONS -g -O2 --coverage CACHE STRING "Compilation flags for CCOV build type.")
+#set(RELEASE_COMPILE_OPTIONS -g -O2 CACHE STRING "Compilation flags for RELEASE build type.")
 
-  
-  set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
-  if(CONTROL_SUPPORT_LUA)
-    set(LUA_COMPILER "luac5.3" CACHE STRING "LUA syntaxe check")
-    add_compile_options(-DCONTROL_SUPPORT_LUA)
-    add_compile_options(-DCONTROL_LUA_EVENT="luaevt")
-    add_compile_options(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controller/ctl-lua.d")
-  else(CONTROL_SUPPORT_LUA) 
-    message(STATUS "Warning: LUA Without Support ")
-  endif(CONTROL_SUPPORT_LUA)
-
-  set (CTL_PLUGIN_PRE "ctl-" CACHE STRING "Prefix for Controller share plugin")
-  set (CTL_PLUGIN_EXT ".ctlso" CACHE STRING "Postfix for Controller share plugin")
-  add_compile_options(-DCTL_PLUGIN_MAGIC=2468013579)
-  add_compile_options(-DCONTROL_PLUGIN_PATH="${CMAKE_BINARY_DIR}:${BINDINGS_INSTALL_DIR}/ctlplug:/usr/lib/afb/ctlplug")
-  
 # Print a helper message when every thing is finished
 # ----------------------------------------------------
 set(CLOSING_MESSAGE "Debug in ./buid: afb-daemon --port=1234 --ldpaths=. --workdir=. --roothttp=../htdocs --tracereq=common --token='' --verbose")
-
 
 # Optional dependencies order
 # ---------------------------

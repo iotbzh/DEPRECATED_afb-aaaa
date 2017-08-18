@@ -16,10 +16,24 @@
 # limitations under the License.
 ###########################################################################
 
-# Include LUA only when requested    
+ADD_COMPILE_OPTIONS(-DCONTROL_ONLOAD_DEFAULT="onload-default")
+
+ADD_COMPILE_OPTIONS(-DCONTROL_DOSCRIPT_PRE="doscript")
+ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_PRE="onload")
+ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_POST="control")
+ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/config.d:${CMAKE_INSTALL_PREFIX}/controller/config.d")
+ADD_COMPILE_OPTIONS(-DCTL_PLUGIN_MAGIC=2468013579)
+ADD_COMPILE_OPTIONS(-DCONTROL_PLUGIN_PATH="${CMAKE_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/controller/plugin:/usr/lib/afb/controller/ctlplug")
+
+# Include LUA only when requested
 if(CONTROL_SUPPORT_LUA)
    message(STATUS "Notice: LUA Controler Support Selected")
    set(CTL_LUA_SOURCE ctl-lua.c)
+   ADD_COMPILE_OPTIONS(-DCONTROL_SUPPORT_LUA)
+   ADD_COMPILE_OPTIONS(-DCONTROL_LUA_EVENT="luaevt")
+   ADD_COMPILE_OPTIONS(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controller/ctl-lua.d")
+else(CONTROL_SUPPORT_LUA)
+   message(STATUS "Warning: LUA Without Support ")
 endif(CONTROL_SUPPORT_LUA)
 
 # Add target to project dependency list
