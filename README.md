@@ -25,19 +25,16 @@ git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
  
 # Specific Dependencies 
 
- * cmake >= 3.6
  * alsa-devel >= 1.1.2 Warning some distro like Fedora-25 still ship version 1.1.1 as default
  * lua >= 5.3  Most distribution only ship version 5.2 but binary package should be easy to find
 
 
 ```
   OpenSuse
-     - cmake 3.6 Take the Tumbleweed version https://software.opensuse.org/ymp/openSUSE:Factory/standard/cmake.ymp?base=openSUSE%3AFactory&query=cmake
      - LUA-5.3-devel  https://software.opensuse.org//download.html?project=devel%3Alanguages%3Alua&package=lua53
      - Alsa-devel zypper --install alsa-devel # 42.3 is shipped default with 1.1.4 
 
   Fedora 26 (out of the box)
-     - cmake 3.6
 	 - Lua 5.3 
      - Alsa-devel 1.1.4
 ```
