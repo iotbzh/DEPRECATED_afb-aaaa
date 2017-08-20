@@ -965,7 +965,10 @@ PUBLIC int LuaLibInit () {
     strncat (fullprefix, GetBinderName(), sizeof(fullprefix));
     strncat (fullprefix, "-", sizeof(fullprefix));
     
-    json_object *luaScriptPathJ = ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE, fullprefix, "lua");
+    const char *dirList= getenv("CONTROL_LUA_PATH");
+    if (!dirList) dirList=CONTROL_LUA_PATH;
+  
+    json_object *luaScriptPathJ = ScanForConfig(dirList , CTL_SCAN_RECURSIVE, fullprefix, "lua");
     
     // open a new LUA interpretor
     luaState = luaL_newstate();
@@ -1021,7 +1024,7 @@ PUBLIC int LuaLibInit () {
     
     // no policy config found remove control API from binder
     if (index == 0)  {
-        AFB_WARNING ("POLICY-INIT:WARNING No Control LUA file in path=[%s]", CONTROL_LUA_PATH);
+        AFB_WARNING ("POLICY-INIT:WARNING (setenv CONTROL_LUA_PATH) No LUA '%s*.lua' in '%s'", fullprefix, dirList);
     }
        
     AFB_DEBUG ("Audio control-LUA Init Done");

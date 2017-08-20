@@ -178,6 +178,8 @@ PUBLIC void DispatchOneEvent(const char *evtLabel, json_object *eventJ) {
 // Event name is mapped on control label and executed as a standard control
 
 PUBLIC int DispatchOnLoad(const char *onLoadLabel) {
+    if (!configHandle) return 1;
+    
     DispatchHandleT **onloads = configHandle->onloads;
 
     int err = DispatchOneControl(CTL_SOURCE_ONLOAD, onloads, onLoadLabel, NULL, NULL_AFBREQ);
@@ -650,7 +652,7 @@ PUBLIC int DispatchInit() {
 
     // no dispatch config found remove control API from binder
     if (!luaLoaded) {
-        AFB_WARNING("DISPATCH-INIT:WARNING Not Found Control dispatch file [%s]", controlFile);
+        AFB_WARNING("DISPATCH-INIT:WARNING (setenv CONTROL_CONFIG_PATH) No Config '%s-*.json' in '%s'", controlFile, dirList);
     }
 
     AFB_NOTICE("DISPATCH-INIT:SUCCES: Audio Control Dispatch Init");

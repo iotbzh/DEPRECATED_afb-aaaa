@@ -55,9 +55,12 @@ PUBLIC int CtlBindingInit () {
     errcount += LuaLibInit();
 #endif
     
+    const char *profile= getenv("CONTROL_ONLOAD_PROFILE");
+    if (!profile) profile=CONTROL_ONLOAD_PROFILE;
+    
     // now that everything is initialised execute the onload action
-    if (!errcount)
-        errcount += DispatchOnLoad(CONTROL_ONLOAD_DEFAULT);
+    if (!errcount) 
+        errcount += DispatchOnLoad(CONTROL_ONLOAD_PROFILE);
     
     AFB_DEBUG ("Audio Policy Control Binding Done errcount=%d", errcount);
     return errcount;

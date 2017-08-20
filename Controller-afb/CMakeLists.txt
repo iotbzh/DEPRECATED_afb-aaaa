@@ -16,7 +16,7 @@
 # limitations under the License.
 ###########################################################################
 
-ADD_COMPILE_OPTIONS(-DCONTROL_ONLOAD_DEFAULT="onload-default")
+ADD_COMPILE_OPTIONS(-DCONTROL_ONLOAD_PROFILE="onload-default-profile")
 
 ADD_COMPILE_OPTIONS(-DCONTROL_DOSCRIPT_PRE="doscript")
 ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_PRE="onload")
@@ -57,9 +57,6 @@ PROJECT_TARGET_ADD(control-afb)
         ${link_libraries}
     )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} )
 
 PROJECT_TARGET_ADD(audio-plugin-sample)
 

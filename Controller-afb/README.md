@@ -30,7 +30,7 @@ Each bloc in the configuration file are defined with
  * info:  optional used for documentation purpose only
 
 Note by default controller config search path is defined at compilation time, but path might be overloaded with CONTROL_CONFIG_PATH
-environment variable.
+environment variable. Setenv 'CONTROL_ONLOAD_PROFILE'=xxxx to overload 'onload-default-profile' initialisation sequence.
 
 ### Config is organised in 4 sections:
 

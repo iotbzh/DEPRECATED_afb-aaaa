@@ -113,9 +113,12 @@ PUBLIC const char *GetBinderName() {
     
     if (binderName) return binderName;
     
-    // retrieve binder name from process name afb-name-trailer
-    prctl(PR_GET_NAME, psName,NULL,NULL,NULL);
-    binderName=(char*)GetMidleName(psName);
+    binderName= getenv("AFB_BINDER_NAME");
+    if (!binderName) {
+        // retrieve binder name from process name afb-name-trailer
+        prctl(PR_GET_NAME, psName,NULL,NULL,NULL);
+        binderName=(char*)GetMidleName(psName);
+    }
     
     return binderName;
 }

@@ -36,7 +36,3 @@ PROJECT_TARGET_ADD(hal-scalett-usb)
         hal-interface
         audio-common
     )
-
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})

@@ -31,7 +31,7 @@
 #include "Alsa-ApiHat.h"
 
 STATIC int AlsaInit(void) {
-    int rc= prctl(PR_SET_NAME, "afb-audio-agent",NULL,NULL,NULL);
+    int rc= prctl(PR_SET_NAME, "afb-aaaa-agent",NULL,NULL,NULL);
     if (rc) AFB_ERROR("ERROR: AlsaCore fail to rename process");
 
     return rc;

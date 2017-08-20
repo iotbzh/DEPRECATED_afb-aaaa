@@ -113,9 +113,7 @@ from the wrong relative directory, either you have to use 'set solib-search-path
 # ToBeBone (WorkInProgess: This list is getting longer every day)
 -------------------------------------------------------------------
 
-* Support response from LUA with nested table (currently fail miserably)
-* Add timer base callback from Lua
-* Enable export of LUA commands directly from Plugin
+ * Allow LUA to run a shell command
 
 # Running an debugging on a target
 -------------------------------------------------------

@@ -36,6 +36,3 @@ PROJECT_TARGET_ADD(alsa-lowlevel)
         ${link_libraries}
     )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})

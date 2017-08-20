@@ -37,6 +37,3 @@ PROJECT_TARGET_ADD(hal-intel-hda)
         audio-common
     )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})
