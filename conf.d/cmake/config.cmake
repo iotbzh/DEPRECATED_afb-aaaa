@@ -50,10 +50,6 @@ set (gcc_minimal_version 4.9)
 # When Present LUA is used by the controller
 # ---------------------------------------------------------------
 set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
-set(LUA_PKG lua>=5.3)
-if(OSRELEASE MATCHES "debian")
-set(LUA_PKG lua-5.3)
-endif()
 
 # PKG_CONFIG required packages
 # -----------------------------
