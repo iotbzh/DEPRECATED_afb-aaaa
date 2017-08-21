@@ -39,10 +39,6 @@ PROJECT_TARGET_ADD(hal-most-unicens)
         ucs2-volume
     )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
-
     # Define properties to expose when others use this target
     TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME}
        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ucs2-vol/inc
