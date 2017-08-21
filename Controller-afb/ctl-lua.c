@@ -673,9 +673,9 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             const char *func;
             json_object *argsJ=NULL;
             
-            err= wrap_json_unpack (queryJ, "{s:s, s?o !}", "request", &func, "args", &argsJ);
+            err= wrap_json_unpack (queryJ, "{s:s, s?o !}", "target", &func, "args", &argsJ);
             if (err) {
-                AFB_ERROR ("LUA-DOCALL-SYNTAX missing func|args query=%s", json_object_get_string(queryJ));
+                AFB_ERROR ("LUA-DOCALL-SYNTAX missing target|args query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
             }
 

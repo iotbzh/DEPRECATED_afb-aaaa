@@ -28,6 +28,13 @@ git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
  * alsa-devel >= 1.1.2 Warning some distro like Fedora-25 still ship version 1.1.1 as default
  * lua >= 5.3  Most distribution only ship version 5.2 but binary package should be easy to find
 
+On Ubuntu 16.4 you should recompile AlsaLib from source ftp://ftp.alsa-project.org/pub/lib/
+as today latest stable is 1.1.4. 
+
+```
+
+```
+
 
 ```
   OpenSuse
@@ -35,8 +42,24 @@ git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
      - Alsa-devel zypper --install alsa-devel # 42.3 is shipped default with 1.1.4 
 
   Fedora 26 (out of the box)
-	 - Lua 5.3 
+     - Lua 5.3 
      - Alsa-devel 1.1.4
+
+  Ubuntu-16.4
+     - LUA-5.3 is avaliable in binary through apt-get
+     - Alsa should be recompiled from source
+ 
+        wget ftp://ftp.alsa-project.org/pub/lib/alsa-lib-1.1.4.1.tar.bz2
+        tar -xjf alsa-lib-1.1.4.1.tar.bz2
+        cd alsa-lib-1.1.4.1
+        ./configure --prefix=/opt
+
+  Ubuntu-17.04 (out of the box)
+     - Alsa 1.1.4
+     - Lua 5.3 
+
+  #WARNING: do not forget to upgrade your PKG_CONFIG_PATH=/opt/lib/pkgconfig or whatever is the place where
+  your installed alsa/lua.
 ```
 
 

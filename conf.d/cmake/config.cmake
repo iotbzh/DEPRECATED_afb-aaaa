@@ -47,6 +47,14 @@ set (gcc_minimal_version 4.9)
 #set(CMAKE_C_COMPILER "gcc")
 #set(CMAKE_CXX_COMPILER "g++")
 
+# When Present LUA is used by the controller
+# ---------------------------------------------------------------
+set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
+set(LUA_PKG lua>=5.3)
+if(OSRELEASE MATCHES "debian")
+set(LUA_PKG lua-5.3)
+endif()
+
 # PKG_CONFIG required packages
 # -----------------------------
 set (PKG_REQUIRED_LIST
@@ -56,7 +64,7 @@ set (PKG_REQUIRED_LIST
 	afb-daemon
 	json-c
         libafbwsc
-        lua>=5.3
+        ${LUA_PKG}
 )
 
 # Controller project needed variables.
@@ -64,7 +72,6 @@ set (PKG_REQUIRED_LIST
 # in the CMakeLists.txt of that target to correctly
 # expand variables.
 # ----------------------------------------------------
-set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
 set (CTL_PLUGIN_PRE "ctl-" CACHE STRING "Prefix for Controller share plugin")
 set (CTL_PLUGIN_EXT ".ctlso" CACHE STRING "Postfix for Controller share plugin")
 
