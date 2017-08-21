@@ -72,12 +72,17 @@ public:
     bool FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr,
                            lib_most_volume_writei2c_result_cb_t result_fptr,
                            void *result_user_ptr);// fires message & updates actual value
+    
+    void SetAvailable(bool active){this->_is_available = active;}
+    bool IsAvailable() {return this->_is_available;}
+    uint16_t GetAddress() {return this->_address;}
 
 private:
     void HandleI2cResult(uint8_t result);
     void ApplyMostValue(uint8_t value, DeviceValueType type, uint8_t tx_payload[]);
 
     bool     _is_initial;       // ensure first update
+    bool     _is_available;        // related node is available
     DeviceValueType _type;      // determines the remote i2c command
     uint16_t _key;              // lookup key
     uint16_t _address;          // target node/group address

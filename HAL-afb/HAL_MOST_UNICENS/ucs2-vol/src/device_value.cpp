@@ -35,6 +35,7 @@
 CDeviceValue::CDeviceValue(uint16_t address, DeviceValueType type, uint16_t key)
 {
     this->_is_initial = true;
+    this->_is_available = false;
     this->_address = address;
     this->_target_value = 0x01u;
     this->_actual_value = 0x01u;
@@ -85,7 +86,7 @@ void CDeviceValue::ApplyMostValue(uint8_t value, DeviceValueType type, uint8_t t
 // returns true if target is not actual value
 bool CDeviceValue::RequiresUpdate()
 {
-    if (this->_target_value != this->_actual_value)
+    if (this->_is_available && (this->_target_value != this->_actual_value))
     {
         return true;
     }
@@ -97,12 +98,15 @@ bool CDeviceValue::FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr
                                      lib_most_volume_writei2c_result_cb_t result_fptr,
                                      void *result_user_ptr)
 {
-    int ret;
+    int ret = -1;
     ApplyMostValue(this->_target_value, _type, _tx_payload);
 
-    ret = writei2c_fptr(this->_address, &_tx_payload[0], _tx_payload_sz,
-                        result_fptr,
-                        result_user_ptr);
+    if (this->_is_available)
+    {
+        ret = writei2c_fptr(this->_address, &_tx_payload[0], _tx_payload_sz, 
+                            result_fptr,
+                            result_user_ptr);
+    }
 
     if (ret == 0)
     {

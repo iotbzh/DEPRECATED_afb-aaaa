@@ -76,13 +76,13 @@ void unicens_pcm_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle, 
 /* declare ALSA mixer controls */
 STATIC alsaHalMapT  alsaHalMap[]= {
   { .tag=Master_Playback_Volume, .cb={.callback=unicens_master_vol_cb, .handle=&master_volume}, .info="Sets master playback volume",
-    .ctl={.numid=1, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .value=50, .name="Master Playback Volume"}
+    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .value=50, .name="Master Playback Volume"}
   },
   /*{ .tag=Master_OnOff_Switch, .cb={.callback=unicens_master_switch_cb, .handle=&master_switch}, .info="Sets master playback switch",
-    .ctl={.numid=2, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .minval=0, .maxval=1, .step=1, .value=1, .name="Master Playback Switch"}
+    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .minval=0, .maxval=1, .step=1, .value=1, .name="Master Playback Switch"}
   },*/
   { .tag=PCM_Playback_Volume, .cb={.callback=unicens_pcm_vol_cb, .handle=&pcm_volume}, .info="Sets PCM playback volume",
-    .ctl={.numid=3, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=6, .minval=0, .maxval=100, .step=1, .value=100, .name="PCM Playback Volume"}
+    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=6, .minval=0, .maxval=100, .step=1, .value=100, .name="PCM Playback Volume"}
   },
   { .tag=EndHalCrlTag}              /* marker for end of the array */
 } ;
@@ -157,11 +157,22 @@ PUBLIC void unicens_event_cb(const char *evtname, json_object *j_event) {
     }
 
     if (strncmp(evtname, "UNICENS/", 8) == 0) {
-        AFB_NOTICE("unicens_event_cb: evtname=%s [msg=%s]", evtname, json_object_get_string(j_event));
+        //AFB_NOTICE("unicens_event_cb: evtname=%s, event=%s", evtname, json_object_get_string(j_event));
+        if (strcmp(evtname, "UNICENS/node-availibility") == 0) {
+            
+            int node;
+            int available;
+            if (wrap_json_unpack(j_event, "{s:i,s:b}", "node", &node, "available", &available) == 0) {
+                AFB_NOTICE("Node-Availability: node=0x%03X, available=%d", node, available);
+                wrap_volume_node_avail(node, available);
+            }
+            
+        }
+        
         return;
     }
-
-    AFB_NOTICE("unicens_event_cb: UNHANDLED EVENT, evtname=%s [msg=%s]", evtname, json_object_get_string(j_event));
+    
+    AFB_NOTICE("unicens_event_cb: UNHANDLED EVENT, evtname=%s, event=%s", evtname, json_object_get_string(j_event));
 }
 
 /* API prefix should be unique for each snd card */

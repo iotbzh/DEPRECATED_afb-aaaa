@@ -90,6 +90,13 @@ extern uint8_t lib_most_volume_exit(void);
   */
 extern uint8_t lib_most_volume_set(enum lib_most_volume_channel_t channel, uint8_t volume);
 
+/** Must be called when the availability of a node has changed
+  * \param   address        The node address
+  * \param   available      Availability: 0 - not available, 1 - available
+  * \return  '0' on success, otherwise value >'0'.
+  */
+extern uint8_t lib_most_volume_node_available(uint16_t address, uint8_t available);
+
 /** Shall be called either cyclically (e.g. 50ms -> polling) or after "timeout"
   * when "service_fptr" is fired (-> event triggered).
   * \return  '0' on success, otherwise value >'0'.

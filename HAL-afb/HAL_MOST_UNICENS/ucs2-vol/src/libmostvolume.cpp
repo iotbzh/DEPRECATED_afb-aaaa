@@ -71,6 +71,19 @@ extern "C" uint8_t lib_most_volume_set(enum lib_most_volume_channel_t channel, u
     return success;
 }
 
+extern uint8_t lib_most_volume_node_available(uint16_t address, uint8_t available)
+{
+    uint8_t success = 1U;
+    
+    if (_running)
+    {
+        CSetup::GetInstance()->SetNodeAvailable(address, available);
+        success = 0U;
+    } 
+    
+    return success;
+}
+
 extern "C" uint8_t lib_most_volume_service(void)
 {
     uint8_t success = 1U;

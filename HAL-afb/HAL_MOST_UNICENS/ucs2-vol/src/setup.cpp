@@ -87,3 +87,8 @@ void CSetup::Update()
 {
     _value_container.Update();
 }
+
+void CSetup::SetNodeAvailable(uint16_t address, bool available)
+{
+    _value_container.ChangeNodeAvailable(address, available);
+}

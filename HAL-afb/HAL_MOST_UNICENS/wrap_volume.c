@@ -116,3 +116,17 @@ extern int wrap_volume_pcm(int *volume_ptr, int volume_sz) {
 
     return ret;
 }
+
+extern int wrap_volume_node_avail(int node, int available) {
+    
+    int ret;
+    ret = lib_most_volume_node_available((uint16_t)node, (uint8_t)available);
+    
+    if (ret != 0) {
+        AFB_ERROR("wrap_volume_node_avail: volume library not ready.");
+        ret = ret * (-1); /* make return value negative */
+    }
+    
+    return ret;
+}
+

@@ -37,6 +37,7 @@ public:
     void Configure(lib_most_volume_init_t *init_ptr);
     void SetVolume(enum lib_most_volume_channel_t channel, uint8_t volume);
     void Update();
+    void SetNodeAvailable(uint16_t address, bool available);
 
 private:
     CDeviceValue _volume_amp_270_m;

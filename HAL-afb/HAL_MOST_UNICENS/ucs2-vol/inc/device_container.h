@@ -39,6 +39,7 @@ public:
     void SetValue(uint16_t key, uint8_t value);
     void ClearValues();
     void Update();
+    void ChangeNodeAvailable(uint16_t address, bool available);
 
 private:
     void RequestService(uint16_t timeout);

@@ -164,3 +164,21 @@ void CDeviceContainer::RequestService(uint16_t timeout)
         }
     }
 }
+
+void CDeviceContainer::ChangeNodeAvailable(uint16_t address, bool available)
+{
+    uint16_t idx;
+    
+    for (idx = 0U; idx < this->_values_sz; idx++)
+    {
+        if (this->_values_pptr[idx]->GetAddress() == address)
+        {
+            this->_values_pptr[idx]->SetAvailable(available);
+        }
+    }
+    
+    if (available)
+    {
+        RequestService(DEVCONT_TIME_RETRIGGER);
+    }
+}
