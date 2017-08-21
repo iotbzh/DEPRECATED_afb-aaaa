@@ -21,16 +21,16 @@
 
 --]]
 
-function helloworld (request, query) 
+local function helloworld (request, query) 
 
-    AFB:notice ("LUA HelloWorld: simple test  query=%s", query);
+    AFB:notice ("LUA HelloWorld: Simple test  query=%s", query);
 
     if (query == nil) then
-       AFB:error ("LUA HelloWorld:FX query should not be empty");
+       AFB:notice ("LUA HelloWorld:FX query should not be empty");
        AFB:fail  (request, "LUA HelloWorld: query should not be empty");
     else
-       AFB:error  ("LUA HelloWorld:OK query=%s", query);
-       AFB:sucess (request, {arg0="Demat", arg1="Bonjours", arg2="Gootentag", arg3="Morning"});
+       AFB:notice  ("LUA HelloWorld:OK query=%s", query);
+       AFB:success (request, {arg0="Demat", arg1="Bonjours", arg2="Gootentag", arg3="Morning"});
     end
 
 end

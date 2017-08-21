@@ -35,7 +35,7 @@ git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
      - Alsa-devel zypper --install alsa-devel # 42.3 is shipped default with 1.1.4 
 
   Fedora 26 (out of the box)
-     - Lua 5.3 
+	 - Lua 5.3 
      - Alsa-devel 1.1.4
 ```
 
@@ -113,9 +113,7 @@ from the wrong relative directory, either you have to use 'set solib-search-path
 # ToBeBone (WorkInProgess: This list is getting longer every day)
 -------------------------------------------------------------------
 
-* Support response from LUA with nested table (currently fail miserably)
-* Add timer base callback from Lua
-* Enable export of LUA commands directly from Plugin
+ * Allow LUA to run a shell command
 
 # Running an debugging on a target
 -------------------------------------------------------

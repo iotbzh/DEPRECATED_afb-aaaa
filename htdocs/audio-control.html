@@ -5,14 +5,15 @@
     <script type="text/javascript" src="AFB-websock.js"></script>
     <script type="text/javascript" src="AudioBinding.js"></script>
 </head>
-
-    
+   
 <body onload="init('hal_registry','alsacore', 'hallist')">
         
-    <h1>Simple Audio Control test</h1>
-    <button id="connected" onclick="init('alsa_registry','alsacore', 'getinfo');">Binder WS Fail</button>
+    <h1>Simple Audio Control Test</h1>
+    <button id="connected" onclick="init('hal_registry','alsacore', 'hallist')">Binder WS Fail</button>
     <br><br>
- 
+    <b>Selected HAL </b>
+    <select id='hal_registry'></select>
+    
     <b>API Verbosity </b>
     <select id='api_verbosity' onclick='mode=this.value'>
         <option value='0'>Quiet</option>
@@ -21,17 +22,18 @@
         <option value='3'>Full</option>
     </select>    
     <br>
-
     <br>
+   
     <ol>
     
-    <li><button onclick="callbinder('control','navigation' ,{'var': 'nav'});">Select Navigation</button></li>
-    <li><button onclick="callbinder('control','multimedia' ,{'xxx': 'multi'});">Select Mutimedia</button></li>
-    <li><button onclick="callbinder('control','emergency'  ,{'yyy': 'emerg'});">Select Emergency</button></li>
+    <li><button onclick="callbinder('control','dispatch' ,{'target':'navigation','args':{'apihal':sndcard}});">Dispatch Navigation</button></li>
+    <li><button onclick="callbinder('control','dispatch' ,{'target':'multimedia','args':{'apihal':sndcard}});">Dispatch Mutimedia</button></li>
+    <li><button onclick="callbinder('control','dispatch' ,{'target':'emergency' });">Dispatch Emergency</button></li>
     <br>    
     <li><button onclick="callbinder('control','lua_dostring','print(\'Bonjours\'); return true, 1234');">LUA string</button></li>
-    <li><button onclick="callbinder('control','lua_docall'  , {'func':'Simple_Echo_Args', 'args':{speed:20}});">LUA function</button></li>
-    <li><button onclick="callbinder('control','lua_doscript', {'script':'helloworld-lua-script.lua', args:{'arg1':'abcd', 'next':7890, 'last':[1,2,3,4]}});">LUA script</button></li>
+    <li><button onclick="callbinder('control','lua_docall'  , {'func':'_Simple_Echo_Args', 'args':{speed:20}});">LUA function</button></li>
+    <li><button onclick="callbinder('control','lua_doscript', {'script':'helloworld.lua', args:{'arg1':'abcd', 'next':7890, 'last':[1,2,3,4]}});">LUA script</button></li>
+    <li><button onclick="callbinder('control','lua_docall'  , {'func':'_Simple_Timer_Test', args:{label:'MyTimer', 'delay':3000, 'count':10}});">LUA Timer</button></li>
         
     </ol>
     

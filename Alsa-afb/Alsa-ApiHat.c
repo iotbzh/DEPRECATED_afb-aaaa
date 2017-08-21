@@ -31,7 +31,7 @@
 #include "Alsa-ApiHat.h"
 
 STATIC int AlsaInit(void) {
-    int rc= prctl(PR_SET_NAME, "afb-audio-agent\0",NULL,NULL,NULL);
+    int rc= prctl(PR_SET_NAME, "afb-aaaa-agent",NULL,NULL,NULL);
     if (rc) AFB_ERROR("ERROR: AlsaCore fail to rename process");
 
     return rc;
@@ -62,8 +62,8 @@ static const struct afb_verb_v2 api_verbs[] = {
 /*
  * description of the binding for afb-daemon
  */
-const struct afb_binding_v2 afbBindingV2 = {
+const afb_binding_v2 afbBindingV2 = {
     .api = "alsacore",
     .verbs = api_verbs,
-    .init  = AlsaInit,
+    .preinit  = AlsaInit,
 };

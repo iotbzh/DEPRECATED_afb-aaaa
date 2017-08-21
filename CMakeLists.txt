@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###########################################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 # Do not change this file, config is located into conf.d
 include(${CMAKE_CURRENT_SOURCE_DIR}/conf.d/cmake/config.cmake)

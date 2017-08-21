@@ -36,7 +36,3 @@ PROJECT_TARGET_ADD(hal-jabra-usb)
         hal-interface
         audio-common
     )
-
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})

@@ -16,32 +16,37 @@
 # limitations under the License.
 ###########################################################################
 
+ADD_COMPILE_OPTIONS(-DCONTROL_ONLOAD_PROFILE="onload-default-profile")
 
-# Generate API-v2 hat from OpenAPI json definition
-macro(SET_TARGET_GENSKEL TARGET_NAME API_DEF_NAME)
-    add_custom_command(OUTPUT ${API_DEF_NAME}.h
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${API_DEF_NAME}.json
-        COMMAND afb-genskel  ${API_DEF_NAME}.json >${API_DEF_NAME}.h 
-    )
-    add_custom_target(${API_DEF_NAME}_OPENAPI DEPENDS ${API_DEF_NAME}.h)
-    add_dependencies(${TARGET_NAME} ${API_DEF_NAME}_OPENAPI)
-    
-endmacro(SET_TARGET_GENSKEL)
+ADD_COMPILE_OPTIONS(-DCONTROL_DOSCRIPT_PRE="doscript")
+ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_PRE="onload")
+ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_POST="control")
+ADD_COMPILE_OPTIONS(-DCONTROL_CONFIG_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/config.d:${CMAKE_INSTALL_PREFIX}/controller/config.d")
+ADD_COMPILE_OPTIONS(-DCTL_PLUGIN_MAGIC=2468013579)
+ADD_COMPILE_OPTIONS(-DCONTROL_PLUGIN_PATH="${CMAKE_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/controller-plugins:/usr/lib/afb/controller-plugins/ctlplug")
+
+# Include LUA only when requested
+if(CONTROL_SUPPORT_LUA)
+   message(STATUS "Notice: LUA Controler Support Selected")
+   set(CTL_LUA_SOURCE ctl-lua.c)
+   ADD_COMPILE_OPTIONS(-DCONTROL_SUPPORT_LUA)
+   ADD_COMPILE_OPTIONS(-DCONTROL_LUA_EVENT="luaevt")
+   ADD_COMPILE_OPTIONS(-DCONTROL_LUA_PATH="${CMAKE_SOURCE_DIR}/conf.d/project/lua.d:${CMAKE_INSTALL_PREFIX}/controller-plugins/ctl-lua.d")
+else(CONTROL_SUPPORT_LUA)
+   message(STATUS "Warning: LUA Without Support ")
+endif(CONTROL_SUPPORT_LUA)
 
 # Add target to project dependency list
 PROJECT_TARGET_ADD(control-afb)
 
     # Define project Targets
-    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-events.c ctl-dispatch.c ctl-lua.c)
+    ADD_LIBRARY(${TARGET_NAME} MODULE ctl-binding.c ctl-timer.c ctl-dispatch.c ${CTL_LUA_SOURCE})
 
-    # Generate API-v2 hat from OpenAPI json definition
-    SET_TARGET_GENSKEL(${TARGET_NAME} ctl-apidef)
-
+    SET_OPENAPI_FILENAME("ctl-apidef")
     # Binder exposes a unique public entry point
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
 	PREFIX "afb-"
-        LABELS "BINDING"
+        LABELS "BINDINGV2"
 	LINK_FLAGS  ${BINDINGS_LINK_FLAG}
         OUTPUT_NAME ${TARGET_NAME}
     )
@@ -52,9 +57,6 @@ PROJECT_TARGET_ADD(control-afb)
         ${link_libraries}
     )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION CMAKE_INSTALL_PREFIX )
 
 PROJECT_TARGET_ADD(audio-plugin-sample)
 
@@ -76,4 +78,4 @@ PROJECT_TARGET_ADD(audio-plugin-sample)
 
     # installation directory
     INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR}/controler)
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/controler-plugins)

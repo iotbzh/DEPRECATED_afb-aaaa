@@ -35,7 +35,7 @@ typedef enum {
 
 PUBLIC const char *GetMidleName(const char*name);
 PUBLIC const char *GetBinderName();
-PUBLIC json_object* ScanForConfig (char* searchPath, CtlScanDirModeT mode, char *pre, char *ext);
+PUBLIC json_object* ScanForConfig (const char* searchPath, CtlScanDirModeT mode, const char *pre, const char *ext);
 
 #endif /* FILESCAN_UTILS_H */
 

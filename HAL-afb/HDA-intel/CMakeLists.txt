@@ -16,7 +16,6 @@
 # limitations under the License.
 ###########################################################################
 
-#[[
 
 # Add target to project dependency list
 PROJECT_TARGET_ADD(hal-intel-hda)
@@ -38,7 +37,3 @@ PROJECT_TARGET_ADD(hal-intel-hda)
         audio-common
     )
 
-    # installation directory
-    INSTALL(TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION ${BINDINGS_INSTALL_DIR})
-    ]]

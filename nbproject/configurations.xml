@@ -43,13 +43,14 @@
       <df name="Common">
         <in>AudioCommonLib.c</in>
       </df>
-      <df name="Controler-afb">
+      <df name="Controller-afb">
         <in>ctl-binding.c</in>
         <in>ctl-dispatch.c</in>
-        <in>ctl-events.c</in>
         <in>ctl-lua.c</in>
         <in>ctl-misc.c</in>
         <in>ctl-plugin-sample.c</in>
+        <in>ctl-policy.c</in>
+        <in>ctl-timer.c</in>
       </df>
       <df name="HAL-afb">
         <df name="HAL-interface">
@@ -118,11 +119,10 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g -fPIC -fPIC"/>
-        <element flagsID="1" commonFlags="-g -fPIC -fPIC -g"/>
-        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
-        <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
-        <element flagsID="4"
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="3"
                  commonFlags="-mtune=generic -march=x86-64 -g -ggdb -g -ggdb -fPIC"/>
       </flagsDictionary>
       <codeAssistance>
@@ -134,7 +134,7 @@
           <buildCommand>${MAKE} -f Makefile install</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
-          <cTool flags="0">
+          <cTool flags="-g -fPIC -fPIC">
           </cTool>
         </makeTool>
         <preBuild>
@@ -147,247 +147,201 @@
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Audio-Common/filescan-utils.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
-            <pElem>../../../opt/include</pElem>
             <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>control_afb_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>control_afb_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
-            <pElem>../../../opt/include</pElem>
             <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>control_afb_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
-            <pElem>../../../opt/include</pElem>
             <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>control_afb_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-misc.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
             <pElem>../../../opt/include/afb</pElem>
-            <pElem>Controler-afb</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Audio-Common</pElem>
           </incDir>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+      <item path="Audio-Common/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
           <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
             <pElem>/usr/include/json-c</pElem>
             <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>audio_plugin_sample_EXPORTS</Elem>
-          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-misc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-timer.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-interface.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volramp.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
+          <incDir>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/Jabra-Solemate/JabraUsbHAL.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
             ex="false"
             tool="0"
             flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+        <cTool flags="3">
           <incDir>
             <pElem>Shared-Interface</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
@@ -396,7 +350,7 @@
         </cTool>
       </item>
       <item path="HAL-afb/Unicens-USB/UnicensVol.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+        <cTool flags="3">
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>build/HAL-afb/Unicens-USB</pElem>
@@ -404,11 +358,11 @@
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
+        <cTool flags="2">
         </cTool>
       </item>
       <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
+        <cTool flags="2">
         </cTool>
       </item>
       <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
@@ -448,12 +402,30 @@
       <folder path="0/Alsa-Plugin">
         <cTool>
           <incDir>
+            <pElem>Alsa-Plugin/Alsa-Policy-Hook</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
             <Elem>NATIVE_LINUX</Elem>
             <Elem>PIC</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>policy_hook_cb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
@@ -461,60 +433,9 @@
       <folder path="0/Alsa-afb">
         <cTool>
           <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/Alsa-afb</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>alsa_lowlevel_EXPORTS</Elem>
-          </preprocessorList>
-        </cTool>
-      </folder>
-      <folder path="0/Audio-Common">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/Audio-Common</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
-            <Elem>CONTROL_CONFIG_POST="control"</Elem>
-            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
-            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
-            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/Common">
@@ -526,7 +447,7 @@
             <pElem>/usr/include/json-c</pElem>
             <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>/usr/include/alsa</pElem>
             <pElem>build/Common</pElem>
@@ -534,11 +455,11 @@
           <preprocessorList>
             <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
             <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
             <Elem>CONTROL_CONFIG_POST="control"</Elem>
             <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
@@ -551,6 +472,14 @@
           </preprocessorList>
         </cTool>
       </folder>
+      <folder path="0/Controller-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </folder>
       <folder path="0/HAL-afb">
         <cTool>
           <incDir>
@@ -561,11 +490,11 @@
             <pElem>/usr/include/lua5.3</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
             <Elem>CONTROL_CONFIG_POST="control"</Elem>
             <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
@@ -579,21 +508,16 @@
       <folder path="0/HAL-afb/HAL-interface">
         <cTool>
           <incDir>
+            <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/HAL-plugin">
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/HAL-plugin</pElem>
@@ -609,50 +533,41 @@
       <folder path="0/HAL-afb/HDA-intel">
         <cTool>
           <incDir>
-            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HDA-intel</pElem>
             <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>build/HAL-afb/HDA-intel</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>hal_intel_hda_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/Jabra-Solemate">
         <cTool>
           <incDir>
-            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>HAL-afb/Jabra-Solemate</pElem>
+            <pElem>../../../opt/include/afb</pElem>
             <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>build/HAL-afb/Jabra-Solemate</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>hal_jabra_usb_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/Scarlett-Focusrite">
         <cTool>
           <incDir>
-            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
             <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>hal_scalett_usb_EXPORTS</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/HAL-afb/Unicens-USB">
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/Unicens-USB</pElem>
@@ -674,7 +589,7 @@
             <pElem>/usr/include/json-c</pElem>
             <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HighLevel-afb</pElem>
@@ -682,11 +597,11 @@
             <pElem>build/HighLevel-afb</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
             <Elem>CONTROL_CONFIG_POST="control"</Elem>
             <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
@@ -708,15 +623,15 @@
             <pElem>/usr/include/json-c</pElem>
             <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
             <Elem>CONTROL_CONFIG_POST="control"</Elem>
             <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
@@ -1099,7 +1014,8 @@
       </toolsSet>
       <flagsDictionary>
         <element flagsID="0" commonFlags="-g -fPIC -fPIC"/>
-        <element flagsID="1"
+        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="2"
                  commonFlags="-mtune=generic -march=x86-64 -g -ggdb -g -ggdb -fPIC"/>
       </flagsDictionary>
       <codeAssistance>
@@ -1146,16 +1062,16 @@
           <incDir>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>../../../opt/include</pElem>
-            <pElem>build/ALSA-afb</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
           <incDir>
-            <pElem>build/ALSA-afb</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
         </cTool>
       </item>
@@ -1164,9 +1080,9 @@
           <incDir>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>../../../opt/include</pElem>
-            <pElem>build/ALSA-afb</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
         </cTool>
       </item>
@@ -1175,9 +1091,9 @@
           <incDir>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>../../../opt/include</pElem>
-            <pElem>build/ALSA-afb</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
         </cTool>
       </item>
@@ -1186,28 +1102,76 @@
           <incDir>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>../../../opt/include</pElem>
-            <pElem>build/ALSA-afb</pElem>
+            <pElem>build/Alsa-afb</pElem>
           </incDir>
         </cTool>
       </item>
       <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
       </item>
-      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="0">
+      <item path="Controller-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="0">
+      <item path="Controller-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="0">
+      <item path="Controller-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <preprocessorList>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-timer.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
         </cTool>
       </item>
       <item path="HAL-afb/HAL-interface/hal-interface.c"
@@ -1216,7 +1180,7 @@
             flavor2="3">
         <cTool flags="1">
           <incDir>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
@@ -1228,7 +1192,7 @@
             flavor2="3">
         <cTool flags="1">
           <incDir>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
@@ -1261,7 +1225,7 @@
         </cTool>
       </item>
       <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="2">
           <incDir>
             <pElem>Shared-Interface</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
@@ -1271,7 +1235,7 @@
         </cTool>
       </item>
       <item path="HAL-afb/Unicens-USB/UnicensVol.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="2">
           <incDir>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>build/HAL-afb/Unicens-USB</pElem>
@@ -1341,15 +1305,16 @@
             <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
             <Elem>CONTROL_CONFIG_POST="control"</Elem>
             <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
@@ -1364,21 +1329,11 @@
         <cTool>
           <incDir>
             <pElem>../../../opt/include/afb</pElem>
-            <pElem>ALSA-afb</pElem>
+            <pElem>Alsa-afb</pElem>
           </incDir>
         </cTool>
       </folder>
-      <folder path="0/Audio-Common">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Shared-Interface</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/Shared-Interface</pElem>
-          </incDir>
-        </cTool>
-      </folder>
-      <folder path="0/Controler-afb">
+      <folder path="0/Controller-afb">
         <cTool>
           <incDir>
             <pElem>../../../opt/include</pElem>
@@ -1387,24 +1342,24 @@
             <pElem>/usr/include/json-c</pElem>
             <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
           <preprocessorList>
-            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
             <Elem>CONTROL_CONFIG_POST="control"</Elem>
             <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
             <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
             <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
             <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
             <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
             <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
             <Elem>MAX_SND_CARD=16</Elem>
             <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -1425,7 +1380,7 @@
             <pElem>HAL-afb/HDA-intel</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HDA-intel</pElem>
@@ -1436,10 +1391,10 @@
         <cTool>
           <incDir>
             <pElem>HAL-afb/Jabra-Solemate</pElem>
+            <pElem>../../../opt/include/afb</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/Jabra-Solemate</pElem>
@@ -1453,7 +1408,7 @@
             <pElem>HAL-afb/Scarlett-Focusrite</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/json-c</pElem>
-            <pElem>Shared-Interface</pElem>
+            <pElem>Audio-Common</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
             <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
@@ -1503,11 +1458,11 @@
               <pElem>/usr/include/lua5.3</pElem>
             </incDir>
             <preprocessorList>
-              <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controler/config.d"</Elem>
+              <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
               <Elem>CONTROL_CONFIG_POST="control"</Elem>
               <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
               <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
-              <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controler/ctl-lua.d"</Elem>
+              <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
               <Elem>CONTROL_MAXPATH_LEN=255</Elem>
               <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
               <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
@@ -1563,68 +1518,68 @@
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-binding.c" ex="false" tool="0" flavor2="0">
+      <item path="Controller-afb/ctl-binding.c" ex="false" tool="0" flavor2="0">
         <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
           <preprocessorList>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="2">
+      <item path="Controller-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
           <preprocessorList>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-events.c" ex="false" tool="0" flavor2="2">
+      <item path="Controller-afb/ctl-lua.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
           <preprocessorList>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-lua.c" ex="false" tool="0" flavor2="2">
+      <item path="Controller-afb/ctl-misc.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
           <preprocessorList>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </item>
-      <item path="Controler-afb/ctl-misc.c" ex="false" tool="0" flavor2="2">
+      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
           <incDir>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>control_afb_EXPORTS</Elem>
-          </preprocessorList>
-        </cTool>
-      </item>
-      <item path="Controler-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
-          <incDir>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
           </incDir>
           <preprocessorList>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-timer.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
         </cTool>
       </item>
@@ -1766,7 +1721,7 @@
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>/usr/include/alsa</pElem>
             <pElem>build/Common</pElem>
@@ -1779,7 +1734,7 @@
           </preprocessorList>
         </cTool>
       </folder>
-      <folder path="0/Controler-afb">
+      <folder path="0/Controller-afb">
         <cTool>
           <preprocessorList>
             <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
@@ -1802,7 +1757,7 @@
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/HAL-plugin</pElem>
@@ -1858,7 +1813,7 @@
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/Unicens-USB</pElem>
@@ -1875,7 +1830,7 @@
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HighLevel-afb</pElem>
@@ -1892,10 +1847,1340 @@
         <cTool>
           <incDir>
             <pElem>Audio-Common</pElem>
-            <pElem>build/Controler-afb</pElem>
+            <pElem>build/Controller-afb</pElem>
             <pElem>build/HAL-afb/HAL-plugin</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+    </conf>
+    <conf name="Local_Raw_Controller" type="0">
+      <toolsSet>
+        <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC"/>
+        <element flagsID="1" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="4"
+                 commonFlags="-mtune=generic -march=x86-64 -g -ggdb -g -ggdb -fPIC"/>
+      </flagsDictionary>
+      <codeAssistance>
+        <includeAdditional>true</includeAdditional>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile install</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
+          <cTool flags="0">
+          </cTool>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>build</preBuildCommandWorkingDir>
+          <preBuildCommand>cmake ..</preBuildCommand>
+          <preBuildFirst>true</preBuildFirst>
+        </preBuild>
+      </makefileType>
+      <item path="Alsa-Plugin/Alsa-Policy-Hook/PolicyHookCb.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>alsa_lowlevel_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-misc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Controller-afb</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-timer.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-interface.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-volramp.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Jabra-Solemate/JabraUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/Unicens-USB/UnicensVol.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/ConnectionInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <folder path="0/Alsa-Plugin">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>PIC</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>policy_hook_cb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/Common">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>/usr/include/alsa</pElem>
+            <pElem>build/Common</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-interface">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-plugin">
+        <cTool>
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HDA-intel">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HDA-intel</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/HDA-intel</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Jabra-Solemate">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Jabra-Solemate</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Jabra-Solemate</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Scarlett-Focusrite">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Unicens-USB">
+        <cTool>
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/Unicens-USB</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HighLevel-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HighLevel-afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/MostVolume">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+    </conf>
+    <conf name="Demo-AudioController" type="0">
+      <toolsSet>
+        <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-g -fPIC -fPIC"/>
+        <element flagsID="1" commonFlags="-g -fPIC -fPIC -g"/>
+        <element flagsID="2" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+        <element flagsID="3" commonFlags="-mtune=generic -march=x86-64 -g -g -fPIC"/>
+        <element flagsID="4"
+                 commonFlags="-mtune=generic -march=x86-64 -g -ggdb -g -ggdb -fPIC"/>
+      </flagsDictionary>
+      <codeAssistance>
+        <includeAdditional>true</includeAdditional>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile install</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>build/CMakeFiles/feature_tests.bin</executablePath>
+          <cTool flags="0">
+          </cTool>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>build</preBuildCommandWorkingDir>
+          <preBuildCommand>cmake ..</preBuildCommand>
+          <preBuildFirst>true</preBuildFirst>
+        </preBuild>
+      </makefileType>
+      <item path="Alsa-Plugin/Alsa-Policy-Hook/PolicyHookCb.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>alsa_lowlevel_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-binding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/home/fulup/opt/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/home/fulup/opt/controller-plugins/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_PROFILE="onload-default-profile"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/controller-plugins:/usr/lib/afb/controller-plugins/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-dispatch.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/home/fulup/opt/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/home/fulup/opt/controller-plugins/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_PROFILE="onload-default-profile"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/controller-plugins:/usr/lib/afb/controller-plugins/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/home/fulup/opt/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/home/fulup/opt/controller-plugins/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_PROFILE="onload-default-profile"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/controller-plugins:/usr/lib/afb/controller-plugins/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-misc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Controller-afb</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/home/fulup/opt/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/home/fulup/opt/controller-plugins/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_PROFILE="onload-default-profile"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/controller-plugins:/usr/lib/afb/controller-plugins/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-timer.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/home/fulup/opt/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/home/fulup/opt/controller-plugins/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_PROFILE="onload-default-profile"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/controller-plugins:/usr/lib/afb/controller-plugins/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-interface.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-volramp.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-interface/hal-volume.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>build/HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/HAL-plugin/HalPlugPcm.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/HDA-intel/IntelHdaHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Jabra-Solemate/JabraUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Scarlett-Focusrite/ScarlettUsbHAL.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="HAL-afb/Unicens-USB/UnicensHAL.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>Shared-Interface</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HAL-afb/Unicens-USB/UnicensVol.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Unicens-USB</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelApiConf.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="HighLevel-afb/HighLevelBinding.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="MostVolume/DeviceContainer.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/DeviceValue.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/Mediator.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/ConnectionInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Console.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="MostVolume/external/MacAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostIpc.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsg.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MostMsgTx.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgAddr.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/MsgFilter.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/external/Shadow_NetworkMaster.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+      </item>
+      <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <folder path="0/Alsa-Plugin">
+        <cTool>
+          <incDir>
+            <pElem>Alsa-Plugin/Alsa-Policy-Hook</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-Plugin/Alsa-Policy-Hook</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_DOSCRIPT_PRE="doscript"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>PIC</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>policy_hook_cb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/Common">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>/usr/include/alsa</pElem>
+            <pElem>build/Common</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-interface">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HAL-plugin">
+        <cTool>
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/HDA-intel">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/HDA-intel</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/HDA-intel</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Jabra-Solemate">
+        <cTool>
+          <incDir>
+            <pElem>HAL-afb/Jabra-Solemate</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Jabra-Solemate</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Scarlett-Focusrite">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/Scarlett-Focusrite</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>build/HAL-afb/Scarlett-Focusrite</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/HAL-afb/Unicens-USB">
+        <cTool>
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HAL-afb/Unicens-USB</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CDEV_RX="/dev/inic-usb-crx"</Elem>
+            <Elem>CONTROL_CDEV_TX="/dev/inic-usb-ctx"</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/HighLevel-afb">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>HighLevel-afb</pElem>
+            <pElem>Shared-Interface</pElem>
+            <pElem>build/HighLevel-afb</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/MostVolume">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>build/Controller-afb</pElem>
+            <pElem>build/HAL-afb/HAL-plugin</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/config.d:/usr/local/controller/config.d"</Elem>
+            <Elem>CONTROL_CONFIG_POST="control"</Elem>
+            <Elem>CONTROL_CONFIG_PRE="onload"</Elem>
+            <Elem>CONTROL_LUA_EVENT="luaevt"</Elem>
+            <Elem>CONTROL_LUA_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/conf.d/project/lua.d:/usr/local/controller/ctl-lua.d"</Elem>
+            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
+            <Elem>CONTROL_ONLOAD_DEFAULT="onload-default"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH="/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build:/home/fulup/opt/audio-bindings/ctlplug:/usr/lib/afb/ctlplug"</Elem>
+            <Elem>CTL_PLUGIN_MAGIC=2468013579</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
             <Elem>audio_plugin_sample_EXPORTS</Elem>
             <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>

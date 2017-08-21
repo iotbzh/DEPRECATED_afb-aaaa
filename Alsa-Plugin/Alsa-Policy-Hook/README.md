@@ -14,6 +14,10 @@ Installation
  - This plugin implement a hook on a slave PCM. Typically this slave PCM is a dedicated virtual channel (eg: navigation, emergency,...)
  - Config should be place in ~/.asoundrc (see config sample in PROJECT_ROOT/conf.d/alsa)
 
+Test
+ - Install a full .asoundrc from conf.d/project/alsa.d
+ - speaker-test -DMyNavigationHook -c2 -twav
+
 Config
 ```
 # Define sharelib location and entry point
@@ -41,7 +45,8 @@ pcm.MyNavigationHook {
                 # Request autorisation to write on navigation 
                 navigation-ctl {
                     api   "control"
-                    verb  "request"
+                    verb  "dispatch"
+                    args   "{'target':'navigation', 'args':{'device':'Jabra SOLEMATE v1.34.0'}}"
                 } 
                 # subscribe to Audio Agent Event map them to signal
                 subscribe-evt {

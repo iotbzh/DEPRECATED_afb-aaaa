@@ -44,7 +44,7 @@ STATIC int halCtlStringToIndex(const char* label) {
     alsaHalMapT *halCtls = halSndCard->ctls;
 
     for (int idx = 0; halCtls[idx].tag != EndHalCrlTag; idx++) {
-        if (halCtls[idx].label && !strcmp(halCtls[idx].label, label)) return idx;
+        if (halCtls[idx].label && !strcasecmp(halCtls[idx].label, label)) return idx;
     }
 
     // not found
@@ -502,11 +502,12 @@ PUBLIC int halServiceInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
         json_object *ctlJ;
 
         // Try to find best equivalent label for tag
-        if (halCtls[idx].tag >StartHalCrlTag && halCtls[idx].tag < EndHalCrlTag && halCtls[idx].label != NULL) {
+        if (halCtls[idx].tag >StartHalCrlTag && halCtls[idx].tag < EndHalCrlTag && halCtlsLabels[halCtls[idx].tag] != NULL) {
             halCtls[idx].label = halCtlsLabels[halCtls[idx].tag];
         } else {
             if (halCtls[idx].ctl.name) halCtls[idx].label=halCtls[idx].ctl.name;
             else if (halCtls[idx].info) halCtls[idx].label=halCtls[idx].info;
+            else  halCtls[idx].label="NoHalCttNameSet";
         }
 
         ctlJ = json_object_new_object();
@@ -617,9 +618,9 @@ PUBLIC void halServiceEvent(const char *evtname, json_object *eventJ) {
 PUBLIC afb_verb_v2 halServiceApi[] = {
     /* VERB'S NAME         FUNCTION TO CALL         SHORT DESCRIPTION */
     { .verb = "ping", .callback = pingtest, .info = "ping test for API"},
-    { .verb = "ctl-list", .callback = halListCtls, .info = "List AGL normalised Sound Controls"},
-    { .verb = "ctl-get", .callback = halGetCtls, .info = "Get one/many sound controls"},
-    { .verb = "ctl-set", .callback = halSetCtls, .info = "Set one/many sound controls"},
-    { .verb = "evt-sub", .callback = halSubscribe, .info = "Subscribe to HAL events"},
+    { .verb = "ctllist", .callback = halListCtls, .info = "List AGL normalised Sound Controls"},
+    { .verb = "ctlget", .callback = halGetCtls, .info = "Get one/many sound controls"},
+    { .verb = "ctlset", .callback = halSetCtls, .info = "Set one/many sound controls"},
+    { .verb = "evtsub", .callback = halSubscribe, .info = "Subscribe to HAL events"},
     { .verb = NULL} /* marker for end of the array */
 };

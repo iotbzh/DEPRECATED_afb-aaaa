@@ -94,7 +94,6 @@
         
         var selectobj = document.getElementById(elemid);
         if (!selectobj) {
-            console.log ("****** elemid=%s does not exit in HTML page ****", elemid);
             return;
         }
         
