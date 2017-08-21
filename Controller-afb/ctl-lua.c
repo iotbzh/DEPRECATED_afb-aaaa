@@ -673,7 +673,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             const char *func;
             json_object *argsJ=NULL;
             
-            err= wrap_json_unpack (queryJ, "{s:s, s?o !}", "func", &func, "args", &argsJ);
+            err= wrap_json_unpack (queryJ, "{s:s, s?o !}", "request", &func, "args", &argsJ);
             if (err) {
                 AFB_ERROR ("LUA-DOCALL-SYNTAX missing func|args query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
@@ -708,7 +708,7 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             // scan luascript search path once
             static json_object *luaScriptPathJ =NULL;
 
-            err= wrap_json_unpack (queryJ, "{s:s, s?s s?o !}", "script", &script,"func", &func, "args", &argsJ);
+            err= wrap_json_unpack (queryJ, "{s:s, s?s s?o !}", "target", &script,"function", &func, "args", &argsJ);
             if (err) {
                 AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing script|(args,arg) query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
@@ -747,7 +747,11 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
             }
             
             // if no func name given try to deduct from filename
-            if (!func) func= (char*)GetMidleName(filename);
+            if (!func && (func=(char*)GetMidleName(filename))!=NULL) {   
+                strncpy(luaScriptPath,"_", sizeof(luaScriptPath));
+                strncat(luaScriptPath,func, sizeof(luaScriptPath));
+                func=luaScriptPath;
+            }
             if (!func) {
                 AFB_ERROR ("LUA-DOSCRIPT:FAIL to deduct funcname from %s", filename);
                 goto OnErrorExit;                
@@ -789,15 +793,15 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
     return;
 }
 
-PUBLIC void ctlapi_lua_dostring (afb_req request) {       
+PUBLIC void ctlapi_execlua (afb_req request) {       
     LuaDoAction (LUA_DOSTRING, request);
 }
 
-PUBLIC void ctlapi_lua_docall (afb_req request) {
+PUBLIC void ctlapi_request (afb_req request) {
     LuaDoAction (LUA_DOCALL, request);
 }
 
-PUBLIC void ctlapi_lua_doscript (afb_req request) {
+PUBLIC void ctlapi_scriptlua (afb_req request) {
     LuaDoAction (LUA_DOSCRIPT, request);
 }
 

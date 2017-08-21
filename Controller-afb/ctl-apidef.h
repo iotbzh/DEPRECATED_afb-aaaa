@@ -36,21 +36,21 @@ static const char _afb_description_v2_control[] =
     "missions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parame"
     "ters\":[{\"in\":\"query\",\"name\":\"zone\",\"required\":false,\"schema\""
     ":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components"
-    "/responses/200\"}}}},\"/lua_docall\":{\"description\":\"Execute LUA stri"
-    "ng script.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/components/x-permi"
-    "ssions/navigation\"},\"parameters\":[{\"in\":\"query\",\"name\":\"func\""
-    ",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"in\":\"query\",\""
-    "name\":\"args\",\"required\":false,\"schema\":{\"type\":\"array\"}}],\"r"
-    "esponses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/lua_"
-    "dostring\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-"
-    "permissions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"par"
-    "ameters\":[{\"in\":\"query\",\"required\":true,\"schema\":{\"type\":\"st"
-    "ring\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components/responses/200\""
-    "}}}},\"/lua_doscript\":{\"description\":\"Execute LUA string script.\",\""
-    "get\":{\"x-permissions\":{\"$ref\":\"#/components/x-permissions/navigati"
-    "on\"},\"parameters\":[{\"in\":\"query\",\"name\":\"filename\",\"required"
-    "\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$re"
-    "f\":\"#/components/responses/200\"}}}}}}"
+    "/responses/200\"}}}},\"/request\":{\"description\":\"Execute LUA string "
+    "script.\",\"get\":{\"x-permissions\":{\"$ref\":\"#/components/x-permissi"
+    "ons/navigation\"},\"parameters\":[{\"in\":\"query\",\"name\":\"func\",\""
+    "required\":true,\"schema\":{\"type\":\"string\"}},{\"in\":\"query\",\"na"
+    "me\":\"args\",\"required\":false,\"schema\":{\"type\":\"array\"}}],\"res"
+    "ponses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/execlu"
+    "a\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permiss"
+    "ions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameters"
+    "\":[{\"in\":\"query\",\"required\":true,\"schema\":{\"type\":\"string\"}"
+    "}],\"responses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\""
+    "/scriptlua\":{\"description\":\"Execute LUA string script.\",\"get\":{\""
+    "x-permissions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"p"
+    "arameters\":[{\"in\":\"query\",\"name\":\"filename\",\"required\":true,\""
+    "schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/co"
+    "mponents/responses/200\"}}}}}}"
 ;
 
 static const struct afb_auth _afb_auths_v2_control[] = {
@@ -59,9 +59,9 @@ static const struct afb_auth _afb_auths_v2_control[] = {
 
  void ctlapi_monitor(struct afb_req req);
  void ctlapi_dispatch(struct afb_req req);
- void ctlapi_lua_docall(struct afb_req req);
- void ctlapi_lua_dostring(struct afb_req req);
- void ctlapi_lua_doscript(struct afb_req req);
+ void ctlapi_request(struct afb_req req);
+ void ctlapi_execlua(struct afb_req req);
+ void ctlapi_scriptlua(struct afb_req req);
 
 static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
     {
@@ -79,22 +79,22 @@ static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "lua_docall",
-        .callback = ctlapi_lua_docall,
+        .verb = "request",
+        .callback = ctlapi_request,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "lua_dostring",
-        .callback = ctlapi_lua_dostring,
+        .verb = "execlua",
+        .callback = ctlapi_execlua,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "lua_doscript",
-        .callback = ctlapi_lua_doscript,
+        .verb = "scriptlua",
+        .callback = ctlapi_scriptlua,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2

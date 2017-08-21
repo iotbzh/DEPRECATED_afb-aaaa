@@ -62,7 +62,7 @@ pcm.MyNavigationHook {
             verbose true # print few log messages (default false);
 
             # Every Call should return OK in order PCM to open (default timeout 100ms)
-            uri   "ws://localhost:1234/api?token='audio-agent-token'"
+            uri   "ws://localhost:1234/api?token=audio-agent-token&uuid=audio-agent-session"
             request {
                 # Request autorisation to write on navigation 
                 RequestNavigation {

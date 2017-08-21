@@ -170,7 +170,7 @@
                 }
             }
         },
-        "/lua_docall": {
+        "/request": {
             "description": "Execute LUA string script.",
             "get": {
                 "x-permissions": {
@@ -201,7 +201,7 @@
                 }
             }
         },
-        "/lua_dostring": {
+        "/execlua": {
             "description": "Execute LUA string script.",
             "get": {
                 "x-permissions": {
@@ -223,7 +223,7 @@
                 }
             }
         },
-        "/lua_doscript": {
+        "/scriptlua": {
             "description": "Execute LUA string script.",
             "get": {
                 "x-permissions": {
