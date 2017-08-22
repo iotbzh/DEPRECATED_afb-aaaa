@@ -201,29 +201,7 @@
                 }
             }
         },
-        "/execlua": {
-            "description": "Execute LUA string script.",
-            "get": {
-                "x-permissions": {
-                    "$ref": "#/components/x-permissions/navigation"
-                },
-                "parameters": [
-                    {
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/200"
-                    }
-                }
-            }
-        },
-        "/scriptlua": {
+        "/debuglua": {
             "description": "Execute LUA string script.",
             "get": {
                 "x-permissions": {

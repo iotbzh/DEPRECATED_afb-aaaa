@@ -41,16 +41,12 @@ static const char _afb_description_v2_control[] =
     "ons/navigation\"},\"parameters\":[{\"in\":\"query\",\"name\":\"func\",\""
     "required\":true,\"schema\":{\"type\":\"string\"}},{\"in\":\"query\",\"na"
     "me\":\"args\",\"required\":false,\"schema\":{\"type\":\"array\"}}],\"res"
-    "ponses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/execlu"
-    "a\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permiss"
-    "ions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameters"
-    "\":[{\"in\":\"query\",\"required\":true,\"schema\":{\"type\":\"string\"}"
-    "}],\"responses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\""
-    "/scriptlua\":{\"description\":\"Execute LUA string script.\",\"get\":{\""
-    "x-permissions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"p"
-    "arameters\":[{\"in\":\"query\",\"name\":\"filename\",\"required\":true,\""
-    "schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/co"
-    "mponents/responses/200\"}}}}}}"
+    "ponses\":{\"200\":{\"$ref\":\"#/components/responses/200\"}}}},\"/debugl"
+    "ua\":{\"description\":\"Execute LUA string script.\",\"get\":{\"x-permis"
+    "sions\":{\"$ref\":\"#/components/x-permissions/navigation\"},\"parameter"
+    "s\":[{\"in\":\"query\",\"name\":\"filename\",\"required\":true,\"schema\""
+    ":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"$ref\":\"#/components"
+    "/responses/200\"}}}}}}"
 ;
 
 static const struct afb_auth _afb_auths_v2_control[] = {
@@ -60,8 +56,7 @@ static const struct afb_auth _afb_auths_v2_control[] = {
  void ctlapi_monitor(struct afb_req req);
  void ctlapi_dispatch(struct afb_req req);
  void ctlapi_request(struct afb_req req);
- void ctlapi_execlua(struct afb_req req);
- void ctlapi_scriptlua(struct afb_req req);
+ void ctlapi_debuglua(struct afb_req req);
 
 static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
     {
@@ -86,15 +81,8 @@ static const struct afb_verb_v2 _afb_verbs_v2_control[] = {
         .session = AFB_SESSION_NONE_V2
     },
     {
-        .verb = "execlua",
-        .callback = ctlapi_execlua,
-        .auth = &_afb_auths_v2_control[0],
-        .info = NULL,
-        .session = AFB_SESSION_NONE_V2
-    },
-    {
-        .verb = "scriptlua",
-        .callback = ctlapi_scriptlua,
+        .verb = "debuglua",
+        .callback = ctlapi_debuglua,
         .auth = &_afb_auths_v2_control[0],
         .info = NULL,
         .session = AFB_SESSION_NONE_V2

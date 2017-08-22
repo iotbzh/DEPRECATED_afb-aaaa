@@ -31,10 +31,6 @@ git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
 On Ubuntu 16.4 you should recompile AlsaLib from source ftp://ftp.alsa-project.org/pub/lib/
 as today latest stable is 1.1.4. 
 
-```
-
-```
-
 
 ```
   OpenSuse

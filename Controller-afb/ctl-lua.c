@@ -698,24 +698,29 @@ STATIC void LuaDoAction (LuaDoActionT action, afb_req request) {
         }
             
         case LUA_DOSCRIPT: {   // Fulup need to fix argument passing
-            const char *script;
-            char*func=NULL;
             char *filename; char*fullpath;
             char luaScriptPath[CONTROL_MAXPATH_LEN];
-            json_object *argsJ=NULL;
             int index;
             
             // scan luascript search path once
             static json_object *luaScriptPathJ =NULL;
 
-            err= wrap_json_unpack (queryJ, "{s:s, s?s s?o !}", "target", &script,"function", &func, "args", &argsJ);
+            // extract value from query
+            const char *target=NULL,*func=NULL;
+            json_object *argsJ=NULL;
+            err= wrap_json_unpack (queryJ, "{s:s,s?s,s?s,s?o !}","target", &target,"path",&luaScriptPathJ,"function",&func,"args",&argsJ);
             if (err) {
-                AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing script|(args,arg) query=%s", json_object_get_string(queryJ));
+                AFB_ERROR ("LUA-DOSCRIPT-SYNTAX:missing target|[path]|[function]|[args] query=%s", json_object_get_string(queryJ));
                 goto OnErrorExit;
             }
 
             // search for filename=script in CONTROL_LUA_PATH
-            if (!luaScriptPathJ)  luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE,CONTROL_DOSCRIPT_PRE "-", script);
+            if (!luaScriptPathJ)  {
+                strncpy(luaScriptPath,CONTROL_DOSCRIPT_PRE, sizeof(luaScriptPath)); 
+                strncat(luaScriptPath,"-", sizeof(luaScriptPath)); 
+                strncat(luaScriptPath,target, sizeof(luaScriptPath)); 
+                luaScriptPathJ= ScanForConfig(CONTROL_LUA_PATH , CTL_SCAN_RECURSIVE,luaScriptPath,".lua");
+            } 
             for (index=0; index < json_object_array_length(luaScriptPathJ); index++) {
                 json_object *entryJ=json_object_array_get_idx(luaScriptPathJ, index);  
                 
@@ -801,7 +806,7 @@ PUBLIC void ctlapi_request (afb_req request) {
     LuaDoAction (LUA_DOCALL, request);
 }
 
-PUBLIC void ctlapi_scriptlua (afb_req request) {
+PUBLIC void ctlapi_debuglua (afb_req request) {
     LuaDoAction (LUA_DOSCRIPT, request);
 }
 

@@ -60,7 +60,7 @@ end
 function _Test_Call_Sync (request, args) 
 
     AFB:notice ("Test_Call_Sync args=%s", args)
-    local err, response= AFB:service_sync ("alsacore","ping", args)
+    local err, response= AFB:servsync ("alsacore","ping", args)
     if (err) then
         AFB:fail ("AFB:service_call_sync fail");
     else

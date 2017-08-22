@@ -32,8 +32,7 @@
     <br>    
     <li><button onclick="callbinder('control','request'  , {'target':'_Simple_Echo_Args', 'args':{speed:20}});">LUA function</button></li>
     <li><button onclick="callbinder('control','request'  , {'target':'_Simple_Timer_Test', args:{label:'MyTimer', 'delay':3000, 'count':10}});">LUA Timer</button></li>
-    <li><button onclick="callbinder('control','scriptlua', {'target':'helloworld.lua', args:{'arg1':'abcd', 'next':7890, 'last':[1,2,3,4]}});">LUA script</button></li>
-    <li><button onclick="callbinder('control','execlua','print(\'Bonjours\'); return true, 1234');">LUA string</button></li>
+    <li><button onclick="callbinder('control','debuglua' , {'target':'helloworld', args:{'arg1':'abcd', 'next':7890, 'last':[1,2,3,4]}});">LUA script</button></li>
         
     </ol>
     
