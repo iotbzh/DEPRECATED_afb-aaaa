@@ -166,35 +166,83 @@
         </cTool>
       </item>
       <item path="Alsa-afb/Alsa-AddCtl.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Alsa-afb/Alsa-ApiHat.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Alsa-afb/Alsa-RegEvt.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Alsa-afb/Alsa-SetGet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Alsa-afb/Alsa-Ucm.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/Alsa-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Audio-Common/audio-common.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Audio-Common/filescan-utils.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Audio-Common/wrap-json.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="3">
+          <incDir>
+            <pElem>Audio-Common</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Audio-Common</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Common/AudioCommonLib.c" ex="false" tool="0" flavor2="2">
@@ -224,35 +272,13 @@
         </cTool>
       </item>
       <item path="Controller-afb/ctl-lua.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Controller-afb</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>/usr/include/lua5.3</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>../../../opt/include</pElem>
-            <pElem>build/Controller-afb</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="Controller-afb/ctl-misc.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
-          <incDir>
-            <pElem>../../../opt/include/afb</pElem>
-            <pElem>Controller-afb</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>build/Controller-afb</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
           <incDir>
             <pElem>../../../opt/include</pElem>
             <pElem>../../../opt/include/alsa</pElem>
             <pElem>/usr/include/p11-kit-1</pElem>
             <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>build/Controller-afb</pElem>
           </incDir>
@@ -272,8 +298,29 @@
             <Elem>MAX_SND_CARD=16</Elem>
             <Elem>NATIVE_LINUX</Elem>
             <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>audio_plugin_sample_EXPORTS</Elem>
+            <Elem>control_afb_EXPORTS</Elem>
           </preprocessorList>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-misc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Controller-afb</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="Controller-afb/ctl-plugin-sample.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Controller-afb</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>build/Controller-afb</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="Controller-afb/ctl-timer.c" ex="false" tool="0" flavor2="3">
@@ -514,40 +561,9 @@
       <folder path="0/Alsa-afb">
         <cTool>
           <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/Alsa-afb</pElem>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>Alsa-afb</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-            <Elem>alsa_lowlevel_EXPORTS</Elem>
-          </preprocessorList>
-        </cTool>
-      </folder>
-      <folder path="0/Audio-Common">
-        <cTool>
-          <incDir>
-            <pElem>../../../opt/include</pElem>
-            <pElem>../../../opt/include/alsa</pElem>
-            <pElem>/usr/include/p11-kit-1</pElem>
-            <pElem>/usr/include/json-c</pElem>
-            <pElem>Audio-Common</pElem>
-            <pElem>build/Audio-Common</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>CONTROL_MAXPATH_LEN=255</Elem>
-            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
-            <Elem>MAX_SND_CARD=16</Elem>
-            <Elem>NATIVE_LINUX</Elem>
-            <Elem>TLV_BYTE_SIZE=256</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/Common">

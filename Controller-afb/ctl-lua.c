@@ -165,26 +165,50 @@ STATIC int LuaPushArgument (json_object *argsJ) {
 
 STATIC  json_object *LuaPopOneArg (lua_State* luaState, int idx);
 
+// Move a table from Internal Lua representation to Json one
+// Numeric table are transformed in json array, string one in object
+// Mix numeric/string key are not supported
 STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
-    int idx;
     #define LUA_KEY_INDEX -2
     #define LUA_VALUE_INDEX -1
+
+    int idx;
+    int tableType;
+    json_object *tableJ= NULL;
     
-    json_object *tableJ= json_object_new_object();
-    const char *key;
-    char number[3];
     lua_pushnil(luaState); // 1st key
     if (index < 0) index--; 
     for (idx=1; lua_next(luaState, index) != 0; idx++) {
 
         // uses 'key' (at index -2) and 'value' (at index -1)
-        if (lua_type(luaState,LUA_KEY_INDEX) == LUA_TSTRING) key= lua_tostring(luaState, LUA_KEY_INDEX);
-        else {
-            snprintf(number, sizeof(number),"%d", idx);
-            key=number;
+        if (lua_type(luaState,LUA_KEY_INDEX) == LUA_TSTRING) {
+
+            if (!tableJ) {
+                tableJ= json_object_new_object();
+                tableType=LUA_TSTRING;
+            } else if (tableType != LUA_TSTRING){
+                AFB_ERROR("MIX Lua Table with key string/numeric not supported");
+                return NULL;
+            }
+            
+            const char *key= lua_tostring(luaState, LUA_KEY_INDEX);
+            json_object *argJ= LuaPopOneArg(luaState, LUA_VALUE_INDEX);
+            json_object_object_add(tableJ, key, argJ);
+                    
+        } else {
+            if (!tableJ) {
+                tableJ= json_object_new_array();
+                tableType=LUA_TNUMBER;
+            } else if(tableType ==  LUA_TNUMBER) {
+                AFB_ERROR("MIX Lua Table with key string/numeric not supported");
+                return NULL;
+            }
+            
+            json_object *argJ= LuaPopOneArg(luaState, LUA_VALUE_INDEX);
+            json_object_array_add(tableJ, argJ);
         } 
-        json_object *argJ= LuaPopOneArg(luaState, LUA_VALUE_INDEX);
-        json_object_object_add(tableJ, key, argJ);
+        
+        
         lua_pop(luaState, 1); // removes 'value'; keeps 'key' for next iteration 
     } 
     
