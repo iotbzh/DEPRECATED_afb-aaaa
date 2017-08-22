@@ -25,8 +25,8 @@
 #define AFB_BINDING_VERSION 2
 #include <afb/afb-binding.h>
 #include <json-c/json.h>
-#include "filescan-utils.h"
-#include "wrap-json.h"
+#include <filescan-utils.h>
+#include <wrap-json.h>
 
 // Waiting for official macro from José
 #define AFB_GET_VERBOSITY afb_get_verbosity_v2()

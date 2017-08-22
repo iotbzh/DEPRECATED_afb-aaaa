@@ -19,8 +19,8 @@
 # Add target to project dependency list
 PROJECT_TARGET_ADD(audio-common)
 
-    # Define targets 
-    ADD_LIBRARY(${TARGET_NAME} STATIC audio-common.c wrap-json.c filescan-utils)
+    # Define targets
+    ADD_LIBRARY(${TARGET_NAME} STATIC audio-common.c)
 
     # Library properties
     SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES
@@ -28,11 +28,11 @@ PROJECT_TARGET_ADD(audio-common)
     )
 
     # Library dependencies
-    #TARGET_LINK_LIBRARIES(${TARGET_NAME}
-    #  empty
-    #)
-   
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+      afb-utilities
+    )
+
     # Define target includes
-    TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME} 
+    TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME}
         PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}
 )

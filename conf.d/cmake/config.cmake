@@ -62,14 +62,6 @@ set (PKG_REQUIRED_LIST
 	libafbwsc
 )
 
-# Controller project needed variables.
-# Compilation options specific to that target set
-# in the CMakeLists.txt of that target to correctly
-# expand variables.
-# ----------------------------------------------------
-set (CTL_PLUGIN_PRE "ctl-" CACHE STRING "Prefix for Controller share plugin")
-set (CTL_PLUGIN_EXT ".ctlso" CACHE STRING "Postfix for Controller share plugin")
-
 # Compilation options definition
 # Use CMake generator expressions to specify only for a specific language
 # Values are prefilled with default options that is currently used.
