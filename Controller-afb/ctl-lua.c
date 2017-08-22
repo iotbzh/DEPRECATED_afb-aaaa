@@ -199,8 +199,8 @@ STATIC json_object *LuaTableToJson (lua_State* luaState, int index) {
             if (!tableJ) {
                 tableJ= json_object_new_array();
                 tableType=LUA_TNUMBER;
-            } else if(tableType ==  LUA_TNUMBER) {
-                AFB_ERROR("MIX Lua Table with key string/numeric not supported");
+            } else if(tableType != LUA_TNUMBER) {
+                AFB_ERROR("MIX Lua Table with key numeric/string not supported");
                 return NULL;
             }
 
