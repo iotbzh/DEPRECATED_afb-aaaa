@@ -56,11 +56,10 @@ set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
 set (PKG_REQUIRED_LIST
 	alsa>=1.1.2
 	libsystemd>=222
-        libmicrohttpd>=0.9.55
+	libmicrohttpd>=0.9.55
 	afb-daemon
 	json-c
-        libafbwsc
-        ${LUA_PKG}
+	libafbwsc
 )
 
 # Controller project needed variables.
