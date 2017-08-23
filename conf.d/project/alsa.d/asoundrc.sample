@@ -1,17 +1,17 @@
-# 
+#
 # Author: Fulup Ar Foll
-# Object: PCM hook type 
+# Object: PCM hook type
 #
 # Test  :  Note: Jabra_USB=hw:v1340
 #  Check SoundCard  speaker-test -Dhw:v1340 -c2 -twav
-#  Check MixerPCM   speaker-test -DMyMixerPCM -c2 -twav 
-#  Check HookPCM    speaker-test -DMyNavigationHook -c2 -twav 
+#  Check MixerPCM   speaker-test -DMyMixerPCM -c2 -twav
+#  Check HookPCM    speaker-test -DMyNavigationHook -c2 -twav
 #  Check NavPCM     speaker-test -DMyNavPCM -c2 -twav
 #  MultiMedia aplay -DDMyNavPCM /usr/share/sounds/alsa/test.wav
 #
 # Bug/Feature: when softvol control is initialised from plugin and not
 #    from AGL binding. At 1st run ctl has invalid TLV and cannot be
-#    use. Bypass Solution: 
+#    use. Bypass Solution:
 #     * start audio-binder before playing sound (binding create control before softvol plugin)
 #     * run a dummy aplay -DMyNavPCM "" to get a clean control
 #
@@ -20,32 +20,32 @@
 
 # Mixer PCM allow to play multiple stream simultaneously
 # ------------------------------------------------------
-pcm.MyMixerPCM { 
-    type dmix 
+pcm.MyMixerPCM {
+    type dmix
     ipc_key 1024
     ipc_key_add_uid false
     ipc_perm 0666   # mixing for all users
 
     # Define target effective sound card (cannot be a plugin)
-    slave { 
-        pcm "hw:v1340"  #Jabra Solmate 
-        period_time 0 
-        period_size 1024 
+    slave {
+        pcm "hw:v1340"  #Jabra Solmate
+        period_time 0
+        period_size 1024
         buffer_size 8192
         rate 44100
     }
 
     # DMIX can only map two channels
-    bindings { 
-        0 0 
-        1 1 
-    } 
-} 
+    bindings {
+        0 0
+        1 1
+    }
+}
 
 # Define a Hook_type with a private sharelib
 # -------------------------------------------
 pcm_hook_type.MyHookPlugin {
-    install "AlsaInstallHook" 
+    install "AlsaInstallHook"
     lib "/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Alsa-Plugin/Alsa-Policy-Hook/policy_hook_cb.so"
 }
 
@@ -64,12 +64,12 @@ pcm.MyNavigationHook {
             # Every Call should return OK in order PCM to open (default timeout 100ms)
             uri   "ws://localhost:1234/api?token=audio-agent-token&uuid=audio-agent-session"
             request {
-                # Request autorisation to write on navigation 
+                # Request autorisation to write on navigation
                 RequestNavigation {
                     api    "control"
                     verb   "dispatch"
 	            query  "{'target':'navigation', 'args':{'device':'Jabra SOLEMATE v1.34.0'}}"
-                } 
+                }
             }
             # map event reception to self generated signal
             event {
@@ -99,7 +99,7 @@ pcm.MyMultimediaPCM {
     hint {
       show on
       description "Navigation SolftVol PCM"
-    }    
+    }
 }
 
 # If hardware does not support mixer emulate it with softvol
@@ -120,7 +120,7 @@ pcm.MyNavPCM {
     hint {
       show on
       description "Navigation SolftVol PCM"
-    }    
+    }
 }
 
 # If hardware does not support mixer emulate it with softvol
@@ -141,6 +141,6 @@ pcm.MyAlarmPCM {
     hint {
       show on
       description "Navigation SolftVol PCM"
-    }    
+    }
 }
 

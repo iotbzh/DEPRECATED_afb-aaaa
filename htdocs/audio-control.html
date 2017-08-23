@@ -5,41 +5,41 @@
     <script type="text/javascript" src="AFB-websock.js"></script>
     <script type="text/javascript" src="AudioBinding.js"></script>
 </head>
-   
+
 <body onload="init('hal_registry','alsacore', 'hallist')">
-        
+
     <h1>Simple Audio Control Test</h1>
     <button id="connected" onclick="init('hal_registry','alsacore', 'hallist')">Binder WS Fail</button>
     <br><br>
     <b>Selected HAL </b>
     <select id='hal_registry'></select>
-    
+
     <b>API Verbosity </b>
     <select id='api_verbosity' onclick='mode=this.value'>
         <option value='0'>Quiet</option>
         <option value='1'>Compact</option>
         <option value='2'>Verbose</option>
         <option value='3'>Full</option>
-    </select>    
+    </select>
     <br>
     <br>
-   
+
     <ol>
-    
+
     <li><button onclick="callbinder('control','dispatch' ,{'target':'navigation','args':{'apihal':sndcard}});">Dispatch Navigation</button></li>
     <li><button onclick="callbinder('control','dispatch' ,{'target':'multimedia','args':{'apihal':sndcard}});">Dispatch Mutimedia</button></li>
     <li><button onclick="callbinder('control','dispatch' ,{'target':'emergency' });">Dispatch Emergency</button></li>
-    <br>    
+    <br>
     <li><button onclick="callbinder('control','request'  , {'target':'_Simple_Echo_Args', 'args':{speed:20}});">LUA function</button></li>
     <li><button onclick="callbinder('control','request'  , {'target':'_Simple_Timer_Test', args:{label:'MyTimer', 'delay':3000, 'count':10}});">LUA Timer</button></li>
     <li><button onclick="callbinder('control','debuglua' , {'target':'helloworld', args:{'arg1':'abcd', 'next':7890, 'last':[1,2,3,4]}});">LUA script</button></li>
-        
+
     </ol>
-    
+
     <div id="main" style="visibility:hidden">
     <ol>
     <li>Question <pre id="question"></pre>
     <li>Response <pre id="output"></pre>
     <li>Events: <pre id="outevt"></pre>
     </ol>
-    </div>    
+    </div>

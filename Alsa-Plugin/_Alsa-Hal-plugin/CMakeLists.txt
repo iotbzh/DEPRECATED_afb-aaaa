@@ -22,7 +22,7 @@ add_compile_options(-DPIC)
 # Add target to project dependency list
 PROJECT_TARGET_ADD(ctl_afbhal)
 
-    # Define targets 
+    # Define targets
     ADD_LIBRARY(${TARGET_NAME} MODULE HalPlugCtl.c)
 
     # Alsa Plugin properties
@@ -39,7 +39,7 @@ PROJECT_TARGET_ADD(ctl_afbhal)
 
 PROJECT_TARGET_ADD(cb_sample)
 
-    # Define targets 
+    # Define targets
     ADD_LIBRARY(${TARGET_NAME} MODULE HalPlugCb.c)
 
     # Alsa Plugin properties

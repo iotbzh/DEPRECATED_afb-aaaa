@@ -42,7 +42,7 @@ card 2: ep022ch [Microchip MOST:2], device 0: ep02-2ch []
   Subdevice #0: subdevice #0
 
 ```
-Choose the first sound card with 6 channels, e.g. if you see ```ep01-6ch``` just 
+Choose the first sound card with 6 channels, e.g. if you see ```ep01-6ch``` just
 take ```Microchip MOST:1```.
 
 If you get messed up with card enumeration the following action may help:

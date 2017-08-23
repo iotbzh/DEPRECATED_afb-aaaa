@@ -60,13 +60,13 @@ typedef void (*lib_most_volume_writei2c_result_cb_t)(uint8_t result, void *user_
   * \return         Returns \c 0 for success, other value on failure.
   */
 typedef int (*lib_most_volume_writei2c_cb_t)(uint16_t node, uint8_t *data_ptr, uint8_t data_sz,
-                                            lib_most_volume_writei2c_result_cb_t result_fptr, 
+                                            lib_most_volume_writei2c_result_cb_t result_fptr,
                                             void *result_user_ptr);
 
 typedef struct lib_most_volume_init_ {
     lib_most_volume_service_cb_t  service_cb;
     lib_most_volume_writei2c_cb_t writei2c_cb;
-    
+
 } lib_most_volume_init_t;
 
 

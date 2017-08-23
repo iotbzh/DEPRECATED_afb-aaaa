@@ -13,9 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
-#define _GNU_SOURCE 
+#define _GNU_SOURCE
 #include <string.h>
 #include "hal-interface.h"
 #include "audio-common.h"
@@ -37,32 +37,32 @@ static int pcm_volume[PCM_MAX_CHANNELS];
 void unicens_master_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
     const char *j_str = json_object_to_json_string(j_obj);
-    
+
     if (wrap_json_unpack(j_obj, "[i!]", &master_volume) == 0) {
         AFB_NOTICE("master_volume: %s, value=%d", j_str, master_volume);
         wrap_volume_master(master_volume);
     }
     else {
         AFB_NOTICE("master_volume: INVALID STRING %s", j_str);
-    } 
+    }
 }
 
 void unicens_master_switch_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
     const char *j_str = json_object_to_json_string(j_obj);
-    
+
     if (wrap_json_unpack(j_obj, "[b!]", &master_switch) == 0) {
         AFB_NOTICE("master_switch: %s, value=%d", j_str, master_switch);
     }
     else {
         AFB_NOTICE("master_switch: INVALID STRING %s", j_str);
-    }    
+    }
 }
 
 void unicens_pcm_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
     const char *j_str = json_object_to_json_string(j_obj);
-    
+
     if (wrap_json_unpack(j_obj, "[iiiiii!]", &pcm_volume[0], &pcm_volume[1], &pcm_volume[2], &pcm_volume[3],
                                              &pcm_volume[4], &pcm_volume[5]) == 0) {
         AFB_NOTICE("pcm_vol: %s", j_str);
@@ -74,15 +74,15 @@ void unicens_pcm_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle, 
 }
 
 /* declare ALSA mixer controls */
-STATIC alsaHalMapT  alsaHalMap[]= { 
+STATIC alsaHalMapT  alsaHalMap[]= {
   { .tag=Master_Playback_Volume, .cb={.callback=unicens_master_vol_cb, .handle=&master_volume}, .info="Sets master playback volume",
-    .ctl={.numid=1, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .value=50, .name="Master Playback Volume"}   
+    .ctl={.numid=1, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=1, .minval=0, .maxval=100, .step=1, .value=50, .name="Master Playback Volume"}
   },
   /*{ .tag=Master_OnOff_Switch, .cb={.callback=unicens_master_switch_cb, .handle=&master_switch}, .info="Sets master playback switch",
-    .ctl={.numid=2, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .minval=0, .maxval=1, .step=1, .value=1, .name="Master Playback Switch"}   
+    .ctl={.numid=2, .type=SND_CTL_ELEM_TYPE_BOOLEAN, .count=1, .minval=0, .maxval=1, .step=1, .value=1, .name="Master Playback Switch"}
   },*/
   { .tag=PCM_Playback_Volume, .cb={.callback=unicens_pcm_vol_cb, .handle=&pcm_volume}, .info="Sets PCM playback volume",
-    .ctl={.numid=3, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=6, .minval=0, .maxval=100, .step=1, .value=100, .name="PCM Playback Volume"}   
+    .ctl={.numid=3, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=6, .minval=0, .maxval=100, .step=1, .value=100, .name="PCM Playback Volume"}
   },
   { .tag=EndHalCrlTag}              /* marker for end of the array */
 } ;
@@ -100,19 +100,19 @@ STATIC int unicens_service_init() {
     int err = 0;
     char *config_file = NULL;
     AFB_NOTICE("Initializing HAL-MOST-UNICENS-BINDING");
-    
+
     err = halServiceInit(afbBindingV2.api, &alsaHalSndCard);
     if (err) {
         AFB_ERROR("Cannot initialize ALSA soundcard.");
         goto OnErrorExit;
-    }    
-    
+    }
+
     err= afb_daemon_require_api("UNICENS", 1);
     if (err) {
         AFB_ERROR("Failed to access UNICENS API");
         goto OnErrorExit;
     }
-    
+
     err = wrap_ucs_getconfig_sync(UCS2_CFG_PATH, &config_file);
     if (err || (config_file == NULL)) {
         AFB_ERROR("Failed to retrieve configuration");
@@ -121,46 +121,46 @@ STATIC int unicens_service_init() {
     else {
         AFB_NOTICE("Found configuration: %s", config_file);
     }
-    
+
     err = wrap_ucs_subscribe_sync();
     if (err) {
         AFB_ERROR("Failed to subscribe to UNICENS binding");
         goto OnErrorExit;
     }
-    
+
     err = wrap_ucs_initialize_sync(config_file);
     free(config_file);
     config_file = NULL;
-    
+
     if (err) {
         AFB_ERROR("Failed to initialize UNICENS binding");
         goto OnErrorExit;
     }
-    
+
     err = wrap_volume_init();
     if (err) {
         AFB_ERROR("Failed to initialize wrapper for volume library");
         goto OnErrorExit;
     }
-    
+
 OnErrorExit:
     AFB_NOTICE("Initializing HAL-MOST-UNICENS-BINDING done..");
     return err;
 }
 
-// This receive all event this binding subscribe to 
+// This receive all event this binding subscribe to
 PUBLIC void unicens_event_cb(const char *evtname, json_object *j_event) {
-    
+
     if (strncmp(evtname, "alsacore/", 9) == 0) {
         halServiceEvent(evtname, j_event);
         return;
     }
-    
+
     if (strncmp(evtname, "UNICENS/", 8) == 0) {
         AFB_NOTICE("unicens_event_cb: evtname=%s [msg=%s]", evtname, json_object_get_string(j_event));
         return;
     }
-    
+
     AFB_NOTICE("unicens_event_cb: UNHANDLED EVENT, evtname=%s [msg=%s]", evtname, json_object_get_string(j_event));
 }
 

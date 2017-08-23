@@ -92,7 +92,7 @@ STATIC int sndCtlEventCB(sd_event_source* src, int fd, uint32_t revents, void* u
 
     if ((revents & EPOLLIN) != 0) {
 
-        // initialise event structure on stack  
+        // initialise event structure on stack
         snd_ctl_event_alloca(&eventId);
         snd_ctl_elem_id_alloca(&elemId);
 
@@ -222,11 +222,11 @@ PUBLIC void alsaEvtSubcribe(afb_req request) {
             goto OnErrorExit;
         }
 
-        // everything looks OK let's move forward 
+        // everything looks OK let's move forward
         idx = idxFree;
     }
 
-    // subscribe to binder event    
+    // subscribe to binder event
     err = afb_req_subscribe(request, evtHandle->afbevt);
     if (err != 0) {
         afb_req_fail_f(request, "register-eventname", "Cannot subscribe binder event name=%s [invalid channel]", queryValues.devid);
@@ -277,7 +277,7 @@ STATIC json_object *alsaProbeCardId(afb_req request) {
         shortname = snd_ctl_card_info_get_name(cardinfo);
         longname = snd_ctl_card_info_get_longname(cardinfo);
 
-        // check if short|long name match        
+        // check if short|long name match
         if (!strcmp(sndname, ctlName)) break;
         if (!strcmp(sndname, shortname)) break;
         if (!strcmp(sndname, longname)) break;
@@ -288,7 +288,7 @@ STATIC json_object *alsaProbeCardId(afb_req request) {
         goto OnErrorExit;
     }
 
-    // proxy ctlevent as a binder event        
+    // proxy ctlevent as a binder event
     responseJ = json_object_new_object();
     json_object_object_add(responseJ, "index", json_object_new_int(index));
     json_object_object_add(responseJ, "devid", json_object_new_string(devid));
@@ -361,7 +361,7 @@ PUBLIC void alsaRegisterHal(afb_req request) {
         goto OnErrorExit;
     }
 
-    // alsaGetCardId should be check to register only valid card    
+    // alsaGetCardId should be check to register only valid card
     responseJ = alsaProbeCardId(request);
     if (responseJ) {
         json_object *tmpJ;

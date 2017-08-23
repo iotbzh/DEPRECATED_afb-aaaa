@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Testing:
  *  1) Copy generated plugin [libasound_module_pcm_afbhal.so] in alsa-lib/ dir visible from LD_LIBRARY_PATH (eg: /usr/lib64/alsa-lib)
  *  2) Create a ~/.asounrc file base on following template
@@ -25,7 +25,7 @@
  *          # ctlLabel {numid integer name "Alsa Ctl Name"}
  *          MasterSwitch { numid 4 name "My_First_Control" }
  *          MasterVol    { numid 5 name "My_Second_Control" }
- *          CB_sample    { ctlcb @AfbHalSampleCB name "My_Sample_Callback"} 
+ *          CB_sample    { ctlcb @AfbHalSampleCB name "My_Sample_Callback"}
  *      }
  *      pcm.agl_hal {
  *          type copy     # Copy PCM
@@ -109,7 +109,7 @@ static int AfbHalGetIntInfo(snd_ctl_ext_t *ext, snd_ctl_ext_key_t key, long *imi
 
     if (elemInfo) {
 
-        // Should be normalised to make everything 0-100% 
+        // Should be normalised to make everything 0-100%
         *imin = (long) snd_ctl_elem_info_get_min(elemInfo);
         *imax = (long) snd_ctl_elem_info_get_min(elemInfo);
         *istep = (long) snd_ctl_elem_info_get_min(elemInfo);

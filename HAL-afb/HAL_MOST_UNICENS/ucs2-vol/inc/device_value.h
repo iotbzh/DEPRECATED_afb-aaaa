@@ -69,7 +69,7 @@ public:
     bool RequiresUpdate();      // returns true if target is not actual value
                                 // returns true if success, false if failed
                                 // -> stop transmission
-    bool FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr, 
+    bool FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr,
                            lib_most_volume_writei2c_result_cb_t result_fptr,
                            void *result_user_ptr);// fires message & updates actual value
 

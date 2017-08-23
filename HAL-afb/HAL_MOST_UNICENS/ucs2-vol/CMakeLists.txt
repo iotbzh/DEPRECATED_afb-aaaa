@@ -18,7 +18,7 @@
 
 
 
-# Define subproject targets    
+# Define subproject targets
 ADD_SUBDIRECTORY(src)
 
 

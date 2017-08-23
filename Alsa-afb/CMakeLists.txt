@@ -31,8 +31,8 @@ PROJECT_TARGET_ADD(alsa-lowlevel)
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} 
-        audio-common 
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
+        audio-common
         ${link_libraries}
     )
 

@@ -13,10 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * AfbCallBack (snd_ctl_hal_t *handle, int numid, void **response);
  *  AfbHalInit is mandatory and called with numid=0
- * 
+ *
  * Syntaxe in .asoundrc file
  *   CrlLabel    { cb MyFunctionName name "My_Second_Control" }
  */

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
- 
+
 #ifndef ALSALIBMAPPING_H
 #define ALSALIBMAPPING_H
 
@@ -57,12 +57,12 @@ PUBLIC void alsaSetCtls(struct afb_req request);
 
 
 // AlsaUseCase exports
-PUBLIC void alsaUseCaseQuery(struct afb_req request); 
-PUBLIC void alsaUseCaseSet(struct afb_req request); 
-PUBLIC void alsaUseCaseGet(struct afb_req request); 
-PUBLIC void alsaUseCaseClose(struct afb_req request); 
-PUBLIC void alsaUseCaseReset(struct afb_req request); 
-PUBLIC void alsaAddCustomCtls(struct afb_req request); 
+PUBLIC void alsaUseCaseQuery(struct afb_req request);
+PUBLIC void alsaUseCaseSet(struct afb_req request);
+PUBLIC void alsaUseCaseGet(struct afb_req request);
+PUBLIC void alsaUseCaseClose(struct afb_req request);
+PUBLIC void alsaUseCaseReset(struct afb_req request);
+PUBLIC void alsaAddCustomCtls(struct afb_req request);
 
 // AlsaRegEvt
 PUBLIC void alsaEvtSubcribe (struct afb_req request);

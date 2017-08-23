@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * References:
  *  https://kernel.readthedocs.io/en/sphinx-samples/writing-an-alsa-driver.html#control-names
  *  https://01.org/linuxgraphics/gfx-docs/drm/sound/designs/control-names.html
@@ -287,7 +287,7 @@ UpdateDefaultVal:
         goto DoNotUpdate;
     }
 
-    // write a default null TLV (if usefull should be implemented for every ctl type) 
+    // write a default null TLV (if usefull should be implemented for every ctl type)
     if (elemTlv) {
         err = snd_ctl_elem_tlv_write(ctlDev, elemId, elemTlv);
         if (err < 0) {

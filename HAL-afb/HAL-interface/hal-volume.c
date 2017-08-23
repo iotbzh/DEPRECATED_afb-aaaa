@@ -13,8 +13,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * references: 
+ *
+ * references:
  *   alsa-util/amixer.c + alsa-lib/simple.c
  *   snd_tlv_convert_from_dB
  *   nt snd_tlv_convert_to_dB
@@ -80,7 +80,7 @@ PUBLIC json_object *volumeNormalise(ActionSetGetT action, const alsaHalCtlMapT *
 
         } else { // db_scale looks OK let's use it
             if ((halCtls->dbscale->max - halCtls->dbscale->min) <= MAX_LINEAR_DB_SCALE * 100) useNormalizeDB = NORMALIZE_DB_LINEAR;
-            else useNormalizeDB = NORMALIZE_LINEAR; // Fulup not sure how to handle this useNormalizeDB=NORMALIZE_DB_MATH;            
+            else useNormalizeDB = NORMALIZE_LINEAR; // Fulup not sure how to handle this useNormalizeDB=NORMALIZE_DB_MATH;
         }
     } else useNormalizeDB = NORMALIZE_NONE;
 

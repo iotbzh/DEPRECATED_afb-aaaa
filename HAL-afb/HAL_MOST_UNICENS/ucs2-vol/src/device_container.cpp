@@ -112,7 +112,7 @@ void CDeviceContainer::Update()
     {
         return;
     }
-    
+
     for (cnt = 0u; cnt < this->_values_sz; cnt++)   /* just run one cycle */
     {
         IncrementProcIndex();

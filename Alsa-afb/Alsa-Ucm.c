@@ -19,8 +19,8 @@
       https://www.alsa-project.org/main/index.php/DAPM
       http://alsa-lib.sourcearchive.com/documentation/1.0.24.1-2/group__Use_ga4332c6bb50481bbdaf21be11551fb930.html
       https://android.googlesource.com/platform/hardware/qcom/audio/+/jb-mr1-dev/libalsa-intf/alsa_ucm.h
- 
-   Sample alsaucm commands using /usr/share/alsa/ucm/PandaBoard 
+
+   Sample alsaucm commands using /usr/share/alsa/ucm/PandaBoard
     - alsaucm  -c PandaBoard list _verbs
     - alsaucm  -c PandaBoard list _devices/HiFi
     - alsaucm  -c PandaBoard list _modifiers/HiFi  #need to uncomment modifiers section
@@ -49,7 +49,7 @@ typedef struct {
 
 static ucmHandleT ucmHandles[MAX_SND_CARD];
 
-// Cache opened UCM handles 
+// Cache opened UCM handles
 
 STATIC int alsaUseCaseOpen(struct afb_req request, queryValuesT *queryValues, int allowNewMgr) {
     snd_ctl_t *ctlDev;

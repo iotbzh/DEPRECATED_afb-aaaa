@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 
 #define _GNU_SOURCE  // needed for vasprintf
@@ -36,14 +36,14 @@ STATIC int RampTimerCB(sd_event_source* source, uint64_t timer, void* handle) {
         if (volRamp->current > volRamp->target) volRamp->current = volRamp->target;
     }
 
-    // request current Volume Level 
+    // request current Volume Level
     err = halSetCtlByTag(volRamp->slave, volRamp->current);
     if (err) goto OnErrorExit;
 
     // we reach target stop volram event
     if (volRamp->current == volRamp->target) sd_event_source_unref(source);
     else {
-        // otherwise validate timer for a new run    
+        // otherwise validate timer for a new run
         sd_event_now(afb_daemon_get_event_loop(), CLOCK_MONOTONIC, &usec);
         sd_event_source_set_enabled(source, SD_EVENT_ONESHOT);
         err = sd_event_source_set_time(source, usec + volRamp->delay);
@@ -60,8 +60,8 @@ OnErrorExit:
 STATIC void SetRampTimer(void *handle) {
     halVolRampT *volRamp = (halVolRampT*) handle;
     uint64_t usec;
-    
-    // set a timer with ~250us accuracy 
+
+    // set a timer with ~250us accuracy
     sd_event_now(afb_daemon_get_event_loop(), CLOCK_MONOTONIC, &usec);
     sd_event_add_time(afb_daemon_get_event_loop(), &volRamp->evtsrc, CLOCK_MONOTONIC, usec, 250, RampTimerCB, volRamp);
 }
@@ -69,7 +69,7 @@ STATIC void SetRampTimer(void *handle) {
 STATIC int volumeDoRamp(halVolRampT *volRamp, int numid, json_object *volumeJ) {
     json_object *responseJ;
 
-    // request current Volume Level 
+    // request current Volume Level
     responseJ = halGetCtlByTag(volRamp->slave);
     if (!responseJ) {
         AFB_WARNING("volumeDoRamp Fail to get HAL ctl tag=%d", Master_Playback_Volume);

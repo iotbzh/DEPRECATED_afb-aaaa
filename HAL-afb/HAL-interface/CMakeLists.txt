@@ -20,7 +20,7 @@
 # Add target to project dependency list
 PROJECT_TARGET_ADD(hal-interface)
 
-    # Define targets 
+    # Define targets
     ADD_LIBRARY(${TARGET_NAME} STATIC hal-volume.c hal-volramp.c hal-interface.c)
 
     # Library properties
@@ -30,7 +30,7 @@ PROJECT_TARGET_ADD(hal-interface)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
         audio-common
     )
- 
+
     # Define target includes
     TARGET_INCLUDE_DIRECTORIES(${TARGET_NAME}
         PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}

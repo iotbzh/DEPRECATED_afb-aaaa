@@ -72,7 +72,7 @@ extern "C" uint8_t lib_most_volume_set(enum lib_most_volume_channel_t channel, u
 }
 
 extern "C" uint8_t lib_most_volume_service(void)
-{   
+{
     uint8_t success = 1U;
     /*std::cerr << "lib_most_volume_service(): called" << std::endl;*/
 
@@ -81,6 +81,6 @@ extern "C" uint8_t lib_most_volume_service(void)
         CSetup::GetInstance()->Update();
         success = 0U;
     }
-    
+
     return success;
 }

@@ -13,10 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * reference: 
+ *
+ * reference:
  *   amixer contents; amixer controls;
- *   http://www.tldp.org/HOWTO/Alsa-sound-6.html 
+ *   http://www.tldp.org/HOWTO/Alsa-sound-6.html
  */
 #define _GNU_SOURCE  // needed for vasprintf
 #include <string.h>
@@ -553,7 +553,7 @@ PUBLIC int halServiceInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
         }
     }
 
-    // Make sure response is valid 
+    // Make sure response is valid
     json_object_object_get_ex(responseJ, "response", &ctlsJ);
     if (json_object_get_type(ctlsJ) != json_type_array) {
         AFB_ERROR("Response Invalid JSON array ctls Response='%s'", json_object_get_string(responseJ));
@@ -587,7 +587,7 @@ OnErrorExit:
 };
 
 
-// This receive all event this binding subscribe to 
+// This receive all event this binding subscribe to
 
 PUBLIC void halServiceEvent(const char *evtname, json_object *eventJ) {
     int numid;

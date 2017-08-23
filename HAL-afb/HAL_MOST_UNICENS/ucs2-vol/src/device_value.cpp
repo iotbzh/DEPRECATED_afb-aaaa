@@ -93,14 +93,14 @@ bool CDeviceValue::RequiresUpdate()
     return false;
 }
 
-bool CDeviceValue::FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr, 
+bool CDeviceValue::FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr,
                                      lib_most_volume_writei2c_result_cb_t result_fptr,
                                      void *result_user_ptr)
 {
     int ret;
     ApplyMostValue(this->_target_value, _type, _tx_payload);
 
-    ret = writei2c_fptr(this->_address, &_tx_payload[0], _tx_payload_sz, 
+    ret = writei2c_fptr(this->_address, &_tx_payload[0], _tx_payload_sz,
                         result_fptr,
                         result_user_ptr);
 

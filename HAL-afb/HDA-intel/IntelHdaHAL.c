@@ -13,17 +13,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * 
+ *
+ *
  * To find out which control your sound card uses
  *  aplay -l  # Check sndcard name name in between []
  *  amixer -D hw:xx controls # get supported controls
  *  amixer -D "hw:3" cget numid=xx  # get control settings
- * 
+ *
  */
-#define _GNU_SOURCE 
+#define _GNU_SOURCE
 #include "hal-interface.h"
-#include "audio-common.h" 
+#include "audio-common.h"
 
 
 // Default Values for MasterVolume Ramping
@@ -35,7 +35,7 @@ STATIC halVolRampT volRampMaster = {
     .stepUp = 1,
 };
 
-// Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities. 
+// Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities.
 STATIC alsaHalMapT alsaHalMap[] = {
     { .tag = Master_Playback_Volume, . ctl =
         { .name = "Master Playback Volume"}},

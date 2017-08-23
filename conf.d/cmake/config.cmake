@@ -68,7 +68,7 @@ set (PKG_REQUIRED_LIST
 # Either separate options with ";", or each options must be quoted separately
 # DO NOT PUT ALL OPTION QUOTED AT ONCE , COMPILATION COULD FAILED !
 # ----------------------------------------------------------------------------
-set(COMPILE_OPTIONS 
+set(COMPILE_OPTIONS
 -Wall
 -Wextra
 -Wconversion

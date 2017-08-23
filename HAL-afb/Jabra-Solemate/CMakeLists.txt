@@ -32,7 +32,7 @@ PROJECT_TARGET_ADD(hal-jabra-usb)
     )
 
     # Library dependencies (include updates automatically)
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} 
+    TARGET_LINK_LIBRARIES(${TARGET_NAME}
         hal-interface
         audio-common
     )

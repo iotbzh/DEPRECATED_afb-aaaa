@@ -6,27 +6,27 @@
     <script type="text/javascript" src="AudioBinding.js"></script>
 </head>
 
-    
+
 <body onload="init('hal_registry','alsacore', 'hallist')">
-        
+
     <h1>Simple AlsaHAL tests</h1>
     <button id="connected" onclick="init('hal_registry','alsacore', 'hallist')">Binder WS Fail</button>
     <br><br>
     <b>Selected HAL </b>
     <select id='hal_registry'></select>
-    
+
     <b>API Verbosity </b>
     <select id='api_verbosity' onclick='mode=this.value'>
         <option value='0'>Quiet</option>
         <option value='1'>Compact</option>
         <option value='2'>Verbose</option>
         <option value='3'>Full</option>
-    </select>    
+    </select>
     <br>
 
     <br>
     <ol>
-        
+
     <li><button onclick="callbinder(sndcard,'ctllist')">List Selected HAL Controls </button></li>
     <li><button onclick="callbinder(sndcard,'ctlget', {label:'Master_Playback_Volume'})">Get  {label:'Master_Playback_Volume'}</button></li>
     <li><button onclick="callbinder(sndcard,'ctlget', [{tag:4},{tag:5}])">Get[{tag:4},{tag:5}]</button></li>
@@ -37,18 +37,18 @@
     <li><button onclick="callbinder(sndcard,'ctlset', [{tag:4, val:25},{tag:5, val:25}])">Set[{tag:4, val:25},{tag:5, val:25}]</button></li>
     <li><button onclick="callbinder(sndcard,'ctlset', [{tag:4, val:[55,45]},{tag:5, val:[45,55]}])">Set[{tag:4, val:[55,45]},{tag:5, val:[45,55]}]]</button></li>
     <br>
-    
+
     <li>
         <label for="volramp">Volume Ramp</label>
         <input id="volramp" type="number" min=0 max=100 step=10 maxlength=3 placeholder="Enter 0-100" onChange="callbinder(sndcard,'ctl-set', {label:'Volume_Ramp', val:this.value})">
     </li>
     <br>
     </ol>
-    
+
     <div id="main" style="visibility:hidden">
     <ol>
     <li>Question <pre id="question"></pre>
     <li>Response <pre id="output"></pre>
     <li>Events: <pre id="outevt"></pre>
     </ol>
-    </div>    
+    </div>

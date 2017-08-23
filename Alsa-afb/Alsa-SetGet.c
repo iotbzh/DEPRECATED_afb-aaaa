@@ -36,7 +36,7 @@ PUBLIC void NumidsListParse(ActionSetGetT action, queryValuesT *queryValues, ctl
         ctlRequest[idx].used = 0;
         ctlRequest[idx].valuesJ = NULL;
 
-        // when only one NUMID is provided it might not be encapsulated in a JSON array 
+        // when only one NUMID is provided it might not be encapsulated in a JSON array
         if (json_type_array == json_object_get_type(queryValues->numidsJ)) ctlRequest[idx].jToken = json_object_array_get_idx(queryValues->numidsJ, idx);
         else ctlRequest[idx].jToken = queryValues->numidsJ;
 
@@ -438,7 +438,7 @@ PUBLIC int alsaSetSingleCtl(snd_ctl_t *ctlDev, snd_ctl_elem_id_t *elemId, ctlReq
     snd_ctl_elem_info_t *elemInfo;
     int count, length, err, valueIsArray = 0;
 
-    // let's make sure we are processing the right control    
+    // let's make sure we are processing the right control
     if (ctlRequest->numId != snd_ctl_elem_id_get_numid(elemId)) goto OnErrorExit;
 
     // set info event ID and get value
@@ -720,7 +720,7 @@ STATIC void alsaSetGetCtls(ActionSetGetT action, afb_req request) {
         int jdx;
 
         if (queryValues.count == 0 && action == ACTION_GET) {
-            selected = 1; // check is this numid is selected within query        
+            selected = 1; // check is this numid is selected within query
             jdx = ctlIndex; // map all existing ctl as requested
         } else {
             int numid = snd_ctl_elem_list_get_numid(ctlList, ctlIndex);
@@ -737,7 +737,7 @@ STATIC void alsaSetGetCtls(ActionSetGetT action, afb_req request) {
             }
         }
 
-        // control is selected open ctlid and get value 
+        // control is selected open ctlid and get value
         if (selected) {
             snd_ctl_elem_id_t *elemId;
             snd_ctl_elem_id_alloca(&elemId);

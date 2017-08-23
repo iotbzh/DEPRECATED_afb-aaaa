@@ -1,4 +1,4 @@
-Hal-Plugin 
+Hal-Plugin
 
 Object: Add virtual soft control to sound card
 Status: Proof of concept and not a usable product
@@ -24,7 +24,7 @@ cat ~/.asoundrc
         # ctlLabel {numid integer name "Alsa Ctl Name"}
         MasterSwitch { numid 4 name "My_First_Control" }
         MasterVol    { numid 5 name "My_Second_Control" }
-        CB_sample    { ctlcb @AfbHalSampleCB name "My_Sample_Callback"} 
+        CB_sample    { ctlcb @AfbHalSampleCB name "My_Sample_Callback"}
     }
     pcm.agl_hal {
         type copy     # Copy PCM
