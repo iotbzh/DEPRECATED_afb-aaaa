@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include "device_container.h"
 
-#define DEVCONT_TIME_RETRIGGER      (uint16_t)100U
+#define DEVCONT_TIME_RETRIGGER      (uint16_t)30U
 #define DEVCONT_TIME_NOW            (uint16_t)0U
 #define DEVCONT_TIME_STOP           (uint16_t)0xFFFFU
 
@@ -123,13 +123,14 @@ void CDeviceContainer::Update()
                                                                  &OnI2cResult,
                                                                  this))
             {
-                /*Clb_RegisterI2CResultCB(&OnI2cResult, this);*/
                 this->_tx_busy = true;
+                error = false;
                 break;
             }
             else
             {
                 error = true;
+                break;
             }
         }
     }
@@ -142,9 +143,11 @@ void CDeviceContainer::Update()
 
 void CDeviceContainer::HandleI2cResult(uint8_t result)
 {
-    DEVCONT_UNUSED(result);
     this->_tx_busy = false;
-    this->RequestService(DEVCONT_TIME_NOW);
+    if (result == 0)
+        this->RequestService(DEVCONT_TIME_NOW);
+    else
+        this->RequestService(DEVCONT_TIME_RETRIGGER);
 }
 
 void CDeviceContainer::OnI2cResult(uint8_t result, void *obj_ptr)

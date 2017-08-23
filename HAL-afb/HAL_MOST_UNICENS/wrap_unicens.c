@@ -277,8 +277,8 @@ static void wrap_ucs_i2cwrite_cb(void *closure, int status, struct json_object *
         async_job_t *job_ptr = (async_job_t *)closure;
 
         if (job_ptr->result_fptr)
-            job_ptr->result_fptr(0U, job_ptr->result_user_ptr);
-
+            job_ptr->result_fptr((uint8_t)abs(status), job_ptr->result_user_ptr);
+        
         free(closure);
     }
 }

@@ -28,11 +28,77 @@
 #endif
 
 #define ALSA_CARD_NAME    "Microchip MOST:1"
+#define ALSA_DEVICE_ID    "hw:1"
 #define PCM_MAX_CHANNELS  6
 
 static int master_volume;
 static json_bool master_switch;
 static int pcm_volume[PCM_MAX_CHANNELS];
+
+static void unicens_request_card_values_cb(void *closure, int status, struct json_object *j_response) {
+    
+    json_object *j_obj;
+    int num_id;
+    int values[6];
+    
+    AFB_INFO("unicens_request_card_values_cb: closure=%p status=%d, res=%s", closure, status, json_object_to_json_string(j_response));
+    
+    json_object_object_get_ex(j_response, "response", &j_obj);
+    
+    if (json_object_is_type(j_obj, json_type_object)) {
+       
+    }
+    else if (json_object_is_type(j_obj, json_type_array)) {
+        AFB_ERROR("unicens_request_card_values_cb: array not handled yet");
+        return;
+    }
+    else {
+        AFB_ERROR("unicens_request_card_values_cb: unknown response type");
+        return;
+    }
+    
+    if (wrap_json_unpack(j_obj, "{s:i, s:[iiiiii!]}", "id", &num_id, "val", 
+            &values[0], &values[1], &values[2], &values[3], &values[4], &values[5])
+            == 0) {
+        AFB_NOTICE("unicens_request_card_values_cb: success, num id:%d", num_id);
+    }
+    else {
+        AFB_ERROR("unicens_request_card_values_cb: unpack failure");
+        return;
+    }
+    
+#if 0
+    if (num_id == 2) {
+        wrap_volume_pcm(&values[0], 6);
+    }
+#endif
+    
+}
+
+__attribute__ ((unused)) static void unicens_request_card_values(const char* dev_id) {
+
+    int err;
+    json_object *j_query = NULL;
+    
+    err = wrap_json_pack(&j_query, "{s:s, s:i}", "devid", dev_id, "mode", 0);
+
+    if (err) {
+        AFB_ERROR("Failed to call wrap_json_pack");
+        goto OnErrorExit;
+    }   
+
+    afb_service_call("alsacore", "getctl", j_query,
+            &unicens_request_card_values_cb,
+            NULL);
+    
+    if (err) {
+        AFB_ERROR("Failed to call listconfig");
+        goto OnErrorExit;
+    }
+    
+OnErrorExit:
+    return;
+}
 
 void unicens_master_vol_cb(halCtlsTagT tag, alsaHalCtlMapT *control, void* handle,  json_object *j_obj) {
 
@@ -142,7 +208,10 @@ STATIC int unicens_service_init() {
         AFB_ERROR("Failed to initialize wrapper for volume library");
         goto OnErrorExit;
     }
-
+    
+    /* request of initial card values */
+    /* unicens_request_card_values(ALSA_DEVICE_ID); */
+    
 OnErrorExit:
     AFB_NOTICE("Initializing HAL-MOST-UNICENS-BINDING done..");
     return err;
@@ -166,7 +235,6 @@ PUBLIC void unicens_event_cb(const char *evtname, json_object *j_event) {
                 AFB_NOTICE("Node-Availability: node=0x%03X, available=%d", node, available);
                 wrap_volume_node_avail(node, available);
             }
-            
         }
         
         return;

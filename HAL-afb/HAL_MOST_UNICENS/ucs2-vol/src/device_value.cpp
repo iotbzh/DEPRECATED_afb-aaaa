@@ -20,7 +20,7 @@
  * Please contact Microchip for further information.
  *
  */
-
+#include <stddef.h>
 #include "device_value.h"
 #include "setup.h"
 
@@ -34,11 +34,14 @@
 
 CDeviceValue::CDeviceValue(uint16_t address, DeviceValueType type, uint16_t key)
 {
-    this->_is_initial = true;
     this->_is_available = false;
+    this->_is_busy = false;
     this->_address = address;
     this->_target_value = 0x01u;
     this->_actual_value = 0x01u;
+    
+    this->_result_fptr = NULL;
+    this->_result_user_ptr = NULL;
 
     this->_type = type;
     this->_key = key;
@@ -86,7 +89,7 @@ void CDeviceValue::ApplyMostValue(uint8_t value, DeviceValueType type, uint8_t t
 // returns true if target is not actual value
 bool CDeviceValue::RequiresUpdate()
 {
-    if (this->_is_available && (this->_target_value != this->_actual_value))
+    if (this->_is_available && !this->_is_busy && (this->_target_value != this->_actual_value))
     {
         return true;
     }
@@ -101,34 +104,45 @@ bool CDeviceValue::FireUpdateMessage(lib_most_volume_writei2c_cb_t writei2c_fptr
     int ret = -1;
     ApplyMostValue(this->_target_value, _type, _tx_payload);
 
-    if (this->_is_available)
+    if (this->_is_available && !this->_is_busy)
     {
         ret = writei2c_fptr(this->_address, &_tx_payload[0], _tx_payload_sz, 
-                            result_fptr,
-                            result_user_ptr);
-    }
-
-    if (ret == 0)
-    {
-        // Clb_RegisterI2CResultCB(OnI2cResult, this);
-        // mark value as set!
-        this->_actual_value = this->_target_value;
-        return true;
+                            &OnI2cResult,
+                            this);
+        
+        if (ret == 0)
+        {
+            this->_transmitted_value = this->_target_value;
+            this->_is_busy = true;
+            this->_result_fptr = result_fptr;
+            this->_result_user_ptr = result_user_ptr;
+            return true;
+        }
     }
 
     return false;
 }
 
-#if 0
-    ret = Ucs_I2c_WritePort( CSetup::GetInstance()->RetrieveUnicensInst(),
-            this->_address,
-            0x0F00u,                /* i2c port handle */
-            UCS_I2C_DEFAULT_MODE,   /* 0 */
-            0u,                     /* block count */
-            0x2Au,                  /* i2c slave address */
-            0x03E8u,                /* timeout 1000 milliseconds */
-            _tx_payload_sz,         /* data length */
-            &_tx_payload[0],        /* data pointer */
-            &Clb_OnWriteI2CPortResult
-            );
-#endif
+void CDeviceValue::HandleI2cResult(uint8_t result)
+{
+    if (result == 0)
+    {
+        /* transmission succeeded - now apply transmitted value */
+        this->_actual_value = this->_transmitted_value;
+    }
+    
+    if (this->_result_fptr)
+    {
+        /* notify container */
+        this->_result_fptr(result, this->_result_user_ptr);
+    }
+    
+    this->_result_fptr = NULL;
+    this->_result_user_ptr = NULL;
+    this->_is_busy = false;
+}
+
+void CDeviceValue::OnI2cResult(uint8_t result, void *obj_ptr)
+{
+    ((CDeviceValue*)obj_ptr)->HandleI2cResult(result);
+}

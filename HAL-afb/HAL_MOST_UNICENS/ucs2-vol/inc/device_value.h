@@ -73,23 +73,28 @@ public:
                            lib_most_volume_writei2c_result_cb_t result_fptr,
                            void *result_user_ptr);// fires message & updates actual value
     
-    void SetAvailable(bool active){this->_is_available = active;}
+    void SetAvailable(bool active){this->_is_available = active; _actual_value = 0x01u;}
     bool IsAvailable() {return this->_is_available;}
     uint16_t GetAddress() {return this->_address;}
 
 private:
-    void HandleI2cResult(uint8_t result);
     void ApplyMostValue(uint8_t value, DeviceValueType type, uint8_t tx_payload[]);
+    void HandleI2cResult(uint8_t result);
+    static void OnI2cResult(uint8_t result, void *obj_ptr);
 
-    bool     _is_initial;       // ensure first update
-    bool     _is_available;        // related node is available
+    bool     _is_available;     // related node is available
+    bool     _is_busy;          // do not update while busy
     DeviceValueType _type;      // determines the remote i2c command
     uint16_t _key;              // lookup key
     uint16_t _address;          // target node/group address
     uint8_t  _target_value;     // desired value
+    uint8_t  _transmitted_value;// value pending during transmission        
     uint8_t  _actual_value;     // value set and confirmed via network
     uint8_t  _tx_payload[20];
     uint8_t  _tx_payload_sz;
+    
+    lib_most_volume_writei2c_result_cb_t _result_fptr;
+    void *_result_user_ptr;
 };
 
 #endif	/* DEVICEPROPERTY_H */

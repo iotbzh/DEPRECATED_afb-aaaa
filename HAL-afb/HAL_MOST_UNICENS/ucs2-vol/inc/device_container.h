@@ -45,7 +45,6 @@ private:
     void RequestService(uint16_t timeout);
     void IncrementProcIndex(void);
     void HandleI2cResult(uint8_t result);
-
     static void OnI2cResult(uint8_t result, void *obj_ptr);
 
     uint16_t _idx_processing;
