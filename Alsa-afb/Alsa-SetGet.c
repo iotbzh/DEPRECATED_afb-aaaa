@@ -759,8 +759,8 @@ STATIC void alsaSetGetCtls(ActionSetGetT action, afb_req request) {
             else {
                 // Do not embed response in an array when only one ctl was requested
                 if (action == ACTION_GET) {
-                    if (queryValues.count > 1) json_object_array_add(sndctls, ctlRequest[jdx].valuesJ);
-                    else sndctls = ctlRequest[jdx].valuesJ;
+                    if (queryValues.count == 1) sndctls = ctlRequest[jdx].valuesJ;
+                    else json_object_array_add(sndctls, ctlRequest[jdx].valuesJ);
                 }
             }
         }

@@ -2,6 +2,10 @@
 <configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
+      <df name="afb-utilities">
+        <in>filescan-utils.c</in>
+        <in>wrap-json.c</in>
+      </df>
       <df name="Alsa-afb">
         <in>Alsa-AddCtl.c</in>
         <in>Alsa-ApiHat.c</in>
@@ -340,6 +344,7 @@
         <cTool flags="3">
           <incDir>
             <pElem>Audio-Common</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HAL-interface</pElem>
           </incDir>
         </cTool>
@@ -374,8 +379,11 @@
           <incDir>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/HAL_MOST_UNICENS</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
             <pElem>Audio-Common</pElem>
             <pElem>HAL-afb/HAL-interface</pElem>
+            <pElem>../../../opt/include</pElem>
             <pElem>build/HAL-afb/HAL_MOST_UNICENS</pElem>
           </incDir>
         </cTool>
@@ -431,6 +439,7 @@
         <cTool flags="3">
           <incDir>
             <pElem>HAL-afb/HAL_MOST_UNICENS</pElem>
+            <pElem>/usr/include/json-c</pElem>
             <pElem>build/HAL-afb/HAL_MOST_UNICENS</pElem>
           </incDir>
         </cTool>
@@ -443,6 +452,7 @@
           <incDir>
             <pElem>../../../opt/include/afb</pElem>
             <pElem>HAL-afb/HAL_MOST_UNICENS</pElem>
+            <pElem>/usr/include/json-c</pElem>
             <pElem>build/HAL-afb/HAL_MOST_UNICENS</pElem>
           </incDir>
         </cTool>
@@ -536,6 +546,25 @@
       <item path="MostVolume/external/Thread.cpp" ex="false" tool="1" flavor2="4">
       </item>
       <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
+      </item>
+      <item path="afb-utilities/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/afb-utilities</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="afb-utilities/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/afb-utilities</pElem>
+          </incDir>
+        </cTool>
       </item>
       <folder path="0/Alsa-Plugin">
         <cTool>
