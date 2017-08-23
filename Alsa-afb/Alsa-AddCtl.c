@@ -30,6 +30,29 @@
 
 // Performs like a toggle switch for attenuation, because they're bool (ref:user-ctl-element-set.c)
 
+#ifndef SNDRV_CTL_TLVD_DECLARE_DB_MINMAX
+// taken from alsa-lib-1.1.3:include/sound/tlv.h
+
+#define SNDRV_CTL_TLVD_LENGTH(...) \
+    ((unsigned int)sizeof((const unsigned int[]) { __VA_ARGS__ }))
+
+#define SNDRV_CTL_TLVD_ITEM(type, ...) \
+    (type), SNDRV_CTL_TLVD_LENGTH(__VA_ARGS__), __VA_ARGS__
+
+#define SNDRV_CTL_TLVT_DB_MINMAX 4
+
+#define SNDRV_CTL_TLVD_DB_MINMAX_ITEM(min_dB, max_dB) \
+    SNDRV_CTL_TLVD_ITEM(SNDRV_CTL_TLVT_DB_MINMAX, (min_dB), (max_dB))
+
+#define SNDRV_CTL_TLVD_DECLARE_DB_MINMAX(name, min_dB, max_dB) \
+    unsigned int name[] = { \
+        SNDRV_CTL_TLVD_DB_MINMAX_ITEM(min_dB, max_dB) \
+    }
+
+#define SNDRV_CTL_TLVD_DB_SCALE_MASK    0xffff
+#define SNDRV_CTL_TLVD_DB_SCALE_MUTE    0x10000
+
+#endif
 static const unsigned int *allocate_bool_fake_tlv(void) {
     static const SNDRV_CTL_TLVD_DECLARE_DB_MINMAX(range, -10000, 0);
     unsigned int *tlv = malloc(sizeof (range));
@@ -61,12 +84,12 @@ static const unsigned int *allocate_int_linear_tlv(int max, int min) {
 }
 
 STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t *ctlDev, json_object *ctlJ, halQueryMode queryMode) {
-    int err, done, ctlNumid, ctlValue, shouldCreate;
+    int err, done, ctlNumid, ctlValue=0, shouldCreate;
     json_object *tmpJ;
     const char *ctlName;
     ctlRequestT ctlRequest;
-    int ctlMax, ctlMin, ctlStep, ctlCount, ctlSubDev, ctlSndDev;
-    snd_ctl_elem_type_t ctlType;
+    int ctlMax=100, ctlMin=0, ctlStep, ctlCount, ctlSubDev=0, ctlSndDev=0;
+    snd_ctl_elem_type_t ctlType=SND_CTL_ELEM_TYPE_NONE;
     snd_ctl_elem_info_t *elemInfo;
     snd_ctl_elem_id_t *elemId;
     snd_ctl_elem_value_t *elemValue;
