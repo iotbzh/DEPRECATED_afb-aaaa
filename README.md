@@ -6,11 +6,12 @@
 
 ```bash
 # Initial clone with submodules
-git clone --recurse-submodules https://github.com/iotbzh/audio-bindings
+git clone --recurse-submodules https://github.com/iotbzh/afb-aaaa
 cd  audio-binding
 
 # Do not forget submodules with pulling
-git pull --recurse-submodules https://github.com/iotbzh/audio-bindings
+git pull --recurse-submodules https://github.com/iotbzh/afb-aaaa
+git submodule update
 ```
 
 # AFB-daemon dependencies
