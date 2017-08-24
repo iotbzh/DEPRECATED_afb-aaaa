@@ -18,7 +18,7 @@
 
 # Project Info
 # ------------------
-set(PROJECT_NAME audio-bindings)
+set(PROJECT_NAME afb-aaaa)
 set(PROJECT_VERSION "0.1")
 set(PROJECT_PRETTY_NAME "Audio Agent")
 set(PROJECT_DESCRIPTION "Expose Alsa through AGL AppFw")
@@ -98,7 +98,12 @@ set(COMPILE_OPTIONS
 if(IS_DIRECTORY $ENV{HOME}/opt/afb-monitoring)
 set(MONITORING_ALIAS "--alias=/monitoring:$ENV{HOME}/opt/afb-monitoring")
 endif()
-set(CLOSING_MESSAGE "Debug from afb-daemon --port=1234 ${MONITORING_ALIAS} --ldpaths=. --workdir=. --roothttp=../htdocs --tracereq=common --token= --verbose ")
+
+if(EXISTS ${CMAKE_SOURCE_DIR}/../afb-controller/build/afb-source/afb-control-afb.so)
+set(CTL_BUILD_PATH "--binding=../../afb-controller/build/afb-source/afb-control-afb.so")
+endif()
+
+set(CLOSING_MESSAGE "Debug from afb-daemon --port=1234 ${MONITORING_ALIAS} --ldpaths=. ${CTL_BUILD_PATH} --workdir=. --roothttp=../htdocs --tracereq=common --token= --verbose ")
 set(PACKAGE_MESSAGE "Install widget file using in the target : afm-util install ${PROJECT_NAME}.wgt")
 
 # Optional location for config.xml.in

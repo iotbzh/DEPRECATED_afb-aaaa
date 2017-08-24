@@ -86,7 +86,13 @@ as today latest stable is 1.1.4.
     cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
     make
 
-    afb-daemon --workdir=. --ldpaths=. --port=1234  --roothttp=../htdocs --token="" --verbose
+    # Note: 
+      1) Controller is now a standalone project and should added on top of project bindings
+      2) If you want monitoring add '--alias=/monitoring:$HOME/opt/afb-monitoring'  (should point to monitoring HTML5 pages)
+      3) To expose AAAA control interface add '--ws-server=unix:/var/tmp/afb-ws/ctl-aaaa'
+
+    afb-daemon --workdir=. --ldpaths=. --binding=../../afb-controller/build/afb-source/afb-control-afb.so --port=1234  --roothttp=../htdocs --token="" --verbose
+    
 
     Warning: See below net on GDB requiring (--workdir=.)
 ```

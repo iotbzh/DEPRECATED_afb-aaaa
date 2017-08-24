@@ -2925,7 +2925,7 @@
       <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/device_container.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
         <ccTool flags="1">
           <incDir>
             <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
@@ -2936,7 +2936,7 @@
       <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/device_value.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
         <ccTool flags="1">
           <incDir>
             <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
@@ -2947,7 +2947,7 @@
       <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/libmostvolume.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
         <ccTool flags="1">
           <incDir>
             <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
@@ -2958,7 +2958,7 @@
       <item path="HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src/setup.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
         <ccTool flags="1">
           <incDir>
             <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
@@ -3081,6 +3081,25 @@
       </item>
       <item path="MostVolume/libmostvolume.cpp" ex="false" tool="1" flavor2="4">
       </item>
+      <item path="afb-utilities/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/afb-utilities</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="afb-utilities/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/afb-utilities</pElem>
+          </incDir>
+        </cTool>
+      </item>
       <folder path="0/Alsa-Plugin">
         <cTool>
           <incDir>
@@ -3177,6 +3196,7 @@
             <pElem>/usr/include/lua5.3</pElem>
             <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/inc</pElem>
             <pElem>build/HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
+            <pElem>HAL-afb/HAL_MOST_UNICENS/ucs2-vol/src</pElem>
           </incDir>
           <preprocessorList>
             <Elem>CONTROL_MAXPATH_LEN=255</Elem>
