@@ -10,14 +10,14 @@
 <body onload="init('alsa_registry','alsacore', 'getinfo')">
 
     <button id="connected" onclick="init('alsa_registry','alsacore', 'getinfo');">Binder WS Fail</button>
-    <button id="mnitoring" onclick="window.open('/monitoring/monitor.html','_monitor_aaaa')">Debug/Monitoring</a></button>
+    <button id="mnitoring" onclick="window.open('/monitoring/monitor.html','_monitor_audio')">Debug/Monitoring</a></button>
 
     <br><br>
     <b>Selected SndCard </b>
     <select id='alsa_registry'></select>
 
     <b>Select NUMID </b>
-    <select id='alsa_ctl_list' onclick="refresh_list(this, 'alsacore', 'getctl', {devid:sndcard, mode:1})">
+    <select id='alsa_ctl_list' onclick="refresh_list(this, 'alsacore', 'ctlget', {devid:sndcard, mode:1})">
         <option value='-1'>Refresh NUMID list</option>
     </select>
 
@@ -32,17 +32,17 @@
 
     <br>
     <ol>
-    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode})">Get all Alsa Ctls</button></li>
-    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode, ctl:numid})">Get Alsa Ctls [numid]</button></li>
-    <li><button onclick="callbinder('alsacore','getctl', {devid:sndcard, mode:mode, ctl:[numid,numid+1]})">Get Alsa Ctls [numid,numid+1]</button></li>
+    <li><button onclick="callbinder('alsacore','ctlget', {devid:sndcard, mode:mode})">Get all Alsa Ctls</button></li>
+    <li><button onclick="callbinder('alsacore','ctlget', {devid:sndcard, mode:mode, ctl:numid})">Get Alsa Ctls [numid]</button></li>
+    <li><button onclick="callbinder('alsacore','ctlget', {devid:sndcard, mode:mode, ctl:[numid,numid+1]})">Get Alsa Ctls [numid,numid+1]</button></li>
     <br>
 
 
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[[9,20]]})">Set Alsa Ctl ctl:[[9,20]]</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[{id:9,val:50}]})">Set Alsa Ctl ctl:[{id:9,val:50}]}</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[[6,[20,20]]]})">Set Alsa Ctl  ctl:[[6,[20,20]]]</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[{id:6,val:[50,50]}]})">Set Alsa Ctl ctl:[{id:2,val:[50,50]}]</button></li>
-    <li><button onclick="callbinder('alsacore','setctl', {devid:sndcard, mode:mode, ctl:[{id:6,val:[50,50]}, {id:9,val:50,50}]})">Set Alsa Ctl ctl:[{id:6,val:[50,50]}, {id:9,val:50,50}]</button></li>
+    <li><button onclick="callbinder('alsacore','ctlset', {devid:sndcard, mode:mode, ctl:[[9,20]]})">Set Alsa Ctl ctl:[[9,20]]</button></li>
+    <li><button onclick="callbinder('alsacore','ctlset', {devid:sndcard, mode:mode, ctl:[{id:9,val:50}]})">Set Alsa Ctl ctl:[{id:9,val:50}]}</button></li>
+    <li><button onclick="callbinder('alsacore','ctlset', {devid:sndcard, mode:mode, ctl:[[6,[20,20]]]})">Set Alsa Ctl  ctl:[[6,[20,20]]]</button></li>
+    <li><button onclick="callbinder('alsacore','ctlset', {devid:sndcard, mode:mode, ctl:[{id:6,val:[50,50]}]})">Set Alsa Ctl ctl:[{id:2,val:[50,50]}]</button></li>
+    <li><button onclick="callbinder('alsacore','ctlset', {devid:sndcard, mode:mode, ctl:[{id:6,val:[50,50]}, {id:9,val:50,50}]})">Set Alsa Ctl ctl:[{id:6,val:[50,50]}, {id:9,val:50,50}]</button></li>
     <br>
     <li><button onclick="callbinder('alsacore','ucmquery', {devid:sndcard, mode:mode})">List UCM verbs</button></li>
     <li><button onclick="callbinder('alsacore','ucmset'  , {devid:sndcard, mode:mode, verb:'HiFi'})">Set UCM HiFi</button></li>

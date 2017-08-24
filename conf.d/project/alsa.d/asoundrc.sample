@@ -27,13 +27,7 @@ pcm.MyMixerPCM {
     ipc_perm 0666   # mixing for all users
 
     # Define target effective sound card (cannot be a plugin)
-    slave {
-        pcm "hw:v1340"  #Jabra Solmate
-        period_time 0
-        period_size 1024
-        buffer_size 8192
-        rate 44100
-    }
+    slave { pcm "hw:v1340" } #Jabra Solmate
 
     # DMIX can only map two channels
     bindings {

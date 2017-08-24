@@ -17,9 +17,9 @@
  *
  * To find out which control your sound card uses
  *  aplay -l  # Check sndcard name name in between []
- *  amixer -D hw:USB controls # get supported controls
- *  amixer -Dhw:USB cget name=Power-Switch
- *  amixer -Dhw:USB cset name=Power-Switch true
+ *  amixer -D hw:v1340 controls # get supported controls
+ *  amixer -Dhw:v1340 cget name=Power-Switch
+ *  amixer -Dhw:v1340 cset name=Power-Switch true
  *
  */
 #define _GNU_SOURCE
@@ -63,8 +63,8 @@ STATIC halVolRampT volRampEmergency= {
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities.
 STATIC alsaHalMapT  alsaHalMap[]= {
-  { .tag=Master_Playback_Volume, .  ctl={.name="PCM Playback Volume" } },
-  { .tag=PCM_Playback_Volume     , .ctl={.name="PCM Playback Volume" } },
+  { .tag=Master_Playback_Volume, .  ctl={.name="PCM Playback Volume", .value=12 } },
+  { .tag=PCM_Playback_Volume     , .ctl={.name="PCM Playback Volume", .value=12 } },
   { .tag=PCM_Playback_Switch     , .ctl={.name="PCM Playback Switch" } },
   { .tag=Capture_Volume          , .ctl={.name="Mic Capture Volume"  } },
 
@@ -74,17 +74,17 @@ STATIC alsaHalMapT  alsaHalMap[]= {
   },
 
   // Implement Rampup Volume for Virtual Channels
-  { .tag=Multimedia_Playback_Volume, .cb={.callback=volumeRamp, .handle=&volRampMultimedia}, .info="Rampup Multimedia Volume",
-    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER, .name="Playback Multimedia Ramp"}
-  },
   { .tag=Navigation_Playback_Volume, .cb={.callback=volumeRamp, .handle=&volRampNavigation}, .info="RampUp Navigation Volume",
-    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER,.name="Playback Navigation Ramp"}
+    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER,.name="Playback Navigation Ramp", .value=80 }
   },
   { .tag=Emergency_Playback_Volume, .cb={.callback=volumeRamp, .handle=&volRampEmergency}, .info="Rampup Emergency Volume",
-    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER,.name="Playback Emergency Ramp"}
+    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER,.name="Playback Emergency Ramp", .value=80 }
   },
 
   // Sound Card does not support hardware channel volume mixer (note softvol default range 0-256)
+  { .tag=Multimedia_Playback_Volume, .cb={.callback=volumeRamp, .handle=&volRampMultimedia}, .info="Ramp-up Multimedia Volume",
+    .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER, .name="Playback Multimedia Ramp", .value=80 }
+  },
   { .tag=PCM_Volume_Multimedia, .info="Playback Multimedia Softvol",
     .ctl={.numid=CTL_AUTO, .type=SND_CTL_ELEM_TYPE_INTEGER, .count=2, .maxval=255, .value=200, .name="Playback Multimedia"}
   },

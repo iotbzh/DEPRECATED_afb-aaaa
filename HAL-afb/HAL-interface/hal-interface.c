@@ -138,7 +138,7 @@ STATIC int halCallAlsaSetCtls(json_object *ctlsOutJ) {
     json_object_object_add(queryJ, "devid", json_object_new_string(halSndCard->devid));
     json_object_object_add(queryJ, "ctl", ctlsOutJ);
 
-    err = afb_service_call_sync("alsacore", "setctl", queryJ, &responseJ);
+    err = afb_service_call_sync("alsacore", "ctlset", queryJ, &responseJ);
     json_object_put(responseJ); // let's ignore response
 
     return err;
@@ -312,7 +312,7 @@ STATIC json_object *halCallAlsaGetCtls(json_object *ctlsOutJ) {
     json_object_object_add(queryJ, "devid", json_object_new_string(halSndCard->devid));
     json_object_object_add(queryJ, "ctl", ctlsOutJ);
 
-    err = afb_service_call_sync("alsacore", "getctl", queryJ, &responseJ);
+    err = afb_service_call_sync("alsacore", "ctlget", queryJ, &responseJ);
     if (err) goto OnErrorExit;
 
     // Let ignore info data if any and keep on response
@@ -518,7 +518,7 @@ PUBLIC int halServiceInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
         if (halCtls[idx].ctl.step) json_object_object_add(ctlJ, "step", json_object_new_int(halCtls[idx].ctl.step));
         if (halCtls[idx].ctl.type) json_object_object_add(ctlJ, "type", json_object_new_int(halCtls[idx].ctl.type));
         if (halCtls[idx].ctl.count) json_object_object_add(ctlJ, "count", json_object_new_int(halCtls[idx].ctl.count));
-        if (halCtls[idx].ctl.value) json_object_object_add(ctlJ, "value", json_object_new_int(halCtls[idx].ctl.value));
+        if (halCtls[idx].ctl.value) json_object_object_add(ctlJ, "val", json_object_new_int(halCtls[idx].ctl.value));
 
         if (halCtls[idx].ctl.dbscale) {
             json_object *dbscaleJ = json_object_new_object();

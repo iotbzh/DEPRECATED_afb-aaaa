@@ -37,6 +37,12 @@ PUBLIC const char *halCtlsLabels[] = {
     [Multimedia_Playback_Volume] = "Multimedia_Playback_Volume",
     [Navigation_Playback_Volume] = "Navigation_Playback_Volume",
     [Emergency_Playback_Volume]  = "Emergency_Playback_Volume",
+    [Telephony_Playback_Volume]  = "Telephony_Playback_Volume",
+    
+    [Multimedia_Playback_Switch] = "Multimedia_Playback_Switch",
+    [Navigation_Playback_Switch] = "Navigation_Playback_Switch",
+    [Emergency_Playback_Switch]  = "Emergency_Playback_Switch",
+    [Telephony_Playback_Switch]  = "Telephony_Playback_Switch",
 
     // Do not remove EndHalCrlTag
     [EndHalCrlTag] = NULL

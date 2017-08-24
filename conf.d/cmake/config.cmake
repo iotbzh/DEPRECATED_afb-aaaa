@@ -159,4 +159,5 @@ set(WIDGET_TYPE application/vnd.agl.service)
 # This include is mandatory and MUST happens at the end
 # of this file, else you expose you to unexpected behavior
 # -----------------------------------------------------------
+
 include(${PROJECT_APP_TEMPLATES_DIR}/cmake/common.cmake)

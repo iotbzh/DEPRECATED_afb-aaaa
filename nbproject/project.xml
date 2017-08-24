@@ -14,27 +14,15 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>Localhost</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
-                    <name>Laptop</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
-                    <name>Aplay_Multimedia</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
-                    <name>LocalHostNoTrace</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
                     <name>Local_Raw_Controller</name>
                     <type>0</type>
                 </confElem>
                 <confElem>
-                    <name>Demo-AudioController</name>
+                    <name>Local_Alias</name>
+                    <type>0</type>
+                </confElem>
+                <confElem>
+                    <name>Local-Ctl</name>
                     <type>0</type>
                 </confElem>
             </confList>
@@ -43,7 +31,9 @@
             </formatting>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>Authorize</word>
             <word>Controler</word>
+            <word>printf</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

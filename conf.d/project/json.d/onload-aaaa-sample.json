@@ -1,0 +1,103 @@
+{
+    "$schema": "ToBeDone",
+    "metadata": {
+        "label": "sample-aaaa-control",
+        "info": "Sample of Video AAAA controls",
+        "name": "afb-sample-controller",
+        "version": "1.0"
+    },
+    "onload": [{
+            "label": "onload-default",
+            "info": "onload initialisation config",
+            "require": ["alsacore","jabra-usb","intel-hda","hal-most-unicens"],
+            "actions":
+                    {
+                        "label": "control-init",
+                        "lua": "_Audio_Controller_Init",
+                        "args": {
+                            "evtname": "agl-audio"
+                        }
+                    }
+        }],
+    "controls":
+            [
+                {
+                    "label": "Multimedia",
+                    "permissions": "urn:AGL:permission:audio:public:multimedia",
+                    "actions": {
+                        "label": "authorize-multimedia",
+                        "lua": "_Temporarily_Control"
+                    }
+                }, {
+                    "label": "Navigation",
+                    "permissions": "urn:AGL:permission:audio:public:navigation",
+                    "actions": {
+                        "label": "authorize-navigation",
+                        "lua": "_Temporarily_Control",
+                        "args": {
+                            "ctl" : "Multimedia_Playback_Volume",
+                            "val": 40
+                        }
+                    }
+                }, {
+                    "label": "Telephony",
+                    "permissions": "urn:AGL:permission:audio:public:telephony",
+                    "actions": {
+                        "label": "authorize-multimedia",
+                        "lua": "_Temporarily_Control",
+                        "args": {
+                            "ctl" : "Multimedia_Playback_Volume",
+                            "val": 20
+                        }
+                    }
+                }, {
+                    "label": "Emergency",
+                    "permissions": "urn:AGL:permission:audio:public:emergency",
+                    "actions": {
+                        "label": "authorize-multimedia",
+                        "lua": "_Temporarily_Control",
+                        "args": {
+                            "ctl" : "Multimedia_Playback_Switch",
+                            "val": 0
+                        },
+                        "label": "authorize-multimedia",
+                        "lua": "_Temporarily_Control",
+                        "args": {
+                            "ctl" : "Navigation_Playback_Switch",
+                            "val": 0
+                        }
+                    }
+                }
+            ],
+    "events":
+            [
+                {
+                    "label": "ReverseEngage",
+                    "actions": [{
+                            "label": "adjust_volume-reverse",
+                            "lua": "_Temporarily_Control",
+                            "args": {
+                                "ctl": "Multimedia_Playback_Volume",
+                                "val": 20
+                            }
+                        },
+                        {
+                            "label": "prevent-telephony",
+                            "lua": "_Temporarily_Control",
+                            "args": {
+                                "ctl": "Telephony_Playback_Switch",
+                                "val": 0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "label": "SpeedChanged",
+                    "actions": {
+                        "label": "adjust_volume",
+                        "lua": "_Adjust_Volume"
+                    }
+                }
+            ]
+}
+

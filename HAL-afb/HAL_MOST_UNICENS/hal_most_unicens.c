@@ -87,7 +87,7 @@ __attribute__ ((unused)) static void unicens_request_card_values(const char* dev
         goto OnErrorExit;
     }   
 
-    afb_service_call("alsacore", "getctl", j_query,
+    afb_service_call("alsacore", "ctlget", j_query,
             &unicens_request_card_values_cb,
             NULL);
     

@@ -114,7 +114,7 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t *ctlDev, json_objec
         if (done) ctlType = json_object_get_int(tmpJ);
         else ctlType = SND_CTL_ELEM_TYPE_INTEGER;
 
-        json_object_object_get_ex(ctlJ, "value", &tmpJ);
+        json_object_object_get_ex(ctlJ, "val", &tmpJ);
         ctlValue = json_object_get_int(tmpJ);
 
         // default for json_object_get_int is zero
@@ -162,7 +162,11 @@ STATIC json_object * addOneSndCtl(afb_req request, snd_ctl_t *ctlDev, json_objec
         snd_ctl_elem_info_get_id(elemInfo, elemId);
 
         // If this is a hardware ctl only update value
-        if (ctlNumid != CTL_AUTO) goto UpdateDefaultVal;
+        if (ctlNumid != CTL_AUTO) {
+            json_object_object_get_ex(ctlJ, "val", &tmpJ);
+            ctlValue = json_object_get_int(tmpJ);
+            goto UpdateDefaultVal;
+        }
 
         count = snd_ctl_elem_info_get_count(elemInfo);
         min = (int) snd_ctl_elem_info_get_min(elemInfo);

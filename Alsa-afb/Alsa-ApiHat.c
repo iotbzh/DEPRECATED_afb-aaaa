@@ -43,11 +43,11 @@ STATIC int AlsaInit(void) {
 static const struct afb_verb_v2 api_verbs[] = {
     /* VERB'S NAME          FUNCTION TO CALL  */
     { .verb = "ping", .callback = pingtest, .info="Ping Presence Check on API"},
-    { .verb = "getinfo", .callback = alsaGetInfo, .info="Return sound cards list"},
-    { .verb = "getctl", .callback = alsaGetCtls, .info="Get one or many control values"},
-    { .verb = "setctl", .callback = alsaSetCtls, .info="Set one control or more"},
+    { .verb = "infoget", .callback = alsaGetInfo, .info="Return sound cards list"},
+    { .verb = "ctlget", .callback = alsaGetCtls, .info="Get one or many control values"},
+    { .verb = "ctlset", .callback = alsaSetCtls, .info="Set one control or more"},
     { .verb = "subscribe", .callback = alsaEvtSubcribe, .info="subscribe to alsa events"},
-    { .verb = "getcardid", .callback = alsaGetCardId, .info="get sound card id"},
+    { .verb = "cardidget", .callback = alsaGetCardId, .info="get sound card id"},
     { .verb = "halregister", .callback = alsaRegisterHal, .info="register a new HAL in alsacore"},
     { .verb = "hallist", .callback = alsaActiveHal, .info="Get list of currently active HAL"},
     { .verb = "ucmquery", .callback = alsaUseCaseQuery,.info="Use Case Manager Query"},
