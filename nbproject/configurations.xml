@@ -14,13 +14,6 @@
         <in>Alsa-Ucm.c</in>
       </df>
       <df name="Alsa-Plugin">
-        <df name="_Alsa-Hal-plugin">
-          <in>AlsaHalPlugCb.c</in>
-          <in>AlsaHalPlugCtl.c</in>
-        </df>
-        <df name="_Alsa-Hook-Plugin">
-          <in>AlsaHookPlug.c</in>
-        </df>
         <df name="Alsa-Policy-Hook">
           <in>PolicyHookCb.c</in>
         </df>
@@ -29,20 +22,6 @@
         <in>audio-common.c</in>
         <in>filescan-utils.c</in>
         <in>wrap-json.c</in>
-      </df>
-      <df name="build">
-        <df name="CMakeFiles">
-          <df name="3.5.2">
-            <df name="CompilerIdC">
-              <in>CMakeCCompilerId.c</in>
-            </df>
-            <df name="CompilerIdCXX">
-              <in>CMakeCXXCompilerId.cpp</in>
-            </df>
-          </df>
-          <in>feature_tests.c</in>
-          <in>feature_tests.cxx</in>
-        </df>
       </df>
       <df name="Common">
         <in>AudioCommonLib.c</in>
