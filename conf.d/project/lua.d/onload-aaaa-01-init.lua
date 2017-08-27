@@ -40,7 +40,7 @@ function _Audio_Controller_Init(source, control)
     local err,result= AFB:servsync ("alsacore", "hallist", {})
 
     if (err) then
-        AFB_ERROR("Fail to retrieve Audio HAL")
+        AFB:error("Fail to retrieve Audio HAL")
     else 
         _Global_Context["registry"]=result["response"]
         printf("[<-- Audio_Controller_Init <--] Active HAL=%s", Dump_Table(result["response"]))
