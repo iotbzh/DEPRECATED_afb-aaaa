@@ -26,6 +26,12 @@
 _CurrentHalVolume={}
 
 
+
+--[[ Apply control
+ * source=1  permanent change requested
+ * source=0  temporally request control
+ * source=-1 temporally release control
+-- ------------------------------------ --]]
 local function Apply_Hal_Control(source, label, adjustment) 
  local HAL = _Global_Context["registry"]
  
@@ -41,7 +47,8 @@ local function Apply_Hal_Control(source, label, adjustment)
 
         -- action set loop on active HAL and get current volume
         -- if label respond then do volume adjustment
-        if (source == 0) then
+
+        if (source >= 0) then
 
             -- get current volume for each HAL
             local err,result= AFB:servsync(hal["api"],"ctlget", {["label"]=label})
@@ -84,7 +91,7 @@ local function Apply_Hal_Control(source, label, adjustment)
 end
 
 
--- Simple Happy(granted) Control
+-- Temporally adjust volume
 function _Temporarily_Control(source, control, client)
 
     printf ("[--> _Temporarily_Control -->] source=%d control=%s client=%s", source, Dump_Table(control), Dump_Table(client))
@@ -111,6 +118,39 @@ function _Temporarily_Control(source, control, client)
     else
         Apply_Hal_Control(source, control["ctl"],0)
         AFB:notice ("[<-- _Temporarily_Control Restore--]")
+    end
+
+    return 0 -- happy return
+end
+
+
+-- Permanent Adjust volume
+function _Permanent_Control(source, control, client)
+
+    printf ("[--> _Permanent_Control -->] source=%d control=%s client=%s", source, Dump_Table(control), Dump_Table(client))
+
+    -- Init should have been properly done
+    if (_Global_Context["registry"] == nil) then
+       AFB:error ("--* (Hoops) No Hal in _Global_Context=%s", Dump_Table(_Global_Context)) 
+       return 1
+    end
+
+    -- make sure label as valid
+    if (control["ctl"] == nil or control["val"] == nil) then
+        AFB:error ("--* Action Ignore no/invalid control=%s", Dump_Table(control)) 
+        return 1 -- unhappy
+    end
+
+    if (source == 0) then
+        AFB:info("-- Adjust %s=%d", control["ctl"], control["val"])
+        local error=Apply_Hal_Control(1, control["ctl"], control["val"])
+        if (error == nil) then 
+            return 1 -- unhappy
+        end
+        AFB:notice ("[<-- _Permanent_Control Granted<--]")
+    else
+        Apply_Hal_Control(source, control["ctl"],0)
+        AFB:notice ("[<-- _Permanent_Control Restore--]")
     end
 
     return 0 -- happy return

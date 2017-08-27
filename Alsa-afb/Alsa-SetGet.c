@@ -76,12 +76,18 @@ PUBLIC void NumidsListParse(ActionSetGetT action, queryValuesT *queryValues, ctl
 
             case json_type_object:
                 // numid+values formated as {id:xxx, val:[aa,bb...,nn]}
-                if (!json_object_object_get_ex(ctlRequest[idx].jToken, "id", &jId) || !json_object_object_get_ex(ctlRequest[idx].jToken, "val", &valuesJ)) {
-                    AFB_NOTICE("Invalid Json=%s missing 'id'|'val'", json_object_get_string(ctlRequest[idx].jToken));
+                if (!json_object_object_get_ex(ctlRequest[idx].jToken, "id", &jId)) {
+                    AFB_NOTICE("Invalid Json=%s missing 'id'", json_object_get_string(ctlRequest[idx].jToken));
                     ctlRequest[idx].used = -1;
                 } else {
                     ctlRequest[idx].numId = json_object_get_int(jId);
-                    if (action == ACTION_SET) ctlRequest[idx].valuesJ = valuesJ;
+                    if (action == ACTION_SET) {
+                        if (!json_object_object_get_ex(ctlRequest[idx].jToken, "val", &valuesJ)) {
+                            AFB_NOTICE("Invalid Json=%s missing 'val'", json_object_get_string(ctlRequest[idx].jToken));
+                            ctlRequest[idx].used = -1;                            
+                        } else
+                            ctlRequest[idx].valuesJ = valuesJ;                        
+                    }
                 }
                 break;
 

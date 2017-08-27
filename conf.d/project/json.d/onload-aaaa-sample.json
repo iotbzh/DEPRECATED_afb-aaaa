@@ -22,6 +22,17 @@
     "controls":
             [
                 {
+                    "label": "Volume",
+                    "permissions": "urn:AGL:permission:audio:public:multimedia",
+                    "actions": {
+                        "label": "adjust-master-volume",
+                        "info" : "volume value should be provided by requesting client",
+                        "lua": "_Permament_Control",
+                        "args": {
+                            "ctl" : "Master_Playback_Volume"
+                        }
+                    }
+                },{
                     "label": "Multimedia",
                     "permissions": "urn:AGL:permission:audio:public:multimedia",
                     "actions": {
