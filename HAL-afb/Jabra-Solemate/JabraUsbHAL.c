@@ -63,10 +63,10 @@ STATIC halVolRampT volRampEmergency= {
 
 // Map HAL hight sndctl with Alsa numid and optionally with a custom callback for non Alsa supported functionalities.
 STATIC alsaHalMapT  alsaHalMap[]= {
-  { .tag=Master_Playback_Volume, .  ctl={.name="PCM Playback Volume", .value=12 } },
-  { .tag=PCM_Playback_Volume     , .ctl={.name="PCM Playback Volume", .value=12 } },
-  { .tag=PCM_Playback_Switch     , .ctl={.name="PCM Playback Switch" } },
-  { .tag=Capture_Volume          , .ctl={.name="Mic Capture Volume"  } },
+  { .tag=Master_Playback_Volume, .  ctl={.name="PCM Playback Volume", .value=12 }},
+  { .tag=PCM_Playback_Volume     , .ctl={.name="PCM Playback Volume", .value=12 }},
+  { .tag=PCM_Playback_Switch     , .ctl={.name="PCM Playback Switch", .value=01 }},
+  { .tag=Capture_Volume          , .ctl={.name="Mic Capture Volume"  }},
 
   // Sound card does not have hardware volume ramping
   { .tag=Master_Playback_Ramp   , .cb={.callback=volumeRamp, .handle=&volRampMaster}, .info="ramp volume linearly according to current ramp setting",

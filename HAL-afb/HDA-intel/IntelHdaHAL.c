@@ -65,7 +65,7 @@ STATIC halVolRampT volRampEmergency= {
 STATIC alsaHalMapT  alsaHalMap[]= {
   { .tag=Master_Playback_Volume, .  ctl={.name="PCM Playback Volume", .value=50 } },
   { .tag=PCM_Playback_Volume     , .ctl={.name="PCM Playback Volume", .value=50 } },
-  { .tag=PCM_Playback_Switch     , .ctl={.name="PCM Playback Switch" } },
+  { .tag=PCM_Playback_Switch     , .ctl={.name="PCM Playback Switch", .value=01 } },
   { .tag=Capture_Volume          , .ctl={.name="Mic Capture Volume"  } },
 
   // Sound card does not have hardware volume ramping

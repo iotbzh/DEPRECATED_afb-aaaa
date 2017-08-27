@@ -37,7 +37,11 @@
                     "permissions": "urn:AGL:permission:audio:public:multimedia",
                     "actions": {
                         "label": "authorize-multimedia",
-                        "lua": "_Temporarily_Control"
+                        "lua": "_Temporarily_Control",
+                        "args": {
+                            "ctl" : "Multimedia_Playback_Volume",
+                            "val": 80
+                        }
                     }
                 }, {
                     "label": "Navigation",
