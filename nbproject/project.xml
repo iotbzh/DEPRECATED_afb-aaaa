@@ -14,14 +14,6 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>Local_Raw_Controller</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
-                    <name>Local_Alias</name>
-                    <type>0</type>
-                </confElem>
-                <confElem>
                     <name>Local-Ctl</name>
                     <type>0</type>
                 </confElem>

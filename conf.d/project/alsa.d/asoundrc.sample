@@ -1,72 +1,99 @@
-#
+# 
 # Author: Fulup Ar Foll
-# Object: PCM hook type
+# Object: PCM hook type 
 #
 # Test  :  Note: Jabra_USB=hw:v1340
 #  Check SoundCard  speaker-test -Dhw:v1340 -c2 -twav
-#  Check MixerPCM   speaker-test -DMyMixerPCM -c2 -twav
-#  Check HookPCM    speaker-test -DMyNavigationHook -c2 -twav
+#  Check MixerPCM   speaker-test -DMixerPCM -c2 -twav 
+#  Check HookPCM    speaker-test -DMyNavigationHook -c2 -twav 
 #  Check NavPCM     speaker-test -DMyNavPCM -c2 -twav
 #  MultiMedia aplay -DDMyNavPCM /usr/share/sounds/alsa/test.wav
 #
 # Bug/Feature: when softvol control is initialised from plugin and not
 #    from AGL binding. At 1st run ctl has invalid TLV and cannot be
-#    use. Bypass Solution:
+#    use. Bypass Solution: 
 #     * start audio-binder before playing sound (binding create control before softvol plugin)
 #     * run a dummy aplay -DMyNavPCM "" to get a clean control
 #
 # References: https://www.spinics.net/lists/alsa-devel/msg54235.html
 # --------------------------------------------------------------------
 
+# ------------------------------------------------------
 # Mixer PCM allow to play multiple stream simultaneously
 # ------------------------------------------------------
-pcm.MyMixerPCM {
-    type dmix
-    ipc_key 1024
-    ipc_key_add_uid false
-    ipc_perm 0666   # mixing for all users
+pcm.FrontSeatSpeakers { 
+    type dmix            
+    slave {pcm "hw:v1340"}  #Jabra Solmate 1
+    ipc_key 1001          # ipc_key should be unique to each dmix
+} 
 
-    # Define target effective sound card (cannot be a plugin)
-    slave { pcm "hw:v1340" } #Jabra Solmate
+pcm.BackSeatSpeakers { 
+    type dmix 
+    slave {pcm "hw:v1340_1"}  #Jabra Solmate 2
+    ipc_key 1002
+} 
 
-    # DMIX can only map two channels
-    bindings {
-        0 0
-        1 1
-    }
-}
-
-# Define a Hook_type with a private sharelib
-# -------------------------------------------
-pcm_hook_type.MyHookPlugin {
-    install "AlsaInstallHook"
-    lib "/home/fulup/Workspace/AGL-AppFW/audio-bindings-dev/build/Alsa-Plugin/Alsa-Policy-Hook/policy_hook_cb.so"
+# -----------------------------------------------------
+#  Register ControllerHookPlugin (ToiBeFix fullpath)
+# -----------------------------------------------------
+pcm_hook_type.CtlHookPlugin {
+    install "AlsaInstallHook" 
+    lib "/home/fulup/opt/lib64/policy_hook_cb.so"
 }
 
 
-# Define a HookedPCM that point to Hook_type sharelib
+# -------------------------------------------------------
+# Define one Audio Virtual Channel per Audio Roles
+# -------------------------------------------------------
+pcm.MusicSoft {
+    type softvol
+
+    # Point Slave on HOOK for policies control
+    slave.pcm "FrontSeatSpeakers"
+
+    # name should match with HAL definition
+    control.name  "Playback Multimedia"
+}
+
+pcm.NavSoft {
+    type softvol
+
+    # Point Slave on HOOK for policies control
+    slave.pcm "FrontSeatSpeakers"
+
+    # name should match with HAL definition
+    control.name  "Playback Navigation"
+}
+
+pcm.UrgentSoft {
+    type softvol
+
+    # Point Slave on HOOK for policies control
+    slave.pcm "FrontSeatSpeakers"
+
+    # name should match with HAL definition
+    control.name  "Playback Emergency"
+}
+
 # ----------------------------------------------------
-pcm.MyNavigationHook {
+# Define one hooked PCM channel per Audio Roles
+# ----------------------------------------------------
+pcm.Multimedia {
     type hooks
-    slave.pcm "MyMixerPCM"
-    # Defined used hook sharelib and provide arguments/config to install func
+    slave {pcm "MusicSoft"}
     hooks.0 {
-        type "MyHookPlugin"
+        comment "Defined used hook sharelib and provide arguments/config to install func"
+        type "CtlHookPlugin"
         hook_args {
             verbose true # print few log messages (default false);
-
             # Every Call should return OK in order PCM to open (default timeout 100ms)
-            uri   "ws://localhost:1234/api?token=audio-agent-token&uuid=audio-agent-session"
-            request {
-                # Request autorisation to write on navigation
-                RequestNavigation {
+            uri  "ws://localhost:1234/api?token='audio-agent-token'"
+            request.control {
                     api    "control"
                     verb   "dispatch"
-	            query  "{'target':'navigation', 'args':{'device':'Jabra SOLEMATE v1.34.0'}}"
-                }
+	            query  "{'target':'Multimedia'}"
             }
-            # map event reception to self generated signal
-            event {
+            event {    # map event reception to self generated signal
                 pause  30
                 resume 31
                 stop   3
@@ -75,66 +102,44 @@ pcm.MyNavigationHook {
     }
 }
 
-# If hardware does not support mixer emulate it with softvol
-# -----------------------------------------------------------
-pcm.MyMultimediaPCM {
-    type        softvol
-
-    # Point Slave on HOOK for policies control
-    slave.pcm   "MyNavigationHook"
-
-    # resolution=HAL(valMax+1) (default=256)
-    resolution 256
-
-    # name should match with HAL but do not set card=xx
-    control.name    "Playback Navigation"
-
-    # Make this plugin visible from aplay -L
-    hint {
-      show on
-      description "Navigation SolftVol PCM"
+pcm.Navigation {
+    type hooks
+    slave {pcm "NavSoft"}
+    hooks.0 {
+        comment "Defined used hook sharelib and provide arguments/config to install func"
+        type "CtlHookPlugin"
+        hook_args {
+            verbose true # print few log messages (default false);
+            # Every Call should return OK in order PCM to open (default timeout 100ms)
+            uri   "ws://localhost:1234/api?token='audio-agent-token'"
+            request.control {
+                    api    "control"
+                    verb   "dispatch"
+	            query  "{'target':'Navigation'}"
+            }
+        }
     }
 }
 
-# If hardware does not support mixer emulate it with softvol
-# -----------------------------------------------------------
-pcm.MyNavPCM {
-    type        softvol
+# Define a HookedPCM that point to Hook_type sharelib
+# ----------------------------------------------------
+pcm.Emergency {
+    type hooks
+    slave {pcm "UrgentSoft"}
+    hooks.0 {
+        comment "Defined used hook sharelib and provide arguments/config to install func"
+        type "CtlHookPlugin"
+        hook_args {
+            verbose true # print few log messages (default false);
 
-    # Point Slave on HOOK for policies control
-    slave.pcm   "MyNavigationHook"
-
-    # resolution=HAL(valMax+1) (default=256)
-    resolution 256
-
-    # name should match with HAL but do not set card=xx
-    control.name    "Playback Navigation"
-
-    # Make this plugin visible from aplay -L
-    hint {
-      show on
-      description "Navigation SolftVol PCM"
-    }
-}
-
-# If hardware does not support mixer emulate it with softvol
-# -----------------------------------------------------------
-pcm.MyAlarmPCM {
-    type        softvol
-
-    # Point Slave on HOOK for policies control
-    slave.pcm   "MyNavigationHook"
-
-    # resolution=HAL(valMax+1) (default=256)
-    resolution 256
-
-    # name should match with HAL but do not set card=xx
-    control.name    "Playback Navigation"
-
-    # Make this plugin visible from aplay -L
-    hint {
-      show on
-      description "Navigation SolftVol PCM"
+            # Every Call should return OK in order PCM to open (default timeout 100ms)
+            uri   "ws://localhost:1234/api?token='audio-agent-token'"
+            request.control {
+                    api    "control"
+                    verb   "dispatch"
+	            query  "{'target':'Emergency'}"
+            }
+        }
     }
 }
 
