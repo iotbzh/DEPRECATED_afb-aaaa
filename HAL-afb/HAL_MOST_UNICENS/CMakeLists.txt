@@ -37,6 +37,7 @@ PROJECT_TARGET_ADD(hal-most-unicens)
         hal-interface
         audio-common
         ucs2-volume
+        ${link_libraries}
     )
 
     # Define properties to expose when others use this target

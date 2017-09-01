@@ -35,4 +35,5 @@ PROJECT_TARGET_ADD(hal-jabra-usb)
     TARGET_LINK_LIBRARIES(${TARGET_NAME}
         hal-interface
         audio-common
+        ${link_libraries}
     )
