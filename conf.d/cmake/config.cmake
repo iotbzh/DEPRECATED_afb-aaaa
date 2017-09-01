@@ -26,41 +26,64 @@ set(PROJECT_URL "https://github.com/iotbzh/audio-bindings")
 set(PROJECT_ICON "icon.png")
 set(PROJECT_AUTHOR "Fulup, Ar Foll")
 set(PROJECT_AUTHOR_MAIL "fulup@iot.bzh")
-set(PROJECT_LICENCE "Apache-V2")
+set(PROJECT_LICENSE "Apache-V2")
 set(PROJECT_LANGUAGES,"C")
-
 
 # Where are stored default templates files from submodule or subtree app-templates in your project tree
 # relative to the root project directory
 set(PROJECT_APP_TEMPLATES_DIR "conf.d/app-templates")
 
-# Use any directory that does not start with _ as valid source rep
+# Where are stored your external libraries for your project. This is 3rd party library that you don't maintain
+# but used and must be built and linked.
+# set(PROJECT_LIBDIR "libs")
+
+# Where are stored data for your application. Pictures, static resources must be placed in that folder.
+# set(PROJECT_RESOURCES "data")
+
+# Which directories inspect to find CMakeLists.txt target files
 set(PROJECT_SRC_DIR_PATTERN "[^_]*")
 
 # Compilation Mode (DEBUG, RELEASE)
 # ----------------------------------
 set(CMAKE_BUILD_TYPE "DEBUG")
 
-# Compiler selection if needed. Overload the detected compiler.
+# Kernel selection if needed. You can choose between a
+# mandatory version to impose a minimal version.
+# Or check Kernel minimal version and just print a Warning
+# about missing features and define a preprocessor variable
+# to be used as preprocessor condition in code to disable
+# incompatibles features. Preprocessor define is named
+# KERNEL_MINIMAL_VERSION_OK.
+#
+# NOTE*** FOR NOW IT CHECKS KERNEL Yocto environment and
+# Yocto SDK Kernel version.
+# -----------------------------------------------
+#set (kernel_mandatory_version 4.8)
+#set (kernel_minimal_version 4.8)
+
+# Compiler selection if needed. Impose a minimal version.
 # -----------------------------------------------
 set (gcc_minimal_version 4.9)
-#set(CMAKE_C_COMPILER "gcc")
-#set(CMAKE_CXX_COMPILER "g++")
-
-# When Present LUA is used by the controller
-# ---------------------------------------------------------------
-set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
 
 # PKG_CONFIG required packages
 # -----------------------------
 set (PKG_REQUIRED_LIST
-	alsa>=1.1.2
-	libsystemd>=222
-	libmicrohttpd>=0.9.55
-	afb-daemon
 	json-c
+	libsystemd>=222
+	afb-daemon
+	libmicrohttpd>=0.9.55
 	libafbwsc
+	alsa>=1.1.2
 )
+
+# Prefix path where will be installed the files
+# Default: /usr/local (need root permission to write in)
+# ------------------------------------------------------
+#set(CMAKE_INSTALL_PREFIX $ENV{HOME}/opt)
+
+# Customize link option
+# -----------------------------
+list(APPEND link_libraries -lpthread -lm)
 
 # Compilation options definition
 # Use CMake generator expressions to specify only for a specific language
@@ -88,10 +111,86 @@ set(COMPILE_OPTIONS
  CACHE STRING "Compilation flags")
 #set(C_COMPILE_OPTIONS "" CACHE STRING "Compilation flags for C language.")
 #set(CXX_COMPILE_OPTIONS "" CACHE STRING "Compilation flags for C++ language.")
-#set(PROFILING_COMPILE_OPTIONS -g -O0 -pg -Wp,-U_FORTIFY_SOURCE CACHE STRING "Compilation flags for PROFILING build type.")
-#set(DEBUG_COMPILE_OPTIONS -g -ggdb -Wp,-U_FORTIFY_SOURCE CACHE STRING "Compilation flags for DEBUG build type.")
-#set(CCOV_COMPILE_OPTIONS -g -O2 --coverage CACHE STRING "Compilation flags for CCOV build type.")
-#set(RELEASE_COMPILE_OPTIONS -g -O2 CACHE STRING "Compilation flags for RELEASE build type.")
+#set(PROFILING_COMPILE_OPTIONS
+# -g
+# -O0
+# -pg
+# -Wp,-U_FORTIFY_SOURCE
+# CACHE STRING "Compilation flags for PROFILING build type.")
+#set(DEBUG_COMPILE_OPTIONS
+# -g
+# -ggdb
+# -Wp,-U_FORTIFY_SOURCE
+# CACHE STRING "Compilation flags for DEBUG build type.")
+#set(CCOV_COMPILE_OPTIONS
+# -g
+# -O2
+# --coverage
+# CACHE STRING "Compilation flags for CCOV build type.")
+#set(RELEASE_COMPILE_OPTIONS
+# -g
+# -O2
+# CACHE STRING "Compilation flags for RELEASE build type.")
+
+# (BUG!!!) as PKG_CONFIG_PATH does not work [should be an env variable]
+# ---------------------------------------------------------------------
+set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
+set(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64 ${CMAKE_INSTALL_PREFIX}/lib)
+
+# Optional location for config.xml.in
+# -----------------------------------
+#set(WIDGET_ICON conf.d/wgt/${PROJECT_ICON} CACHE PATH "Path to the widget icon")
+#set(WIDGET_CONFIG_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/conf.d/wgt/config.xml.in CACHE PATH "Path to widget config file template (config.xml.in)")
+
+# Mandatory widget Mimetype specification of the main unit
+# --------------------------------------------------------------------------
+# Choose between :
+#- text/html : HTML application,
+#	content.src designates the home page of the application
+#
+#- application/vnd.agl.native : AGL compatible native,
+#	content.src designates the relative path of the binary.
+#
+# - application/vnd.agl.service: AGL service, content.src is not used.
+#
+#- ***application/x-executable***: Native application,
+#	content.src designates the relative path of the binary.
+#	For such application, only security setup is made.
+#
+set(WIDGET_TYPE MimeType_Not_Set)
+
+# Mandatory Widget entry point file of the main unit
+# --------------------------------------------------------------
+# This is the file that will be executed, loaded,
+# at launch time by the application framework.
+#
+set(WIDGET_ENTRY_POINT EntryPoint_Path_Not_Set)
+
+# Optional dependencies order
+# ---------------------------
+#set(EXTRA_DEPENDENCIES_ORDER)
+
+# Optional Extra global include path
+# -----------------------------------
+#set(EXTRA_INCLUDE_DIRS)
+
+# Optional extra libraries
+# -------------------------
+#set(EXTRA_LINK_LIBRARIES)
+
+# Optional force binding Linking flag
+# ------------------------------------
+# set(BINDINGS_LINK_FLAG LinkOptions )
+
+# Optional force package prefix generation, like widget
+# -----------------------------------------------------
+# set(PKG_PREFIX DestinationPath)
+
+# Optional Application Framework security token
+# and port use for remote debugging.
+#------------------------------------------------------------
+set(AFB_TOKEN   ""     CACHE PATH "Default binder security token")
+set(AFB_REMPORT "1234" CACHE PATH "Default binder listening port")
 
 # Print a helper message when every thing is finished
 # ----------------------------------------------------
@@ -102,62 +201,21 @@ endif()
 if(EXISTS ${CMAKE_SOURCE_DIR}/../afb-controller/build/afb-source/afb-control-afb.so)
 set(CTL_BUILD_PATH "--binding=../../afb-controller/build/afb-source/afb-control-afb.so")
 endif()
-
 set(CLOSING_MESSAGE "Debug from afb-daemon --port=1234 ${MONITORING_ALIAS} --ldpaths=. ${CTL_BUILD_PATH} --workdir=. --roothttp=../htdocs --tracereq=common --token= --verbose ")
 set(PACKAGE_MESSAGE "Install widget file using in the target : afm-util install ${PROJECT_NAME}.wgt")
 
-# Optional location for config.xml.in
-# -----------------------------------
-#set(WIDGET_ICON conf.d/wgt/${PROJECT_ICON} CACHE PATH "Path to the widget icon")
-#set(WIDGET_CONFIG_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/conf.d/wgt/config.xml.in CACHE PATH "Path to widget config file template (config.xml.in)")
+# When Present LUA is used by the controller
+# ---------------------------------------------------------------
+set(CONTROL_SUPPORT_LUA 1 CACHE BOOL "Active or not LUA Support")
 
-# Optional dependencies order
-# ---------------------------
-#set(EXTRA_DEPENDENCIES_ORDER)
-
-# Optional Extra global include path
-# -----------------------------------
-# set(EXTRA_INCLUDE_DIRS)
-
-# Optional extra libraries
-# -------------------------
-# set(EXTRA_LINK_LIBRARIES)
-
-# Optional force binding installation
-# ------------------------------------
-# set(BINDINGS_INSTALL_PREFIX PrefixPath )
-
-# Optional force widget prefix generation
-# ------------------------------------------------
-# set(WIDGET_PREFIX DestinationPath)
-
-# Optional Widget entry point file.
-# ---------------------------------------------------------
-# This is the file that will be executed, loaded,...
-# at launch time by the application framework
-
-# set(WIDGET_ENTRY_POINT EntryPoint_Path)
-
-# Optional Widget Mimetype specification
-# --------------------------------------------------
-# Choose between :
-# - application/x-executable
-# - application/vnd.agl.url
-# - application/vnd.agl.service
-# - application/vnd.agl.native
-# - text/vnd.qt.qml
-# - application/vnd.agl.qml
-# - application/vnd.agl.qml.hybrid
-# - application/vnd.agl.html.hybrid
-#
-set(WIDGET_TYPE application/vnd.agl.service)
-
-# Optional force binding Linking flag
-# ------------------------------------
-# set(BINDINGS_LINK_FLAG LinkOptions )
+# Optional schema validator about now only XML, LUA and JSON
+# are supported
+#------------------------------------------------------------
+#set(LUA_CHECKER "luac" "-p" CACHE STRING "LUA compiler")
+#set(XML_CHECKER "xmllint" CACHE STRING "XML linter")
+#set(JSON_CHECKER "json_verify" CACHE STRING "JSON linter")
 
 # This include is mandatory and MUST happens at the end
 # of this file, else you expose you to unexpected behavior
 # -----------------------------------------------------------
-
 include(${PROJECT_APP_TEMPLATES_DIR}/cmake/common.cmake)
